@@ -1,0 +1,33 @@
+#IntelliJ IDEA
+.idea
+*.iml
+
+#Vim
+*.swp
+*.swo
+
+#codeKit
+**/config.codekit
+*.codekit
+
+#Maven
+target/
+
+#Netbeans
+nb-configuration.xml
+nbactions.xml
+
+#NodeJS
+*/node
+*/node_modules
+
+#Generated files
+**/generated
+
+#Test results
+/tests
+
+.vscode/
+
+**/coverage.out
+
