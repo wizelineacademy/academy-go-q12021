@@ -25,14 +25,27 @@ type rickAndMortyApi struct {
 }
 
 type RickAndMortyApiRepository interface {
-	GetCharacters() (interface{}, error)
+	GetCharacters() ([]model.Character, error)
+	FetchData() ([]model.Character, error)
 }
 
 func NewRickAndMortyApiRepository() RickAndMortyApiRepository {
 	return &rickAndMortyApi{}
 }
 
-func (api *rickAndMortyApi) GetCharacters() (interface{}, error) {
+func (api *rickAndMortyApi) FetchData() ([]model.Character, error) {
+	var err error
+	// fetching characters
+	var characters []model.Character
+	characters, err = api.GetCharacters()
+	if err != nil {
+		return nil, errors.New("error fetching characters")
+	}
+
+	return characters, nil
+}
+
+func (api *rickAndMortyApi) GetCharacters() ([]model.Character, error) {
 	var characters []model.Character
 
 	resp, err := processRequest(apiCharacters)

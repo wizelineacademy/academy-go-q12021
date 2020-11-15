@@ -28,7 +28,7 @@ func (ac *appController) FetchData(c *gin.Context) {
 	var response interface{}
 	response = nil
 
-	res, err := ac.service.FetchCharacters()
+	res, err := ac.service.FetchData()
 	if err == nil {
 		response = res
 	}

@@ -1,12 +1,13 @@
 package services
 
 import (
+	"golang-bootcamp-2020/domain/model"
 	"golang-bootcamp-2020/repository/db"
 	"golang-bootcamp-2020/repository/rest"
 )
 
 type Service interface {
-	FetchCharacters() (interface{}, error)
+	FetchData() ([]model.Character, error)
 }
 
 type service struct {
@@ -21,6 +22,11 @@ func NewService(restRepo rest.RickAndMortyApiRepository, dbRepo db.DataBaseRepos
 	}
 }
 
-func (s *service) FetchCharacters() (interface{}, error) {
-	return s.restRepo.GetCharacters()
+func (s *service) FetchData() ([]model.Character, error) {
+	//TODO: hanle this error correctly
+	ch, err := s.restRepo.FetchData()
+
+	s.dbRepo.CreateCharactersCSV(ch)
+
+	return ch, err
 }

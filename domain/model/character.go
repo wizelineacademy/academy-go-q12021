@@ -7,8 +7,13 @@ type Character struct {
 	Species  string   `json:"species"`
 	Type     string   `json:"type"`
 	Gender   string   `json:"gender"`
-	Origin   Location `json:"origin"`
-	Location Location `json:"location"`
+	Origin   nested   `json:"origin"`
+	Location nested   `json:"location"`
 	Image    string   `json:"image"`
 	Episodes []string `json:"episode"`
+}
+
+type nested struct {
+	Name string `json:"name"`
+	Url  string `json:"url"`
 }
