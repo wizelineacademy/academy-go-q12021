@@ -21,7 +21,7 @@ func NewDbRepository() DataBaseRepository {
 }
 
 func (db *dbRepository) CreateCharactersCSV(characters []model.Character) error {
-	file, err := os.Create("./characters.csv")
+	file, err := os.Create("./resources/characters.csv")
 	// TODO: handle this error
 	defer file.Close()
 
