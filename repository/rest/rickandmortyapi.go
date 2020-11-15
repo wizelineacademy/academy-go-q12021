@@ -42,19 +42,31 @@ func (api *rickAndMortyApi) GetCharacters() (interface{}, error) {
 	return resp, nil
 }
 
-func processRequest(url string) (interface{}, error) {
-	client := resty.New()
+func processRequest(url string) ([]interface{}, error) {
 
-	resp, err := client.R().Get(url)
-	if err != nil || !resp.IsSuccess() {
-		return nil, errors.New("error in rest response")
+	var response []interface{}
+	endpoint := url
+
+	for {
+		client := resty.New()
+
+		resp, err := client.R().Get(endpoint)
+		if err != nil || !resp.IsSuccess() {
+			return nil, errors.New("error in rest response")
+		}
+
+		parsed, nextEndpoint := parseResponse(resp.String())
+		response = append(response, parsed...)
+		if nextEndpoint == "" {
+			break
+		} else {
+			endpoint = nextEndpoint
+		}
 	}
-
-	parsed := parseResponse(resp.String())
-	return parsed, nil
+	return response, nil
 }
 
-func parseResponse(response string) interface{} {
+func parseResponse(response string) ([]interface{}, string) {
 
 	res := &restResponse{}
 	var characters []model.Character
@@ -62,5 +74,11 @@ func parseResponse(response string) interface{} {
 
 	jsonResults, _ := json.Marshal(res.Results)
 	json.Unmarshal(jsonResults, &characters)
-	return characters
+
+	b := make([]interface{}, len(characters))
+	for i := range characters {
+		b[i] = characters[i]
+	}
+
+	return b, res.Info.Next
 }
