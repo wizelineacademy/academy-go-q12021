@@ -1,13 +1,9 @@
 package main
 
 import (
-	"golang-bootcamp-2020/controllers"
-	"golang-bootcamp-2020/infrastructure/router"
+	"golang-bootcamp-2020/app"
 )
 
 func main() {
-
-	if err := router.StartRouter(controllers.NewAppController()); err != nil {
-		panic(err)
-	}
+	app.StartApp()
 }

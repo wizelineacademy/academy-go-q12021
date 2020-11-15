@@ -3,9 +3,9 @@ package db
 type dbRepository struct {
 }
 
-type DbRepository interface {
+type DataBaseRepository interface {
 }
 
-func NewRepository() DbRepository {
+func NewDbRepository() DataBaseRepository {
 	return &dbRepository{}
 }

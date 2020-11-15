@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"github.com/gin-gonic/gin"
+	"golang-bootcamp-2020/services"
 	"net/http"
 )
 
@@ -10,10 +11,12 @@ type AppController interface {
 	GetHealth(c *gin.Context)
 }
 
-type appController struct{}
+type appController struct {
+	service services.Service
+}
 
-func NewAppController() AppController {
-	return &appController{}
+func NewAppController(service services.Service) AppController {
+	return &appController{service}
 }
 
 func (h *appController) GetHealth(c *gin.Context) {
