@@ -3,6 +3,7 @@ package rest
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"github.com/go-resty/resty/v2"
 	"golang-bootcamp-2020/domain/model"
 )
@@ -11,6 +12,7 @@ const (
 	apiCharacters = "https://rickandmortyapi.com/api/character/"
 	//API_LOCATIONS  = "https://rickandmortyapi.com/api/location/"
 	//API_EPISODES   = "https://rickandmortyapi.com/api/episode/"
+	maxPages = 2
 )
 
 type restResponse struct {
@@ -46,6 +48,7 @@ func processRequest(url string) ([]interface{}, error) {
 
 	var response []interface{}
 	endpoint := url
+	count := 1
 
 	for {
 		client := resty.New()
@@ -57,12 +60,14 @@ func processRequest(url string) ([]interface{}, error) {
 
 		parsed, nextEndpoint := parseResponse(resp.String())
 		response = append(response, parsed...)
-		if nextEndpoint == "" {
+		if nextEndpoint == "" || count > maxPages {
 			break
 		} else {
 			endpoint = nextEndpoint
+			count++
 		}
 	}
+	fmt.Println(cap(response))
 	return response, nil
 }
 
