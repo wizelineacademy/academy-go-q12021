@@ -6,6 +6,7 @@ import (
 )
 
 type Service interface {
+	FetchCharacters() (interface{}, error)
 }
 
 type service struct {
@@ -18,4 +19,8 @@ func NewService(restRepo rest.RickAndMortyApiRepository, dbRepo db.DataBaseRepos
 		restRepo: restRepo,
 		dbRepo:   dbRepo,
 	}
+}
+
+func (s *service) FetchCharacters() (interface{}, error) {
+	return s.restRepo.GetCharacters()
 }

@@ -19,10 +19,19 @@ func NewAppController(service services.Service) AppController {
 	return &appController{service}
 }
 
-func (h *appController) GetHealth(c *gin.Context) {
+func (ac *appController) GetHealth(c *gin.Context) {
 	c.String(http.StatusOK, "ok")
 }
 
-func (h *appController) FetchData(c *gin.Context) {
-	c.String(http.StatusOK, "fetching data...")
+func (ac *appController) FetchData(c *gin.Context) {
+
+	var response interface{}
+	response = nil
+
+	res, err := ac.service.FetchCharacters()
+	if err == nil {
+		response = res
+	}
+
+	c.JSON(http.StatusOK, response)
 }
