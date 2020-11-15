@@ -3,16 +3,13 @@ package rest
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"github.com/go-resty/resty/v2"
 	"golang-bootcamp-2020/domain/model"
 )
 
 const (
 	apiCharacters = "https://rickandmortyapi.com/api/character/"
-	//API_LOCATIONS  = "https://rickandmortyapi.com/api/location/"
-	//API_EPISODES   = "https://rickandmortyapi.com/api/episode/"
-	maxPages = 2
+	maxPages      = 2
 )
 
 type restResponse struct {
@@ -36,17 +33,26 @@ func NewRickAndMortyApiRepository() RickAndMortyApiRepository {
 }
 
 func (api *rickAndMortyApi) GetCharacters() (interface{}, error) {
+	var characters []model.Character
+
 	resp, err := processRequest(apiCharacters)
+
 	if err != nil {
 		return nil, err
 	}
 
-	return resp, nil
+	for i := range resp {
+		var ch []model.Character
+		json.Unmarshal(resp[i], &ch)
+		characters = append(characters, ch...)
+	}
+
+	return characters, nil
 }
 
-func processRequest(url string) ([]interface{}, error) {
+func processRequest(url string) ([][]byte, error) {
 
-	var response []interface{}
+	var response [][]byte
 	endpoint := url
 	count := 1
 
@@ -58,32 +64,19 @@ func processRequest(url string) ([]interface{}, error) {
 			return nil, errors.New("error in rest response")
 		}
 
-		parsed, nextEndpoint := parseResponse(resp.String())
-		response = append(response, parsed...)
-		if nextEndpoint == "" || count > maxPages {
+		restR := &restResponse{}
+		json.Unmarshal([]byte(resp.String()), restR)
+		jsonResult, _ := json.Marshal(restR.Results)
+
+		response = append(response, jsonResult)
+
+		if restR.Info.Next == "" || count >= maxPages {
 			break
 		} else {
-			endpoint = nextEndpoint
+			endpoint = restR.Info.Next
 			count++
 		}
 	}
-	fmt.Println(cap(response))
+
 	return response, nil
-}
-
-func parseResponse(response string) ([]interface{}, string) {
-
-	res := &restResponse{}
-	var characters []model.Character
-	json.Unmarshal([]byte(response), res)
-
-	jsonResults, _ := json.Marshal(res.Results)
-	json.Unmarshal(jsonResults, &characters)
-
-	b := make([]interface{}, len(characters))
-	for i := range characters {
-		b[i] = characters[i]
-	}
-
-	return b, res.Info.Next
 }
