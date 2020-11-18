@@ -5,6 +5,7 @@ import (
 	"log"
 
 	"github.com/adantop/golang-bootcamp-2020/db"
+	"github.com/adantop/golang-bootcamp-2020/fs"
 	"github.com/adantop/golang-bootcamp-2020/pokemon"
 	"github.com/docopt/docopt-go"
 )
@@ -13,6 +14,7 @@ func main() {
 	usage := `Pokemon Inventory
 
 Usage:
+  pokedex csv <csvfile> <PokemonName>
   pokedex sqlite3 <dbfile> <PokemonName>
   pokedex postgres <PokemonName>
   pokedex -h | --help
@@ -25,6 +27,10 @@ Options:
 	var ds *pokemon.DataSource
 
 	switch {
+	case args["csv"]:
+		ds = &fs.DS
+		csvfile, _ := args.String("<csvfile>")
+		fs.UseCSV(csvfile)
 	case args["postgres"]:
 		ds = &db.DS
 		db.UsePostgreSQL()
