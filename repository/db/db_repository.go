@@ -18,18 +18,18 @@ var (
 )
 
 const (
-	ID = iota
-	NAME
-	STATUS
-	SPECIES
-	TYPE
-	GENDER
-	ORIGIN_NAME
-	ORIGIN_URL
-	LOCATION_NAME
-	LOCATION_URL
-	IMAGE
-	EPISODES
+	chId = iota
+	chName
+	chStatus
+	chSpecies
+	chType
+	chGender
+	chOriginName
+	chOriginUrl
+	chLocationName
+	chLocationUrl
+	chImage
+	chEpisodes
 )
 
 type dbRepository struct {
@@ -122,7 +122,7 @@ func parseCharacter(record []string) {
 
 	for pos, value := range record {
 		switch pos {
-		case ID:
+		case chId:
 			var err error
 			id = value
 			ch.Id, err = strconv.Atoi(value)
@@ -130,27 +130,27 @@ func parseCharacter(record []string) {
 			if err != nil {
 				panic(err)
 			}
-		case NAME:
+		case chName:
 			ch.Name = value
-		case STATUS:
+		case chStatus:
 			ch.Status = value
-		case SPECIES:
+		case chSpecies:
 			ch.Species = value
-		case TYPE:
+		case chType:
 			ch.Type = value
-		case GENDER:
+		case chGender:
 			ch.Gender = value
-		case ORIGIN_NAME:
+		case chOriginName:
 			ch.Origin.Name = value
-		case ORIGIN_URL:
+		case chOriginUrl:
 			ch.Origin.Url = value
-		case LOCATION_NAME:
+		case chLocationName:
 			ch.Location.Name = value
-		case LOCATION_URL:
+		case chLocationUrl:
 			ch.Location.Url = value
-		case IMAGE:
+		case chImage:
 			ch.Image = value
-		case EPISODES:
+		case chEpisodes:
 			episodes := strings.Split(value, "+")
 			ch.Episodes = episodes
 		}
