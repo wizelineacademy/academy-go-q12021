@@ -11,6 +11,7 @@ type AppController interface {
 	GetHealth(c *gin.Context)
 	GetCharacter(c *gin.Context)
 	GetCharacters(c *gin.Context)
+	GetCharacterIdByName(c *gin.Context)
 }
 
 type appController struct {
@@ -64,4 +65,20 @@ func (ac *appController) GetCharacters(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, characters)
+}
+
+func (ac *appController) GetCharacterIdByName(c *gin.Context) {
+
+	name := c.Query("name")
+	if name == "" {
+		c.JSON(http.StatusBadRequest, "name is required")
+	}
+
+	character, err := ac.service.GetCharacterIdByName(name)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	c.JSON(http.StatusOK, character)
 }

@@ -17,6 +17,7 @@ func StartRouter(c controllers.AppController) error {
 
 	router.GET("api/character", c.GetCharacter)
 	router.GET("api/characters", c.GetCharacters)
+	router.GET("api/id", c.GetCharacterIdByName)
 
 	return router.Run(":8081")
 }

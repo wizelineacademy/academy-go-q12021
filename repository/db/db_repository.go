@@ -39,6 +39,7 @@ type DataBaseRepository interface {
 	CreateCharactersCSV(characters []model.Character) error
 	GetCharacterFromId(id string) (*model.Character, error)
 	GetCharacters() ([]model.Character, error)
+	GetCharacterIdByName(name string) (int, error)
 }
 
 func Init() {
@@ -112,6 +113,21 @@ func (db *dbRepository) GetCharacters() ([]model.Character, error) {
 	}
 
 	return characters, nil
+}
+
+func (db *dbRepository) GetCharacterIdByName(name string) (int, error) {
+	if !isCsvFetched {
+		return 0, errors.New("db empty, fetch is needed")
+	}
+
+	for _, ch := range charactersMap {
+		if strings.TrimSpace(strings.ToLower(ch.Name)) == strings.TrimSpace(strings.ToLower(name)) {
+			return ch.Id, nil
+		}
+	}
+
+	return 0, errors.New(fmt.Sprintf("character with name %s not found", name))
+
 }
 
 func readCharactersFromCSV() bool {
