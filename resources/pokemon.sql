@@ -1,18 +1,18 @@
 CREATE TABLE pokemon (
-    [number] INTEGER PRIMARY KEY NOT NULL,
-    [name] NVARCHAR(60) NOT NULL,
-    [type1] NVARCHAR(20) NOT NULL,
-    [type2] NVARCHAR(60),
-    [height_m] REAL,
-    [weight_kg] REAL,
-    [male] REAL,
-    [female] REAL,
-    [capt_rate] REAL,
-    [hp] INTEGER,
-    [attack] INTEGER,
-    [defense] INTEGER,
-    [special] INTEGER,
-    [speed] INTEGER
+    number INTEGER PRIMARY KEY NOT NULL,
+    name VARCHAR(60) NOT NULL,
+    type1 VARCHAR(20) NOT NULL,
+    type2 VARCHAR(60),
+    height_m REAL,
+    weight_kg REAL,
+    male REAL,
+    female REAL,
+    capt_rate REAL,
+    hp INTEGER,
+    attack INTEGER,
+    defense INTEGER,
+    special INTEGER,
+    speed INTEGER
 );
 INSERT INTO pokemon VALUES (1,'Bulbasaur','grass','poison',0.7,6.9,87.5,12.5,45,45,49,49,65,45);
 INSERT INTO pokemon VALUES (2,'Ivysaur','grass','poison',1,13,87.5,12.5,45,60,62,63,80,60);
