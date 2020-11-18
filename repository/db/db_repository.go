@@ -39,7 +39,7 @@ type DataBaseRepository interface {
 	CreateCharactersCSV(characters []model.Character) error
 	GetCharacterFromId(id string) (*model.Character, error)
 	GetCharacters() ([]model.Character, error)
-	GetCharacterIdByName(name string) (int, error)
+	GetCharacterIdByName(name string) (string, error)
 }
 
 func Init() {
@@ -115,18 +115,32 @@ func (db *dbRepository) GetCharacters() ([]model.Character, error) {
 	return characters, nil
 }
 
-func (db *dbRepository) GetCharacterIdByName(name string) (int, error) {
+func (db *dbRepository) GetCharacterIdByName(name string) (string, error) {
 	if !isCsvFetched {
-		return 0, errors.New("db empty, fetch is needed")
+		return "", errors.New("db empty, fetch is needed")
 	}
 
-	for _, ch := range charactersMap {
-		if strings.TrimSpace(strings.ToLower(ch.Name)) == strings.TrimSpace(strings.ToLower(name)) {
-			return ch.Id, nil
+	file, err := os.Open("./resources/map.csv")
+	if err != nil {
+		return "", errors.New("db empty, fetch is needed")
+	}
+
+	r := csv.NewReader(file)
+	for {
+		record, err := r.Read()
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		if strings.TrimSpace(strings.ToLower(record[1])) == strings.TrimSpace(strings.ToLower(name)) {
+			return record[0], nil
 		}
 	}
 
-	return 0, errors.New(fmt.Sprintf("character with name %s not found", name))
+	return "", errors.New(fmt.Sprintf("character with name %s not found", name))
 
 }
 
@@ -143,7 +157,6 @@ func readCharactersFromCSV() bool {
 
 	r := csv.NewReader(file)
 	for {
-		// Read each record from csv
 		record, err := r.Read()
 		if err == io.EOF {
 			break
@@ -153,6 +166,12 @@ func readCharactersFromCSV() bool {
 		}
 
 		parseCharacter(record)
+	}
+
+	err = createMapTable()
+	if err != nil {
+		isCsvFetched = false
+		return false
 	}
 
 	isCsvFetched = true
@@ -201,4 +220,26 @@ func parseCharacter(record []string) {
 	}
 
 	charactersMap[id] = ch
+}
+
+func createMapTable() error {
+	file, err := os.Create("./resources/map.csv")
+	// TODO: handle this error
+	defer file.Close()
+
+	if err != nil {
+		return errors.New("error writing file")
+	}
+	writer := csv.NewWriter(file)
+	defer writer.Flush()
+
+	for _, ch := range charactersMap {
+		var row []string
+		row = append(row, strconv.Itoa(ch.Id))
+		row = append(row, ch.Name)
+
+		//TODO: handle error
+		writer.Write(row)
+	}
+	return nil
 }
