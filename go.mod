@@ -2,4 +2,7 @@ module github.com/alexis-aguirre/golang-bootcamp-2020
 
 go 1.15
 
-require github.com/gorilla/mux v1.8.0 // indirect
+require (
+	github.com/fallentemplar/goenv v1.0.1 
+	github.com/gorilla/mux v1.8.0
+)
