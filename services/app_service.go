@@ -9,6 +9,7 @@ import (
 type Service interface {
 	FetchData() ([]model.Character, error)
 	GetCharacterById(id string) (*model.Character, error)
+	GetAllCharacters() ([]model.Character, error)
 }
 
 type service struct {
@@ -34,4 +35,8 @@ func (s *service) FetchData() ([]model.Character, error) {
 
 func (s *service) GetCharacterById(id string) (*model.Character, error) {
 	return s.dbRepo.GetCharacterFromId(id)
+}
+
+func (s *service) GetAllCharacters() ([]model.Character, error) {
+	return s.dbRepo.GetCharacters()
 }

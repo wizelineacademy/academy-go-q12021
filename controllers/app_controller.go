@@ -10,6 +10,7 @@ type AppController interface {
 	FetchData(c *gin.Context)
 	GetHealth(c *gin.Context)
 	GetCharacter(c *gin.Context)
+	GetCharacters(c *gin.Context)
 }
 
 type appController struct {
@@ -52,4 +53,15 @@ func (ac *appController) GetCharacter(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, ch)
+}
+
+func (ac *appController) GetCharacters(c *gin.Context) {
+
+	characters, err := ac.service.GetAllCharacters()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	c.JSON(http.StatusOK, characters)
 }

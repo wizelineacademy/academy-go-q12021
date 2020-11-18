@@ -38,6 +38,7 @@ type dbRepository struct {
 type DataBaseRepository interface {
 	CreateCharactersCSV(characters []model.Character) error
 	GetCharacterFromId(id string) (*model.Character, error)
+	GetCharacters() ([]model.Character, error)
 }
 
 func Init() {
@@ -98,6 +99,19 @@ func (db *dbRepository) GetCharacterFromId(id string) (*model.Character, error) 
 	}
 
 	return ch, nil
+}
+
+func (db *dbRepository) GetCharacters() ([]model.Character, error) {
+	if !isCsvFetched {
+		return nil, errors.New("db empty, fetch is needed")
+	}
+
+	var characters []model.Character
+	for _, ch := range charactersMap {
+		characters = append(characters, *ch)
+	}
+
+	return characters, nil
 }
 
 func readCharactersFromCSV() bool {
