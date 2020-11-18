@@ -9,7 +9,7 @@ import (
 
 const (
 	apiCharacters = "https://rickandmortyapi.com/api/character/"
-	maxPages      = 2
+	maxPages      = 1
 )
 
 type restResponse struct {
