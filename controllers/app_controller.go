@@ -9,6 +9,7 @@ import (
 type AppController interface {
 	FetchData(c *gin.Context)
 	GetHealth(c *gin.Context)
+	GetCharacter(c *gin.Context)
 }
 
 type appController struct {
@@ -34,4 +35,21 @@ func (ac *appController) FetchData(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, response)
+}
+
+func (ac *appController) GetCharacter(c *gin.Context) {
+
+	characterId := c.Query("id")
+	if characterId == "" {
+		c.JSON(http.StatusBadRequest, "id is required")
+		return
+	}
+
+	ch, err := ac.service.GetCharacterById(characterId)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	c.JSON(http.StatusOK, ch)
 }

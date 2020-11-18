@@ -13,8 +13,8 @@ import (
 )
 
 var (
-	IsCsvFetched  = false
-	CharactersMap map[string]model.Character
+	isCsvFetched  = false
+	charactersMap map[string]*model.Character
 )
 
 const (
@@ -37,10 +37,11 @@ type dbRepository struct {
 
 type DataBaseRepository interface {
 	CreateCharactersCSV(characters []model.Character) error
+	GetCharacterFromId(id string) (*model.Character, error)
 }
 
 func Init() {
-	IsCsvFetched = readCharactersFromCSV()
+	isCsvFetched = readCharactersFromCSV()
 }
 
 func NewDbRepository() DataBaseRepository {
@@ -86,15 +87,27 @@ func (db *dbRepository) CreateCharactersCSV(characters []model.Character) error 
 	return nil
 }
 
+func (db *dbRepository) GetCharacterFromId(id string) (*model.Character, error) {
+	if !isCsvFetched {
+		return nil, errors.New("db empty, fetch is needed")
+	}
+
+	ch, ok := charactersMap[id]
+	if ch == nil || !ok {
+		return nil, errors.New(fmt.Sprintf("character with id %s not found, fetch with more pages to update the db", id))
+	}
+
+	return ch, nil
+}
+
 func readCharactersFromCSV() bool {
 
 	// empty map
-
-	CharactersMap = make(map[string]model.Character)
+	charactersMap = make(map[string]*model.Character)
 
 	file, err := os.Open("./resources/characters.csv")
 	if err != nil {
-		IsCsvFetched = false
+		isCsvFetched = false
 		return false
 	}
 
@@ -112,13 +125,13 @@ func readCharactersFromCSV() bool {
 		parseCharacter(record)
 	}
 
-	IsCsvFetched = true
+	isCsvFetched = true
 	return true
 }
 
 func parseCharacter(record []string) {
 	var id string
-	ch := model.Character{}
+	ch := &model.Character{}
 
 	for pos, value := range record {
 		switch pos {
@@ -157,5 +170,5 @@ func parseCharacter(record []string) {
 
 	}
 
-	CharactersMap[id] = ch
+	charactersMap[id] = ch
 }
