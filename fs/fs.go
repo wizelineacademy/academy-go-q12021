@@ -54,8 +54,8 @@ func (ds *CSV) GetPokemonByName(name string) (p pokemon.Pokemon, err error) {
 		if name == r[1] {
 			p.Number, _ = strconv.Atoi(r[0])
 			p.Name = r[1]
-			p.Type1 = sql.NullString{r[2], r[2] != ""}
-			p.Type2 = sql.NullString{r[3], r[3] != ""}
+			p.Type1 = sql.NullString{String: r[2], Valid: r[2] != ""}
+			p.Type2 = sql.NullString{String: r[3], Valid: r[3] != ""}
 			p.HeightM, _ = strconv.ParseFloat(r[4], 64)
 			p.WeightKg, _ = strconv.ParseFloat(r[5], 64)
 			p.Male, _ = strconv.ParseFloat(r[6], 64)
@@ -66,10 +66,9 @@ func (ds *CSV) GetPokemonByName(name string) (p pokemon.Pokemon, err error) {
 			p.Defense, _ = strconv.Atoi(r[11])
 			p.Special, _ = strconv.Atoi(r[12])
 			p.Speed, _ = strconv.Atoi(r[13])
-			break
+			return
 		}
 	}
-	return
 }
 
 // Close terminates the database connection
