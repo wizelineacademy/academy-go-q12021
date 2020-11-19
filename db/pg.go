@@ -6,8 +6,9 @@ import (
 	"log"
 
 	// Required by database/sql
-	"github.com/adantop/golang-bootcamp-2020/pokemon"
 	_ "github.com/lib/pq"
+
+	"github.com/adantop/golang-bootcamp-2020/pokemon"
 )
 
 // PostgreSQL is a datasource type for pg connection
