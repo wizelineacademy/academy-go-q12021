@@ -1,130 +1,128 @@
-# Golang Bootcamp
+# ZipCode of Mexico Golang for the Bootcamp  
+  
+## Introduction  
+  
+The following project is designed to obtain the postal data of the official post office of Mexico in csv format and then store the information in a database in MongoDB and proceed to consult the colonies referring to a postal code as a result in json  
+  
+## Requirements  
+  
+You need to install MongoDB either with the normal [installer](https://docs.mongodb.com/manual/installation/) or in docker and run it on 
 
-## Introduction
+> port 27017
 
-Thank you for participating in the Golang Bootcamp course!
-Here, you'll find instructions for completing your certification.
+Docker
 
-## The Challenge
+    docker pull mongo
+    
 
-The purpose of the challenge is for you to demonstrate your Golang skills. This is your chance to show off everything you've learned during the course!!
+## Run the code
 
-You will build and deliver a whole Golang project on your own. We don't want to limit you by providing some fill-in-the-blanks exercises, but instead request you to build it from scratch.
-We hope you find this exercise challenging and engaging.
+On the path go to the folder /cmd.
 
-The goal is to build a REST API which must include:
+`cd cmd`
 
-- An endpoint for reading from an external DB or API
-  - Write the information in a CSV file
-- An endpoint for reading the CSV
-  - Display the information as a JSON
-- Unit testing for the principal logic
-- Follow conventions, best practices
-- Clean architecture
+Then run
 
-## Requirements
+    go install
 
-These are the main requirements we will evaluate:
+And finally
 
-- Use all that you've learned in the course:
-  - Best practices
-  - Go basics
-  - HTTP handlers
-  - Error handling
-  - Structs and interfaces
-  - Clean architecture
-  - Unit testing
-  - CSV file fetching
+     go run main.go
 
-## Getting Started
+  
 
-To get started, follow these steps:
+## About the project
 
-1. Fork this project
-1. Make your project private
-1. Grant your mentor access to the project
-1. Commit periodically
-1. Apply changes according to the mentor's comments
-1. Have fun!
+To be able to consult the data, you must first fill the tables, so you must execute a get-type request to the method:
 
-## Deliverables
+    localhost:8080/api/v1/direcciones/populate
 
-We provide the delivery dates so you can plan accordingly; please take this challenge seriously and try to make progress constantly.
+*What happens behind the scenes is that the code makes a request to a government endpoint which returns a csv with all the zip codes, a 15mb file _(145,110 approximate zip codes)_    
+    
+Once you get the response of the inserted ids that will take approximately 15 seconds on complete, you can now check the colonies that belong to a postal code with the method
 
-It’s worth mentioning that you’ll ONLY get feedback from the review team for your first deliverable, so you will have a chance to fix or improve the code based on our suggestions.
+    localhost:8080/api/v1/direcciones/search/:zipCode
 
-For the final deliverable, we will provide some feedback, but there is no extra review date. If you are struggling with something, contact your mentor and peers to get help on time. Feel free to use the slack channel available.
+For example:
 
-## First Deliverable (due November 22th 23:59PM)
+    localhost:8080/api/v1/direcciones/search/97306
 
-Based on the self-study material and mentorship covered until this deliverable, we suggest you perform the following:
+And an example of the previous request would be the following:
 
-- Select architecture
-- Read a CSV or DB
-- Handle Errors for CSV/DB (not valid, missing, incorrect connection)
-- Use best practices
 
-> Note: what’s listed in this deliverable is just for guidance and to help you distribute your workload; you can deliver more or fewer items if necessary. However, if you deliver fewer items at this point, you have to cover the remaining tasks in the next deliverable.
+ 
 
-## Final Deliverable (due December 13th 23:59PM)
+    [
+      {
+        "Id": "56eb060711d84d67ab164e862c5eb0f1",
+        "CodigoPostal": "97306",
+        "Estado": "Yucatán",
+        "EstadoISO": "MX-YUC",
+        "Municipio": "Mérida",
+        "Ciudad": "",
+        "Barrio": "Chichi Suárez"
+      },
+      {
+        "Id": "cd9c02f9983e4667ae3f730615263907",
+        "CodigoPostal": "97306",
+        "Estado": "Yucatán",
+        "EstadoISO": "MX-YUC",
+        "Municipio": "Mérida",
+        "Ciudad": "",
+        "Barrio": "Sitpach"
+      },
+      {
+        "Id": "d24212569c7f42df9cb6b1b0f54f913d",
+        "CodigoPostal": "97306",
+        "Estado": "Yucatán",
+        "EstadoISO": "MX-YUC",
+        "Municipio": "Mérida",
+        "Ciudad": "",
+        "Barrio": "Villas de Oriente"
+      },
+      {
+        "Id": "35467b546c21499e9870c4861fb8257d",
+        "CodigoPostal": "97306",
+        "Estado": "Yucatán",
+        "EstadoISO": "MX-YUC",
+        "Municipio": "Mérida",
+        "Ciudad": "",
+        "Barrio": "Los Héroes"
+      },
+      {
+        "Id": "7e2386368a624f8c88e1ba827865ce7b",
+        "CodigoPostal": "97306",
+        "Estado": "Yucatán",
+        "EstadoISO": "MX-YUC",
+        "Municipio": "Mérida",
+        "Ciudad": "",
+        "Barrio": "Santa María Chí"
+      },
+      {
+        "Id": "eee9a4cc733543d7a6d753b2ce40b5ab",
+        "CodigoPostal": "97306",
+        "Estado": "Yucatán",
+        "EstadoISO": "MX-YUC",
+        "Municipio": "Mérida",
+        "Ciudad": "",
+        "Barrio": "Chichi Díaz"
+      }
+    ]
 
-- Store read CSV/DB in a structure
-- Loop structure and print data
-- Send to own API data read
-- Add unit testing
-- Refactor
+## Unit test
 
-> Important: this is the final deliverable, so all the requirements must be included. We will give you feedback and you will have 3 days more to apply changes. On the third day, we will stop receiving changes at 11:00 am.
+Two unit tests were created that test these two end-point on the path
 
-## Submitting the deliverables
+> /golang-bootcamp-2020/pkg/util/zipcodes_test.go
 
-For submitting your work, you should follow these steps:
+First run the unit test 
 
-1. Create a pull request with your code, targeting the master branch of the repository golang-bootcamp-2020.
-2. Fill this [form](https://forms.gle/ogQtHBk6DtZ5yKUM9) including the PR’s url
-3. Stay tune for feedback
-4. Do the changes according to your mentor's comments
+> Test_getCSVCodes()
 
-## Documentation
+And then 
 
-### Must to learn
+> Test_searchZipCodes()
 
-- [Go Tour](https://tour.golang.org/welcome/1)
-- [Go basics](https://www.youtube.com/watch?v=C8LgvuEBraI)
-- [Git](https://www.youtube.com/watch?v=USjZcfj8yxE)
-- [Tool to practice Git online](https://learngitbranching.js.org/)
-- [Effective Go](https://golang.org/doc/effective_go.html)
-- [How to write code](https://golang.org/doc/code.html)
-- [Go by example](https://gobyexample.com/)
-- [Go cheatsheet](http://cht.sh/go/:learn)
-- [Any talk by Rob Pike](https://www.youtube.com/results?search_query=rob+pike)
-- [The Go Playground](https://play.golang.org/)
+Another unit test was created to test the correct flushing of the zipcodes table, run it if you want
 
-### Self-Study Material
-
-- [Golang Docs](https://golang.org/doc/)
-- [Constants](https://www.youtube.com/watch?v=lHJ33KvdyN4)
-- [Variables](https://www.youtube.com/watch?v=sZoRSbokUE8)
-- [Types](https://www.youtube.com/watch?v=pM0-CMysa_M)
-- [Functions](https://www.youtube.com/watch?v=feU9DQNoKGE)
-- [Error Handling](https://www.youtube.com/watch?v=26ahsUf4sF8)
-- [Modules](https://www.youtube.com/watch?v=Z1VhG7cf83M)
-  - [Part 1 and 2](https://blog.golang.org/using-go-modules)
-- [Go tools](https://dominik.honnef.co/posts/2014/12/an_incomplete_list_of_go_tools/)
-- [More Go tools](https://dev.to/plutov/go-tools-are-awesome-bom)
-- [Clean Architecture](https://medium.com/@manakuro/clean-architecture-with-go-bce409427d31)
-- [For Loops](https://www.youtube.com/watch?v=0A5fReZUdRk)
-- [Arrays and Slices](https://www.youtube.com/watch?v=d_J9jeIUWmI)
-- [Conditional statements: If](https://www.youtube.com/watch?v=QgBYnz6I7p4)
-- [Multiple options conditional: Switch](https://www.youtube.com/watch?v=hx9iHend6jM)
-- [Maps](https://www.youtube.com/watch?v=p4LS3UdgJA4)
-- [Structures](https://www.youtube.com/watch?v=w7LzQyvriog)
-- [Structs and Functions](https://www.youtube.com/watch?v=RUQADmZdG74)
-- [Pointers](https://tour.golang.org/moretypes/1)
-- [Interfaces](https://tour.golang.org/methods/9)
-- [Interfaces](https://gobyexample.com/interfaces)
-- [Methods](https://www.youtube.com/watch?v=nYWa5ECYsTQ)
-- [Failed requests handling](http://www.metabates.com/2015/10/15/handling-http-request-errors-in-go/)
-- [Packages](https://www.youtube.com/watch?v=sf7f4QGkwfE)
-- [Unit testing](https://golang.org/pkg/testing/)
-- [Functions as values](https://tour.golang.org/moretypes/24)
+> Test_dropZipCodes()
