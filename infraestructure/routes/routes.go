@@ -1,11 +1,13 @@
-package router
+package routes
 
 import (
 	"net/http"
 
+	"github.com/alexis-aguirre/golang-bootcamp-2020/infraestructure/middleware"
 	"github.com/gorilla/mux"
 )
 
+//RoutePrefix maps a subroute of the system. Eg: /users/...
 type RoutePrefix struct {
 	Prefix string
 	Routes []Route
@@ -30,6 +32,11 @@ func AddRoutes(router *mux.Router) {
 		subrouter := router.PathPrefix(route.Prefix).Subrouter()
 
 		for _, subroute := range route.Routes {
+
+			if subroute.IsProtected {
+				subroute.Handler = middleware.ValidateToken(subroute.Handler)
+			}
+
 			subrouter.
 				Path(subroute.Path).
 				Handler(subroute.Handler).
@@ -41,4 +48,5 @@ func AddRoutes(router *mux.Router) {
 
 func init() {
 	AppRoutes = append(AppRoutes, userRoutes)
+	AppRoutes = append(AppRoutes, songRoutes)
 }

@@ -1,19 +1,30 @@
 package routes
 
-import (
-	"github.com/alexis-aguirre/golang-bootcamp-2020/infraestructure/handlers/users"
-	"github.com/alexis-aguirre/golang-bootcamp-2020/interface/controllers"
-)
+import "github.com/alexis-aguirre/golang-bootcamp-2020/infraestructure/handlers"
 
 var songRoutes RoutePrefix = RoutePrefix{
 	Prefix: "/songs",
 	Routes: []Route{
 		{
-			Name:        "Get Song",
+			Name:        "Find",
 			Path:        "/",
 			Method:      "GET",
 			IsProtected: true,
-			Handler:     controllers.GetSong
+			Handler:     handlers.GetSong,
+		},
+		{
+			Name:        "Find",
+			Path:        "/artist/",
+			Method:      "GET",
+			IsProtected: true,
+			Handler:     handlers.GetSong,
+		},
+		{
+			Name:        "Find",
+			Path:        "/lyric",
+			Method:      "GET",
+			IsProtected: true,
+			Handler:     handlers.GetSong,
 		},
 	},
 }
