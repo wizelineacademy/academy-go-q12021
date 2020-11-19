@@ -6,7 +6,7 @@ Find out your First Gen Pokemon details, search it by the name
 
 Refer to `db/README.md` to find out how to initialize database
 
-```
+```sh
 Pokedex
 
 Usage:
