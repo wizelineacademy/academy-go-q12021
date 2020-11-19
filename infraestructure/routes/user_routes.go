@@ -11,5 +11,12 @@ var userRoutes RoutePrefix = RoutePrefix{
 			IsProtected: false,
 			Handler:     users.GetUsers,
 		},
+		{
+			Name:        "Create User",
+			Path:        "/",
+			Method:      "POST",
+			IsProtected: false,
+			Handler:     users.GetUsers,
+		},
 	},
 }
