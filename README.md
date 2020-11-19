@@ -1,9 +1,23 @@
-# Golang Bootcamp
+# First Gen Pokedex
 
-## Introduction
+Find out your First Gen Pokemon details, search it by the name
 
-Thank you for participating in the Golang Bootcamp course!
-Here, you'll find instructions for completing your certification.
+## Usage
+
+Refer to `db/README.md` to find out how to initialize database
+
+```
+Pokedex
+
+Usage:
+  go run . csv <csvfile> <PokemonName>
+  go run . sqlite3 <dbfile> <PokemonName>
+  go run . postgres <PokemonName>
+  go run . -h | --help
+
+Options:
+  -h --help     Show this screen.
+```
 
 ## The Challenge
 
