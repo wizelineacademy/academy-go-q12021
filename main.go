@@ -11,7 +11,7 @@ import (
 )
 
 func main() {
-	usage := `Pokemon Inventory
+	usage := `Pokedex
 
 Usage:
   pokedex csv <csvfile> <PokemonName>

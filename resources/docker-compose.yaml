@@ -1,0 +1,29 @@
+version: "3.8"
+services:
+  postgres:
+    image: postgres
+    restart: always
+    hostname: postgres
+    environment:
+      PPOSTGRES_PASSWORD: passwd
+      POSTGRES_HOST_AUTH_METHOD: trust
+      PGDATA: /var/lib/postgresql/data
+    volumes:
+      - /var/lib/postgresql/data
+    ports:
+      - 5432:5432
+  
+  pgadmin:
+    image: dpage/pgadmin4
+    restart: alwaydddiis
+    hostname: pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: email@domain.com
+      PGADMIN_DEFAULT_PASSWORD: passwd
+    volumes:
+      - /var/lib/pgadmin
+      - /pgadmin4
+    ports:
+      - 5000:80
+    links:
+      - postgres
