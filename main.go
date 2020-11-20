@@ -3,6 +3,8 @@ package main
 import (
 	"log"
 	"net/http"
+	"os"
+	"path"
 	"time"
 
 	"github.com/alexis-aguirre/golang-bootcamp-2020/config"
@@ -36,6 +38,13 @@ func startRegistries() {
 
 	db := datastore.InitializeDB()
 	registry.RegisterService(db)
+
+	currentDir, err := os.Getwd()
+	if err != nil {
+		log.Fatal("Cannot get current directory")
+	}
+	logger := datastore.InitializeLogger(path.Join(currentDir, "logfile.txt"))
+	registry.RegisterService(logger)
 
 	registry.StartAll()
 }

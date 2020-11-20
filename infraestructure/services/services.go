@@ -23,11 +23,16 @@ func NewServiceRegistry() *ServiceRegistry {
 	return ServicesRegistry
 }
 
+const (
+	STATUSOK     = iota
+	STATUSSTOPED = iota
+)
+
 //Service is the interface that an object needs to implement to be considered as a service
 type Service interface {
 	Start() error
 	Stop() error
-	Status() error
+	Status() int
 }
 
 //RegisterService registers a new service in the  ServiceRegistry

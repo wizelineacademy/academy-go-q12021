@@ -5,10 +5,11 @@ import (
 )
 
 type MySQL struct { //Implements Service, Database
-	db int //TODO: Implement MySQL DB
+	db     int //TODO: Implement MySQL DB
+	status int
 }
 
-var users = []*model.User{
+var users = []*model.User{ //TODO: Remove this when connected to real DB
 	{ID: "1",
 		Password: "dpaoidjkpaosijda",
 	},
@@ -30,8 +31,8 @@ func (mysql *MySQL) Stop() error {
 	return nil
 }
 
-func (mysql *MySQL) Status() error {
-	return nil
+func (mysql *MySQL) Status() int {
+	return mysql.status
 }
 
 func (mysql *MySQL) Get(*model.User) (*model.User, error) {

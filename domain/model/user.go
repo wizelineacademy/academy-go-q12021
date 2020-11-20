@@ -7,6 +7,7 @@ type User struct {
 	Name      string
 	Password  string
 	CreatedAt time.Time
+	IsAdmin   bool
 }
 
 func (user *User) HashPassword() {
