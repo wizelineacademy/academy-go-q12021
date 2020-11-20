@@ -17,6 +17,8 @@ const apiURL = "https://api.happi.dev/v1/music"
 type happiService struct {
 	c chan model.Song
 }
+
+//HappiLyricResponse maps the response from the HAPPI API
 type HappiLyricResponse struct {
 	Success bool        `json:"success"`
 	Length  int         `json:"length"`
@@ -42,12 +44,14 @@ type lyricResult struct {
 	CopyrightString string `json:"copyright_text"`
 }
 
+//HappiService is the interface for the HappiService
 type HappiService interface {
 	SearchSongLyrics(artistID, albumID, trackID int) (*model.Song, error)
 	SearchSongsByArtist(artistID string) ([]*model.Song, error)
 	SearchArtist() // "songs/"
 }
 
+//NewHappiService creates a new instance of HappiService
 func NewHappiService() HappiService {
 	c := make(chan model.Song)
 	return &happiService{c}

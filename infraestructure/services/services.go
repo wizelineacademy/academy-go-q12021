@@ -6,11 +6,13 @@ import (
 	"reflect"
 )
 
+//ServiceRegistry is the structure of the ServicesRegistry
 type ServiceRegistry struct {
 	services     map[reflect.Type]Service
 	serviceTypes []reflect.Type
 }
 
+//ServicesRegistry is the global variable for store and fetch services
 var ServicesRegistry *ServiceRegistry
 
 //NewServiceRegistry returns the instance of the ServiceRegistry structure.
@@ -21,12 +23,14 @@ func NewServiceRegistry() *ServiceRegistry {
 	return ServicesRegistry
 }
 
+//Service is the interface that an object needs to implement to be considered as a service
 type Service interface {
 	Start() error
 	Stop() error
 	Status() error
 }
 
+//RegisterService registers a new service in the  ServiceRegistry
 func (s *ServiceRegistry) RegisterService(service Service) error {
 	kind := reflect.TypeOf(service)
 	if _, exists := s.services[kind]; exists {
@@ -37,6 +41,7 @@ func (s *ServiceRegistry) RegisterService(service Service) error {
 	return nil
 }
 
+//StartAll starts all the services contained in the ServiceRegistry
 func (s *ServiceRegistry) StartAll() {
 	log.Printf("Starting %d services: %v\n", len(s.serviceTypes), s.serviceTypes)
 	for _, kind := range s.serviceTypes {
