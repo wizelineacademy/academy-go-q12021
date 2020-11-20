@@ -3,10 +3,12 @@ package model
 import "time"
 
 type Song struct {
-	ID            string    `json:"id"`
+	ID            int       `json:"id"`
 	Name          string    `json:"name"`
-	InterpreterID string    `json:"interpreterId"`
+	InterpreterID int       `json:"interpreterId"`
 	Interpreter   string    `json:"interpreter"`
-	Length        time.Time `json:"length"`
+	AlbumID       int       `json:"albumId"`
+	Album         string    `json:"album"`
+	Length        time.Time `json:"length,omitempty"`
 	Lyric         string    `json:"lyric"`
 }

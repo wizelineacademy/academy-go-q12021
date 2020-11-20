@@ -1,7 +1,7 @@
 package interactor
 
 import (
-	"errors"
+	"log"
 
 	"github.com/alexis-aguirre/golang-bootcamp-2020/domain/model"
 	"github.com/alexis-aguirre/golang-bootcamp-2020/usecase/presenter"
@@ -23,10 +23,11 @@ func NewSongInteractor(r repository.SongRepository, p presenter.SongPresenter) S
 }
 
 func (si *songInteractor) Get(s *model.Song) (*model.Song, error) {
+	log.Println("Here in Song_interactor.Get")
 	s, err := si.SongRepository.Find(s)
 	if err != nil {
-		return nil, errors.New("Cannot find the requested song")
+		return nil, err
 	}
 
-	return si.SongPresenter.ResponseSong(s)
+	return si.SongPresenter.ResponseSong(s), nil
 }

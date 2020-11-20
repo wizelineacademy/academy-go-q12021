@@ -4,6 +4,12 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strconv"
+	"strings"
+
+	"github.com/alexis-aguirre/golang-bootcamp-2020/domain/model"
+	"github.com/alexis-aguirre/golang-bootcamp-2020/registry"
+	"github.com/gorilla/mux"
 )
 
 func GetSong(w http.ResponseWriter, r *http.Request) {
@@ -17,4 +23,35 @@ func GetSong(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	fmt.Println(queryVariable, typeVariable)
+}
+
+func GetSongLyrics(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+
+	artist, err1 := strconv.Atoi(vars["artistId"])
+	album, err2 := strconv.Atoi(vars["albumId"])
+	track, err3 := strconv.Atoi(vars["trackId"])
+
+	if err1 != nil || err2 != nil || err3 != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	songInteractor := registry.NewSongInteractor()
+	song := &model.Song{
+		InterpreterID: artist,
+		AlbumID:       album,
+		ID:            track,
+	}
+	song, err := songInteractor.Get(song)
+	if err != nil {
+		if strings.Contains(err.Error(), "Song not found or contains no lyrics") {
+			writeError(w, r, http.StatusNoContent, "Song not found or it contains no lyrics")
+		} else {
+			writeError(w, r, http.StatusFailedDependency, "Cannot connect to external server")
+		}
+		return
+	}
+	jsonWritter(w, r, http.StatusFound, song)
+
 }

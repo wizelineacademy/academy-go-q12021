@@ -1,6 +1,8 @@
 package repository
 
 import (
+	"log"
+
 	"github.com/alexis-aguirre/golang-bootcamp-2020/domain/model"
 	"github.com/alexis-aguirre/golang-bootcamp-2020/infraestructure/services"
 	"github.com/alexis-aguirre/golang-bootcamp-2020/usecase/repository"
@@ -17,7 +19,11 @@ func NewSongRepository() repository.SongRepository {
 }
 
 func (sr *songRepository) Find(song *model.Song) (*model.Song, error) {
-	sr.db.SearchArtist()
-	// err := ur.db.Find()
-	return nil, nil
+	log.Println("Here in song_repository.Find")
+	song, err := sr.db.SearchSongLyrics(song.InterpreterID, song.AlbumID, song.ID) //TODO: Make this dynamic
+	if err != nil {
+		log.Println(err)
+		return nil, err
+	}
+	return song, nil
 }

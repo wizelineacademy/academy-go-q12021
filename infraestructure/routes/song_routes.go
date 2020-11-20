@@ -14,10 +14,10 @@ var songRoutes RoutePrefix = RoutePrefix{
 		},
 		{
 			Name:        "Find",
-			Path:        "/artist/",
+			Path:        "/artist/{artistId}/album/{albumId}/track/{trackId}",
 			Method:      "GET",
 			IsProtected: true,
-			Handler:     handlers.GetSong,
+			Handler:     handlers.GetSongLyrics,
 		},
 		{
 			Name:        "Find",
