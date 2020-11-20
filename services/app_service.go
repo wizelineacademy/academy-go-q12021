@@ -8,7 +8,7 @@ import (
 )
 
 type Service interface {
-	FetchData() ([]model.Character, _errors.RestError)
+	FetchData(maxPages int) ([]model.Character, _errors.RestError)
 	GetCharacterById(id string) (*model.Character, _errors.RestError)
 	GetAllCharacters() ([]model.Character, _errors.RestError)
 	GetCharacterIdByName(name string) (string, _errors.RestError)
@@ -26,23 +26,27 @@ func NewService(restRepo rest.RickAndMortyApiRepository, dbRepo db.DataBaseRepos
 	}
 }
 
-func (s *service) FetchData() ([]model.Character, _errors.RestError) {
+//Fetch data from rest repository and then make csv file
+func (s *service) FetchData(maxPages int) ([]model.Character, _errors.RestError) {
 	//TODO: hanle this error correctly
-	ch, err := s.restRepo.FetchData()
+	ch, err := s.restRepo.FetchData(maxPages)
 
 	s.dbRepo.CreateCharactersCSV(ch)
 
 	return ch, err
 }
 
+//Get character from map (complex O(1) )
 func (s *service) GetCharacterById(id string) (*model.Character, _errors.RestError) {
 	return s.dbRepo.GetCharacterFromId(id)
 }
 
+//Get all characters from map
 func (s *service) GetAllCharacters() ([]model.Character, _errors.RestError) {
 	return s.dbRepo.GetCharacters()
 }
 
+//Get character id from csv map (complex O(n) )
 func (s *service) GetCharacterIdByName(name string) (string, _errors.RestError) {
 	return s.dbRepo.GetCharacterIdByName(name)
 }

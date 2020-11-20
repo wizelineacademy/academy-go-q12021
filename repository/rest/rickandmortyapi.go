@@ -3,13 +3,13 @@ package rest
 import (
 	"encoding/json"
 	"github.com/go-resty/resty/v2"
+	"github.com/spf13/viper"
 	"golang-bootcamp-2020/domain/model"
 	_errors "golang-bootcamp-2020/utils/error"
 )
 
 const (
 	apiCharacters = "https://rickandmortyapi.com/api/character/"
-	maxPages      = 1
 )
 
 type restResponse struct {
@@ -25,30 +25,19 @@ type rickAndMortyApi struct {
 }
 
 type RickAndMortyApiRepository interface {
-	GetCharacters() ([]model.Character, _errors.RestError)
-	FetchData() ([]model.Character, _errors.RestError)
+	FetchData(maxPages int) ([]model.Character, _errors.RestError)
 }
 
+//Return new rest repository
 func NewRickAndMortyApiRepository() RickAndMortyApiRepository {
 	return &rickAndMortyApi{}
 }
 
-func (api *rickAndMortyApi) FetchData() ([]model.Character, _errors.RestError) {
-	var err error
+//Fetch data from rick and morty api
+func (api *rickAndMortyApi) FetchData(maxPages int) ([]model.Character, _errors.RestError) {
 	// fetching characters
 	var characters []model.Character
-	characters, err = api.GetCharacters()
-	if err != nil {
-		return nil, _errors.NewInternalServerError("error fetching characters")
-	}
-
-	return characters, nil
-}
-
-func (api *rickAndMortyApi) GetCharacters() ([]model.Character, _errors.RestError) {
-	var characters []model.Character
-
-	resp, err := processRequest(apiCharacters)
+	resp, err := processRequest(apiCharacters, maxPages)
 
 	if err != nil {
 		return nil, err
@@ -63,11 +52,15 @@ func (api *rickAndMortyApi) GetCharacters() ([]model.Character, _errors.RestErro
 	return characters, nil
 }
 
-func processRequest(url string) ([][]byte, _errors.RestError) {
+func processRequest(url string, maxPages int) ([][]byte, _errors.RestError) {
 
 	var response [][]byte
 	endpoint := url
 	count := 1
+
+	if maxPages == 0 {
+		maxPages = viper.GetInt("rest.maxPagesByDefault")
+	}
 
 	for {
 		client := resty.New()

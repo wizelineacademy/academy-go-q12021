@@ -10,6 +10,7 @@ var (
 	router = gin.Default()
 )
 
+//Setting api router
 func StartRouter(c controllers.AppController) error {
 
 	router.GET("health", c.GetHealth)

@@ -46,15 +46,18 @@ type DataBaseRepository interface {
 	GetCharacterIdByName(name string) (string, _errors.RestError)
 }
 
+//Set the initial state of db repository
 func Init() {
 	isCsvFetched = readCharactersFromCSV()
 }
 
+//Return new db repository and init it
 func NewDbRepository() DataBaseRepository {
 	Init()
 	return &dbRepository{}
 }
 
+// Make csv file given array of characters
 func (db *dbRepository) CreateCharactersCSV(characters []model.Character) _errors.RestError {
 	file, err := os.Create("./resources/characters.csv")
 	// TODO: handle this error
@@ -93,6 +96,7 @@ func (db *dbRepository) CreateCharactersCSV(characters []model.Character) _error
 	return nil
 }
 
+//Get character from map (complex O(1) )
 func (db *dbRepository) GetCharacterFromId(id string) (*model.Character, _errors.RestError) {
 	if !isCsvFetched {
 		return nil, _errors.NewInternalServerError(errorDbEmpty)
@@ -106,6 +110,7 @@ func (db *dbRepository) GetCharacterFromId(id string) (*model.Character, _errors
 	return ch, nil
 }
 
+//Get all characters from map
 func (db *dbRepository) GetCharacters() ([]model.Character, _errors.RestError) {
 	if !isCsvFetched {
 		return nil, _errors.NewInternalServerError(errorDbEmpty)
@@ -119,6 +124,7 @@ func (db *dbRepository) GetCharacters() ([]model.Character, _errors.RestError) {
 	return characters, nil
 }
 
+//Get character id from csv map (complex O(n) )
 func (db *dbRepository) GetCharacterIdByName(name string) (string, _errors.RestError) {
 	if !isCsvFetched {
 		return "", _errors.NewInternalServerError(errorDbEmpty)

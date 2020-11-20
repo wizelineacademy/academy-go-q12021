@@ -10,8 +10,8 @@ import (
 	"golang-bootcamp-2020/services"
 )
 
+//Setting application
 func StartApp() {
-
 	viper.SetConfigName("config") // config file name without extension
 	viper.SetConfigType("yaml")
 	viper.AddConfigPath(".")

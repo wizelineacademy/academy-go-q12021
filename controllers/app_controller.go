@@ -5,6 +5,7 @@ import (
 	"golang-bootcamp-2020/services"
 	_errors "golang-bootcamp-2020/utils/error"
 	"net/http"
+	"strconv"
 )
 
 type AppController interface {
@@ -19,17 +20,35 @@ type appController struct {
 	service services.Service
 }
 
+//Return new pointer to application controller
 func NewAppController(service services.Service) AppController {
 	return &appController{service}
 }
 
+//Return ok if api works correctly
 func (ac *appController) GetHealth(c *gin.Context) {
 	c.String(http.StatusOK, "ok")
 }
 
+//Fetch data from rick and morty api
 func (ac *appController) FetchData(c *gin.Context) {
 
-	res, err := ac.service.FetchData()
+	var maxPages int
+	maxPagesParam := c.Query("maxPages")
+	if maxPagesParam == "" {
+		maxPages = 0
+	} else {
+		var convErr error
+		maxPages, convErr = strconv.Atoi(maxPagesParam)
+
+		if convErr != nil || maxPages < 1 {
+			restErr := _errors.NewBadRequestError("id param must be integer bigger than 0")
+			c.JSON(restErr.Code(), restErr)
+			return
+		}
+	}
+
+	res, err := ac.service.FetchData(maxPages)
 	if err != nil {
 		c.JSON(err.Code(), err)
 		return
@@ -38,6 +57,7 @@ func (ac *appController) FetchData(c *gin.Context) {
 	c.JSON(http.StatusOK, res)
 }
 
+//Get character by id
 func (ac *appController) GetCharacter(c *gin.Context) {
 
 	characterId := c.Query("id")
@@ -56,6 +76,7 @@ func (ac *appController) GetCharacter(c *gin.Context) {
 	c.JSON(http.StatusOK, ch)
 }
 
+//Get all characters from map
 func (ac *appController) GetCharacters(c *gin.Context) {
 
 	characters, err := ac.service.GetAllCharacters()
@@ -67,6 +88,7 @@ func (ac *appController) GetCharacters(c *gin.Context) {
 	c.JSON(http.StatusOK, characters)
 }
 
+//Get character id by name from csv map
 func (ac *appController) GetCharacterIdByName(c *gin.Context) {
 
 	name := c.Query("name")

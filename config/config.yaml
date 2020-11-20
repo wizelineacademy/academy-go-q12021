@@ -3,3 +3,5 @@ app:
 db:
   charactersPath: 'resources/characters.csv'
   mapPath: 'resources/map.csv'
+rest:
+  maxPagesByDefault: 1
