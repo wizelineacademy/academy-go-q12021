@@ -3,6 +3,7 @@ package db
 import (
 	"encoding/csv"
 	"fmt"
+	"github.com/spf13/viper"
 	"golang-bootcamp-2020/domain/model"
 	_errors "golang-bootcamp-2020/utils/error"
 	"io"
@@ -122,7 +123,7 @@ func (db *dbRepository) GetCharacterIdByName(name string) (string, _errors.RestE
 		return "", _errors.NewInternalServerError(errorDbEmpty)
 	}
 
-	file, err := os.Open("./resources/map.csv")
+	file, err := os.Open(viper.GetString("db.mapPath"))
 	defer file.Close()
 
 	if err != nil {
@@ -152,7 +153,7 @@ func readCharactersFromCSV() bool {
 	// empty map
 	charactersMap = make(map[string]*model.Character)
 
-	file, err := os.Open("./resources/characters.csv")
+	file, err := os.Open(viper.GetString("db.charactersPath"))
 	defer file.Close()
 
 	if err != nil {
@@ -228,7 +229,7 @@ func parseCharacter(record []string) {
 }
 
 func createMapTable() _errors.RestError {
-	file, err := os.Create("./resources/map.csv")
+	file, err := os.Create(viper.GetString("db.mapPath"))
 	if err != nil {
 		return _errors.NewInternalServerError(errorWritingFile)
 	}
