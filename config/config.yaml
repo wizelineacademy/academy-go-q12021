@@ -1,5 +1,5 @@
 app:
-  port: '8081'
+  port: ':8081'
 db:
   charactersPath: 'resources/characters.csv'
   mapPath: 'resources/map.csv'

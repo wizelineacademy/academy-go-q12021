@@ -36,6 +36,7 @@ const (
 )
 
 type dbRepository struct {
+	mapReader *io.Reader
 }
 
 type DataBaseRepository interface {
