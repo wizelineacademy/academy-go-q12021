@@ -28,5 +28,5 @@ func (si *songInteractor) Get(s *model.Song) (*model.Song, error) {
 		return nil, errors.New("Cannot find the requested song")
 	}
 
-	return si.SongPresenter.ResponseSong(s), nil
+	return si.SongPresenter.ResponseSong(s)
 }

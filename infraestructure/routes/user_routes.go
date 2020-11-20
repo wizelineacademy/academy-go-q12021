@@ -6,6 +6,7 @@ var userRoutes RoutePrefix = RoutePrefix{
 	Prefix: "/users",
 	Routes: []Route{
 		{
+			Name:        "Get Users",
 			Path:        "/",
 			Method:      "GET",
 			IsProtected: false,
@@ -16,7 +17,7 @@ var userRoutes RoutePrefix = RoutePrefix{
 			Path:        "/",
 			Method:      "POST",
 			IsProtected: false,
-			Handler:     handlers.GetUsers,
+			Handler:     handlers.CreateUser,
 		},
 	},
 }
