@@ -2,9 +2,9 @@ package rest
 
 import (
 	"encoding/json"
-	"errors"
 	"github.com/go-resty/resty/v2"
 	"golang-bootcamp-2020/domain/model"
+	_errors "golang-bootcamp-2020/utils/error"
 )
 
 const (
@@ -25,27 +25,27 @@ type rickAndMortyApi struct {
 }
 
 type RickAndMortyApiRepository interface {
-	GetCharacters() ([]model.Character, error)
-	FetchData() ([]model.Character, error)
+	GetCharacters() ([]model.Character, _errors.RestError)
+	FetchData() ([]model.Character, _errors.RestError)
 }
 
 func NewRickAndMortyApiRepository() RickAndMortyApiRepository {
 	return &rickAndMortyApi{}
 }
 
-func (api *rickAndMortyApi) FetchData() ([]model.Character, error) {
+func (api *rickAndMortyApi) FetchData() ([]model.Character, _errors.RestError) {
 	var err error
 	// fetching characters
 	var characters []model.Character
 	characters, err = api.GetCharacters()
 	if err != nil {
-		return nil, errors.New("error fetching characters")
+		return nil, _errors.NewInternalServerError("error fetching characters")
 	}
 
 	return characters, nil
 }
 
-func (api *rickAndMortyApi) GetCharacters() ([]model.Character, error) {
+func (api *rickAndMortyApi) GetCharacters() ([]model.Character, _errors.RestError) {
 	var characters []model.Character
 
 	resp, err := processRequest(apiCharacters)
@@ -63,7 +63,7 @@ func (api *rickAndMortyApi) GetCharacters() ([]model.Character, error) {
 	return characters, nil
 }
 
-func processRequest(url string) ([][]byte, error) {
+func processRequest(url string) ([][]byte, _errors.RestError) {
 
 	var response [][]byte
 	endpoint := url
@@ -74,7 +74,7 @@ func processRequest(url string) ([][]byte, error) {
 
 		resp, err := client.R().Get(endpoint)
 		if err != nil || !resp.IsSuccess() {
-			return nil, errors.New("error in rest response")
+			return nil, _errors.NewInternalServerError("error in rest response")
 		}
 
 		restR := &restResponse{}

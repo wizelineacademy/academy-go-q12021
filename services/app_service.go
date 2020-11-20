@@ -4,13 +4,14 @@ import (
 	"golang-bootcamp-2020/domain/model"
 	"golang-bootcamp-2020/repository/db"
 	"golang-bootcamp-2020/repository/rest"
+	_errors "golang-bootcamp-2020/utils/error"
 )
 
 type Service interface {
-	FetchData() ([]model.Character, error)
-	GetCharacterById(id string) (*model.Character, error)
-	GetAllCharacters() ([]model.Character, error)
-	GetCharacterIdByName(name string) (string, error)
+	FetchData() ([]model.Character, _errors.RestError)
+	GetCharacterById(id string) (*model.Character, _errors.RestError)
+	GetAllCharacters() ([]model.Character, _errors.RestError)
+	GetCharacterIdByName(name string) (string, _errors.RestError)
 }
 
 type service struct {
@@ -25,7 +26,7 @@ func NewService(restRepo rest.RickAndMortyApiRepository, dbRepo db.DataBaseRepos
 	}
 }
 
-func (s *service) FetchData() ([]model.Character, error) {
+func (s *service) FetchData() ([]model.Character, _errors.RestError) {
 	//TODO: hanle this error correctly
 	ch, err := s.restRepo.FetchData()
 
@@ -34,14 +35,14 @@ func (s *service) FetchData() ([]model.Character, error) {
 	return ch, err
 }
 
-func (s *service) GetCharacterById(id string) (*model.Character, error) {
+func (s *service) GetCharacterById(id string) (*model.Character, _errors.RestError) {
 	return s.dbRepo.GetCharacterFromId(id)
 }
 
-func (s *service) GetAllCharacters() ([]model.Character, error) {
+func (s *service) GetAllCharacters() ([]model.Character, _errors.RestError) {
 	return s.dbRepo.GetCharacters()
 }
 
-func (s *service) GetCharacterIdByName(name string) (string, error) {
+func (s *service) GetCharacterIdByName(name string) (string, _errors.RestError) {
 	return s.dbRepo.GetCharacterIdByName(name)
 }

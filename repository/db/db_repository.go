@@ -2,11 +2,10 @@ package db
 
 import (
 	"encoding/csv"
-	"errors"
 	"fmt"
 	"golang-bootcamp-2020/domain/model"
+	_errors "golang-bootcamp-2020/utils/error"
 	"io"
-	"log"
 	"os"
 	"strconv"
 	"strings"
@@ -30,16 +29,19 @@ const (
 	chLocationUrl
 	chImage
 	chEpisodes
+
+	errorDbEmpty     = "db empty, fetch is needed"
+	errorWritingFile = "error writing csv file"
 )
 
 type dbRepository struct {
 }
 
 type DataBaseRepository interface {
-	CreateCharactersCSV(characters []model.Character) error
-	GetCharacterFromId(id string) (*model.Character, error)
-	GetCharacters() ([]model.Character, error)
-	GetCharacterIdByName(name string) (string, error)
+	CreateCharactersCSV(characters []model.Character) _errors.RestError
+	GetCharacterFromId(id string) (*model.Character, _errors.RestError)
+	GetCharacters() ([]model.Character, _errors.RestError)
+	GetCharacterIdByName(name string) (string, _errors.RestError)
 }
 
 func Init() {
@@ -51,14 +53,14 @@ func NewDbRepository() DataBaseRepository {
 	return &dbRepository{}
 }
 
-func (db *dbRepository) CreateCharactersCSV(characters []model.Character) error {
+func (db *dbRepository) CreateCharactersCSV(characters []model.Character) _errors.RestError {
 	file, err := os.Create("./resources/characters.csv")
 	// TODO: handle this error
 	defer file.Close()
 	defer readCharactersFromCSV()
 
 	if err != nil {
-		return errors.New("error writing file")
+		return _errors.NewInternalServerError(errorWritingFile)
 	}
 	writer := csv.NewWriter(file)
 	defer writer.Flush()
@@ -89,22 +91,22 @@ func (db *dbRepository) CreateCharactersCSV(characters []model.Character) error 
 	return nil
 }
 
-func (db *dbRepository) GetCharacterFromId(id string) (*model.Character, error) {
+func (db *dbRepository) GetCharacterFromId(id string) (*model.Character, _errors.RestError) {
 	if !isCsvFetched {
-		return nil, errors.New("db empty, fetch is needed")
+		return nil, _errors.NewInternalServerError(errorDbEmpty)
 	}
 
 	ch, ok := charactersMap[id]
 	if ch == nil || !ok {
-		return nil, errors.New(fmt.Sprintf("character with id %s not found, fetch with more pages to update the db", id))
+		return nil, _errors.NewInternalServerError(fmt.Sprintf("character with id %s not found, fetch with more pages to update the db", id))
 	}
 
 	return ch, nil
 }
 
-func (db *dbRepository) GetCharacters() ([]model.Character, error) {
+func (db *dbRepository) GetCharacters() ([]model.Character, _errors.RestError) {
 	if !isCsvFetched {
-		return nil, errors.New("db empty, fetch is needed")
+		return nil, _errors.NewInternalServerError(errorDbEmpty)
 	}
 
 	var characters []model.Character
@@ -115,14 +117,16 @@ func (db *dbRepository) GetCharacters() ([]model.Character, error) {
 	return characters, nil
 }
 
-func (db *dbRepository) GetCharacterIdByName(name string) (string, error) {
+func (db *dbRepository) GetCharacterIdByName(name string) (string, _errors.RestError) {
 	if !isCsvFetched {
-		return "", errors.New("db empty, fetch is needed")
+		return "", _errors.NewInternalServerError(errorDbEmpty)
 	}
 
 	file, err := os.Open("./resources/map.csv")
+	defer file.Close()
+
 	if err != nil {
-		return "", errors.New("db empty, fetch is needed")
+		return "", _errors.NewInternalServerError(errorDbEmpty)
 	}
 
 	r := csv.NewReader(file)
@@ -132,7 +136,7 @@ func (db *dbRepository) GetCharacterIdByName(name string) (string, error) {
 			break
 		}
 		if err != nil {
-			log.Fatal(err)
+			return "", _errors.NewInternalServerError(errorWritingFile)
 		}
 
 		if strings.TrimSpace(strings.ToLower(record[1])) == strings.TrimSpace(strings.ToLower(name)) {
@@ -140,16 +144,17 @@ func (db *dbRepository) GetCharacterIdByName(name string) (string, error) {
 		}
 	}
 
-	return "", errors.New(fmt.Sprintf("character with name %s not found", name))
+	return "", _errors.NewNotFoundError(fmt.Sprintf("character with name %s not found", name))
 
 }
 
 func readCharactersFromCSV() bool {
-
 	// empty map
 	charactersMap = make(map[string]*model.Character)
 
 	file, err := os.Open("./resources/characters.csv")
+	defer file.Close()
+
 	if err != nil {
 		isCsvFetched = false
 		return false
@@ -162,7 +167,7 @@ func readCharactersFromCSV() bool {
 			break
 		}
 		if err != nil {
-			log.Fatal(err)
+			return false
 		}
 
 		parseCharacter(record)
@@ -222,14 +227,14 @@ func parseCharacter(record []string) {
 	charactersMap[id] = ch
 }
 
-func createMapTable() error {
+func createMapTable() _errors.RestError {
 	file, err := os.Create("./resources/map.csv")
-	// TODO: handle this error
+	if err != nil {
+		return _errors.NewInternalServerError(errorWritingFile)
+	}
+	// ignoring close error it's safe on this point: https://www.joeshaw.org/dont-defer-close-on-writable-files/
 	defer file.Close()
 
-	if err != nil {
-		return errors.New("error writing file")
-	}
 	writer := csv.NewWriter(file)
 	defer writer.Flush()
 

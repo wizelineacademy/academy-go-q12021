@@ -3,6 +3,7 @@ package controllers
 import (
 	"github.com/gin-gonic/gin"
 	"golang-bootcamp-2020/services"
+	_errors "golang-bootcamp-2020/utils/error"
 	"net/http"
 )
 
@@ -28,28 +29,27 @@ func (ac *appController) GetHealth(c *gin.Context) {
 
 func (ac *appController) FetchData(c *gin.Context) {
 
-	var response interface{}
-	response = nil
-
 	res, err := ac.service.FetchData()
-	if err == nil {
-		response = res
+	if err != nil {
+		c.JSON(err.Code(), err)
+		return
 	}
 
-	c.JSON(http.StatusOK, response)
+	c.JSON(http.StatusOK, res)
 }
 
 func (ac *appController) GetCharacter(c *gin.Context) {
 
 	characterId := c.Query("id")
 	if characterId == "" {
-		c.JSON(http.StatusBadRequest, "id is required")
+		err := _errors.NewBadRequestError("id is required")
+		c.JSON(err.Code(), err)
 		return
 	}
 
 	ch, err := ac.service.GetCharacterById(characterId)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, err.Error())
+		c.JSON(err.Code(), err)
 		return
 	}
 
@@ -60,7 +60,7 @@ func (ac *appController) GetCharacters(c *gin.Context) {
 
 	characters, err := ac.service.GetAllCharacters()
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, err.Error())
+		c.JSON(err.Code(), err)
 		return
 	}
 
@@ -71,12 +71,14 @@ func (ac *appController) GetCharacterIdByName(c *gin.Context) {
 
 	name := c.Query("name")
 	if name == "" {
-		c.JSON(http.StatusBadRequest, "name is required")
+		err := _errors.NewBadRequestError("name is required")
+		c.JSON(err.Code(), err)
+		return
 	}
 
 	character, err := ac.service.GetCharacterIdByName(name)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, err.Error())
+		c.JSON(err.Code(), err)
 		return
 	}
 
