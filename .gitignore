@@ -15,3 +15,5 @@
 # vendor/
 
 .DS_Store
+golang-bootcamp-2020
+.env
