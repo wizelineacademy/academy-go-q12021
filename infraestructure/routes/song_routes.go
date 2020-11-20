@@ -10,7 +10,7 @@ var songRoutes RoutePrefix = RoutePrefix{
 			Path:        "/",
 			Method:      "GET",
 			IsProtected: true,
-			Handler:     handlers.GetSong,
+			Handler:     handlers.GetSongData,
 		},
 		{
 			Name:        "Find",
@@ -18,13 +18,6 @@ var songRoutes RoutePrefix = RoutePrefix{
 			Method:      "GET",
 			IsProtected: true,
 			Handler:     handlers.GetSongLyrics,
-		},
-		{
-			Name:        "Find",
-			Path:        "/lyric",
-			Method:      "GET",
-			IsProtected: true,
-			Handler:     handlers.GetSong,
 		},
 	},
 }

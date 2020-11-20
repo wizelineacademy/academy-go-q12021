@@ -15,6 +15,7 @@ type songInteractor struct {
 
 type SongInteractor interface {
 	Get(s *model.Song) (*model.Song, error)
+	GetAll(queryParams map[string]string) ([]*model.Song, error)
 }
 
 //NewSongInteractor generates a new instance of a song interactor
@@ -30,4 +31,13 @@ func (si *songInteractor) Get(s *model.Song) (*model.Song, error) {
 	}
 
 	return si.SongPresenter.ResponseSong(s), nil
+}
+
+func (si *songInteractor) GetAll(queryParams map[string]string) ([]*model.Song, error) { //TODO: This is temporary
+	log.Println("Here in Song_interactor.GetAll")
+	songs, err := si.SongRepository.FindByPattern(queryParams)
+	if err != nil {
+		return nil, err
+	}
+	return songs, nil //TODO: Implement presenter
 }

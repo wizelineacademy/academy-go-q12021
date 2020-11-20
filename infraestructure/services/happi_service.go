@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"net/http"
 
@@ -12,7 +11,7 @@ import (
 	"github.com/fallentemplar/goenv"
 )
 
-const apiURL = "https://api.happi.dev/v1/music"
+const baseAPIURL = "https://api.happi.dev/v1/music"
 
 type happiService struct {
 	c chan model.Song
@@ -44,11 +43,36 @@ type lyricResult struct {
 	CopyrightString string `json:"copyright_text"`
 }
 
+//HappiLyricResponse maps the response from the HAPPI API
+type HappiSearchResponse struct {
+	Success bool           `json:"success"`
+	Length  int            `json:"length"`
+	Result  []searchResult `json:"result"`
+}
+
+type searchResult struct {
+	Track     string `json:"track"`
+	IDTrack   int    `json:"id_track"`
+	Artist    string `json:"artist"`
+	IDArtist  int    `json:"id_artist"`
+	Album     string `json:"album"`
+	IDAlbum   int    `json:"id_album"`
+	HasLyrics bool   `json:"haslyrics"`
+	/*APIArtist       string `json:"api_artist"`
+	APIAlbums       string `json:"api_albums"`
+	APIAlbum        string `json:"api_album"`
+	APITracks       string `json:"api_tracks"`
+	APITrack        string `json:"api_track"`
+	APILyrics       string `json:"api_lyrics"`
+	CopyrightLabel  string `json:"copyright_label"`
+	CopyrightNotice string `json:"copyright_notice"`
+	CopyrightString string `json:"copyright_text"`*/
+}
+
 //HappiService is the interface for the HappiService
 type HappiService interface {
 	SearchSongLyrics(artistID, albumID, trackID int) (*model.Song, error)
-	SearchSongsByArtist(artistID string) ([]*model.Song, error)
-	SearchArtist() // "songs/"
+	SearchSongsByQuery(queryParams map[string]string) ([]*model.Song, error)
 }
 
 //NewHappiService creates a new instance of HappiService
@@ -57,35 +81,45 @@ func NewHappiService() HappiService {
 	return &happiService{c}
 }
 
-//SearchArtist calls the Happi API and retrieves the artist song
-func (hs *happiService) SearchArtist() {
-	//TODO: Implementar búsqueda en BD/API aquí
+func (hs *happiService) SearchSongsByQuery(queryParams map[string]string) ([]*model.Song, error) {
+	URL := fmt.Sprintf("%s", baseAPIURL)
 
-	resp, err := http.Get(fmt.Sprintf("%sartists/%d/albums/%d/tracks/%d/lyrics", apiURL))
-	if err != nil {
-		print(err)
-	}
-
+	resp, err := makeHTTPCall("GET", URL, nil, queryParams)
 	defer resp.Body.Close()
-	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		print(err)
+		return nil, err
+	}
+	log.Println(resp.Status)
+
+	if resp.StatusCode >= 300 {
+		return nil, errors.New("No song found with that query")
 	}
 
-	fmt.Print(string(body))
-}
+	body, err := readResponseBody(resp, URL)
 
-func (hs *happiService) SearchSongsByArtist(artistID string) ([]*model.Song, error) {
-	return nil, nil
+	tracks := &HappiSearchResponse{}
+
+	err = json.Unmarshal(body, tracks)
+	if err != nil {
+		log.Println("Error parsing the response data from server in query ", URL)
+		log.Println(err)
+		return nil, err
+	}
+
+	songs := seachResponseToSongSlice(tracks)
+	return songs, nil
 }
 
 func (hs *happiService) SearchSongLyrics(artistID, albumID, trackID int) (*model.Song, error) {
 	log.Println("Im in SearchSongLyric")
 
-	URL := fmt.Sprintf("%s/artists/%d/albums/%d/tracks/%d/lyrics", apiURL, artistID, albumID, trackID)
+	URL := fmt.Sprintf("%s/artists/%d/albums/%d/tracks/%d/lyrics", baseAPIURL, artistID, albumID, trackID)
 
-	resp, err := makeHTTPCall("GET", URL, nil)
+	resp, err := makeHTTPCall("GET", URL, nil, nil)
 	defer resp.Body.Close()
+	if err != nil {
+		return nil, err
+	}
 
 	if resp.StatusCode >= 300 {
 		return nil, errors.New("Song not found or contains no lyrics")

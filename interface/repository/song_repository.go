@@ -27,3 +27,13 @@ func (sr *songRepository) Find(song *model.Song) (*model.Song, error) {
 	}
 	return song, nil
 }
+
+func (sr *songRepository) FindByPattern(queryParams map[string]string) ([]*model.Song, error) {
+	log.Println("Here in song_repository.FindByPattern")
+	song, err := sr.db.SearchSongsByQuery(queryParams) //TODO: Make this dynamic
+	if err != nil {
+		log.Println(err)
+		return nil, err
+	}
+	return song, nil
+}

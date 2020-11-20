@@ -7,6 +7,7 @@ import (
 	"github.com/alexis-aguirre/golang-bootcamp-2020/registry"
 )
 
+//GetUsers retrieves all the users in the system
 func GetUsers(w http.ResponseWriter, r *http.Request) {
 	ui := registry.NewUserInteractor()
 	u, _ := ui.Get(nil)

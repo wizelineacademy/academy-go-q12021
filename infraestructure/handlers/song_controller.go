@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 	"strconv"
@@ -12,19 +11,37 @@ import (
 	"github.com/gorilla/mux"
 )
 
-func GetSong(w http.ResponseWriter, r *http.Request) {
+//GetSongData retrieves the information of a song by it's name
+func GetSongData(w http.ResponseWriter, r *http.Request) {
 	variables := r.URL.Query()
 	log.Println(variables)
 	queryVariable, ok1 := variables["q"]
 	typeVariable, ok2 := variables["type"]
 
 	if !ok1 || !ok2 {
-		Error(w, r, http.StatusBadRequest, "Malformed query")
+		writeError(w, r, http.StatusBadRequest, "Malformed query")
 		return
 	}
-	fmt.Println(queryVariable, typeVariable)
+
+	if typeVariable[0] != "track" {
+		writeError(w, r, http.StatusNotImplemented, "Unsupported operation")
+	}
+
+	urlQuery := make(map[string]string)
+	urlQuery["q"] = queryVariable[0]
+	urlQuery["type"] = typeVariable[0]
+
+	songInteractor := registry.NewSongInteractor()
+	songs, err := songInteractor.GetAll(urlQuery)
+	if err != nil {
+		writeError(w, r, http.StatusInternalServerError, "Error while processing request")
+		return
+	}
+	jsonWritter(w, r, http.StatusFound, songs)
+
 }
 
+//GetSongLyrics is the handler that manages the retrieval of a song's lyrics
 func GetSongLyrics(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 

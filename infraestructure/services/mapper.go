@@ -15,3 +15,26 @@ func lyricResponseToSong(lyricResponse *HappiLyricResponse) *model.Song {
 	song.Lyric = lyricResponse.Result.Lyrics
 	return song
 }
+
+func seachResponseToSongSlice(searchResponse *HappiSearchResponse) []*model.Song {
+	var songs []*model.Song
+	for i := 0; i < searchResponse.Length; i++ {
+		currentResult := searchResponse.Result[i]
+		song := &model.Song{}
+
+		song.ID = currentResult.IDTrack
+		song.Name = currentResult.Track
+		song.AlbumID = currentResult.IDAlbum
+		song.Album = currentResult.Album
+		song.Interpreter = currentResult.Artist
+		song.InterpreterID = currentResult.IDArtist
+		if currentResult.HasLyrics {
+			song.Lyric = "yes"
+		} else {
+			song.Lyric = "no"
+		}
+
+		songs = append(songs, song)
+	}
+	return songs
+}
