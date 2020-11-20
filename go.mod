@@ -9,5 +9,6 @@ require (
 	github.com/labstack/echo/v4 v4.1.17
 	github.com/labstack/gommon v0.3.0 // indirect
 	github.com/valyala/fasttemplate v1.2.1 // indirect
+	go.mongodb.org/mongo-driver v1.4.3
 	golang.org/x/crypto v0.0.0-20201117144127-c1f2f97bffc9 // indirect
 )
