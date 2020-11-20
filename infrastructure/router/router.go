@@ -1,0 +1,52 @@
+package router
+
+import (
+	"encoding/csv"
+	"fmt"
+	"io"
+	"log"
+	"net/http"
+	"os"
+)
+
+// HandleRequest is
+func HandleRequest(w http.ResponseWriter, r *http.Request) {
+	log.Println("Request recived:", r.Method)
+
+	switch r.Method {
+	case http.MethodGet:
+		readCSV(w, r)
+		break
+	default:
+		w.WriteHeader(405)
+		w.Write([]byte("Method not allowed"))
+		break
+	}
+}
+
+func readCSV(w http.ResponseWriter, r *http.Request) {
+	f, err := os.Open("infrastructure/datastore/astronauts.csv")
+	if err != nil {
+		log.Fatalf("Error opening the file: %v", err)
+	}
+
+	defer f.Close()
+	reader := csv.NewReader(f)
+	reader.FieldsPerRecord = -1
+
+	var data [][]string
+	for {
+		record, err := reader.Read()
+		if err == io.EOF {
+			break
+		}
+
+		if err != nil {
+			log.Fatalf("Error reading line %v", err)
+		}
+
+		data = append(data, record)
+	}
+
+	fmt.Println(data)
+}
