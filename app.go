@@ -1,9 +1,13 @@
 package main
 
 import (
+	"encoding/csv"
 	"encoding/json"
+	"fmt"
+	"io"
 	"log"
 	"net/http"
+	"os"
 	"strconv"
 
 	"github.com/gorilla/mux"
@@ -106,9 +110,38 @@ func updateTask(w http.ResponseWriter, r *http.Request) {
 func main() {
 	router := mux.NewRouter()
 
-	// TODO get data from DB
-	todos = append(todos, Todo{ID: 10, Task: "Wash dishes", Status: "pending", IsDeleted: false})
-	todos = append(todos, Todo{ID: 20, Task: "Make report", Status: "pending", IsDeleted: false})
+	// TODO get data from DB or CSV
+	// todos = append(todos, Todo{ID: 10, Task: "Wash dishes", Status: "pending", IsDeleted: false})
+	// todos = append(todos, Todo{ID: 20, Task: "Make report", Status: "pending", IsDeleted: false})
+	// GET data from CSV
+	var filename string = "./data/todos.csv"
+	csvfile, err := os.Open(filename)
+	if err != nil {
+		log.Fatalln("Unable to open CSV file!", err)
+	}
+	fmt.Println("Loading records from ", filename)
+	r := csv.NewReader(csvfile)
+	var numOfRecords int = 0
+	for {
+		record, err := r.Read()
+		if err == io.EOF {
+			fmt.Println("CSV reading done.")
+			break
+		}
+		if err != nil {
+			log.Fatalln("When reading CSV", err)
+		}
+		numOfRecords++
+		fmt.Println(record[0], record[1], record[2], record[3])
+		// skip headers
+		if numOfRecords != 1 {
+			id, idErr := strconv.Atoi(record[0])
+			isDeleted, delErr := strconv.ParseBool(record[3])
+			if idErr == nil && delErr == nil {
+				todos = append(todos, Todo{ID: id, Task: record[1], Status: record[2], IsDeleted: isDeleted})
+			}
+		}
+	}
 
 	// Routes
 	router.HandleFunc("/todos", getTodos).Methods("GET")
@@ -120,6 +153,6 @@ func main() {
 	router.HandleFunc("/todos/{id}", softDeleteTodo).Methods("DELETE")
 
 	// Start server
+	fmt.Println("Starting server at port [3000].")
 	log.Fatal(http.ListenAndServe(":3000", router))
-
 }
