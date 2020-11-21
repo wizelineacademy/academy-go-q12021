@@ -1,5 +1,7 @@
 # Golang Bootcamp
 
+<details>
+  <summary>Click all the information related to bootcamp</summary>
 ## Introduction
 
 Thank you for participating in the Golang Bootcamp course!
@@ -128,3 +130,18 @@ For submitting your work, you should follow these steps:
 - [Packages](https://www.youtube.com/watch?v=sf7f4QGkwfE)
 - [Unit testing](https://golang.org/pkg/testing/)
 - [Functions as values](https://tour.golang.org/moretypes/24)
+
+</details>
+
+### Todos
+
+- [] Change config setup to allow csv file names and remove database connections
+- [] Consider gormcsv to manipulate the csv.
+- [] Add more routes to router and it's logic.
+- [] Add remaining comments to procedures from the architecture
+- []  Add unit testcases
+
+### Method of running
+
+- go build .
+- run the generated digimons file.
