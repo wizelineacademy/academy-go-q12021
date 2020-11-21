@@ -8,7 +8,7 @@ import (
 	_errors "golang-bootcamp-2020/utils/error"
 )
 
-const (
+var (
 	apiCharacters = "https://rickandmortyapi.com/api/character/"
 )
 

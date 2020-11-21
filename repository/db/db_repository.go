@@ -60,7 +60,8 @@ func NewDbRepository() DataBaseRepository {
 // Make csv file given array of characters
 func (db *dbRepository) CreateCharactersCSV(characters []model.Character) _errors.RestError {
 	file, err := os.Create("./resources/characters.csv")
-	// TODO: handle this error
+
+	// ignoring close error it's safe on this point: https://www.joeshaw.org/dont-defer-close-on-writable-files/
 	defer file.Close()
 	defer readCharactersFromCSV()
 
@@ -90,8 +91,9 @@ func (db *dbRepository) CreateCharactersCSV(characters []model.Character) _error
 		}
 
 		row = append(row, episodesString)
-		//TODO: handle error
-		writer.Write(row)
+		if err := writer.Write(row); err != nil {
+			return _errors.NewInternalServerError(errorWritingFile)
+		}
 	}
 	return nil
 }
@@ -201,9 +203,8 @@ func parseCharacter(record []string) {
 			var err error
 			id = value
 			ch.Id, err = strconv.Atoi(value)
-			//TODO: handle this error correctly
 			if err != nil {
-				panic(err)
+				continue
 			}
 		case chName:
 			ch.Name = value
@@ -251,8 +252,9 @@ func createMapTable() _errors.RestError {
 		row = append(row, strconv.Itoa(ch.Id))
 		row = append(row, ch.Name)
 
-		//TODO: handle error
-		writer.Write(row)
+		if err := writer.Write(row); err != nil {
+			return _errors.NewInternalServerError(errorWritingFile)
+		}
 	}
 	return nil
 }
