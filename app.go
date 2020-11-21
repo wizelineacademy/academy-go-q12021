@@ -46,6 +46,19 @@ func createTodo(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(todo)
 }
 
+func softDeleteTodo(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Contetn-Type", "application/json")
+	params := mux.Vars(r)
+	for idx, item := range todos {
+		if id, err := strconv.Atoi(params["id"]); err == nil && item.ID == id {
+			todos[idx].IsDeleted = true
+			// todos = append(todos[:idx], todos[idx+1:]...) // hard delete
+			break
+		}
+	}
+	json.NewEncoder(w).Encode(todos)
+}
+
 func main() {
 	router := mux.NewRouter()
 
@@ -60,7 +73,7 @@ func main() {
 	// router.HandleFunc("/todos/{id}/done", markTaskDone).Methods("PUT")
 	// router.HandleFunc("/todos/{id}/pending", markTaskPending).Methods("PUT")
 	// router.HandleFunc("/todos/{id}/{task}", updateTask).Methods("PUT")
-	// router.HandleFunc("/todos/{id}", softDeleteTask).Methods("DELETE")
+	router.HandleFunc("/todos/{id}", softDeleteTodo).Methods("DELETE")
 
 	// Start server
 	log.Fatal(http.ListenAndServe(":3000", router))
