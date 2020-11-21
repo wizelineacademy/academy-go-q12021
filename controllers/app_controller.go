@@ -6,18 +6,23 @@ import (
 	_errors "golang-bootcamp-2020/utils/error"
 	"net/http"
 	"strconv"
+	"strings"
 )
 
 type AppController interface {
 	FetchData(c *gin.Context)
 	GetHealth(c *gin.Context)
-	GetCharacter(c *gin.Context)
+	GetCharacterById(c *gin.Context)
 	GetCharacters(c *gin.Context)
 	GetCharacterIdByName(c *gin.Context)
 }
 
 type appController struct {
 	service services.Service
+}
+
+type idResponse struct {
+	Id string `json:"id"`
 }
 
 //Return new pointer to application controller
@@ -58,10 +63,10 @@ func (ac *appController) FetchData(c *gin.Context) {
 }
 
 //Get character by id
-func (ac *appController) GetCharacter(c *gin.Context) {
+func (ac *appController) GetCharacterById(c *gin.Context) {
 
-	characterId := c.Query("id")
-	if characterId == "" {
+	characterId := c.Param("id")
+	if strings.TrimSpace(characterId) == "" {
 		err := _errors.NewBadRequestError("id is required")
 		c.JSON(err.Code(), err)
 		return
@@ -91,8 +96,8 @@ func (ac *appController) GetCharacters(c *gin.Context) {
 //Get character id by name from csv map
 func (ac *appController) GetCharacterIdByName(c *gin.Context) {
 
-	name := c.Query("name")
-	if name == "" {
+	name := c.Param("name")
+	if strings.TrimSpace(name) == "" {
 		err := _errors.NewBadRequestError("name is required")
 		c.JSON(err.Code(), err)
 		return
@@ -104,5 +109,5 @@ func (ac *appController) GetCharacterIdByName(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, character)
+	c.JSON(http.StatusOK, &idResponse{character})
 }

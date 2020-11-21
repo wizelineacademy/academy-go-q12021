@@ -17,9 +17,9 @@ func StartRouter(c controllers.AppController) error {
 
 	router.GET("data/fetch", c.FetchData)
 
-	router.GET("api/character", c.GetCharacter)
+	router.GET("api/character/:id", c.GetCharacterById)
 	router.GET("api/characters", c.GetCharacters)
-	router.GET("api/id", c.GetCharacterIdByName)
+	router.GET("api/findId/:name", c.GetCharacterIdByName)
 
 	return router.Run(viper.GetString("app.port"))
 }
