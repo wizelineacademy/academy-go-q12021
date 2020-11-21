@@ -1,0 +1,295 @@
+{
+  "_type":"export",
+  "__export_format":4,
+  "__export_date":"2020-11-21T20:29:41.049Z",
+  "__export_source":"insomnia.desktop.app:v2020.4.2",
+  "resources":[
+     {
+        "_id":"req_6577d5fd4edc46b3ba2a4be1dce8debf",
+        "parentId":"wrk_0fff29c2eef54108af592cbea4c23d7d",
+        "modified":1605938422153,
+        "created":1605938407407,
+        "url":"{{ baseUrl }}/todos",
+        "name":"TODOs",
+        "description":"",
+        "method":"GET",
+        "body":{
+           
+        },
+        "parameters":[
+           
+        ],
+        "headers":[
+           
+        ],
+        "authentication":{
+           
+        },
+        "metaSortKey":-1605938407408,
+        "isPrivate":false,
+        "settingStoreCookies":true,
+        "settingSendCookies":true,
+        "settingDisableRenderRequestBody":false,
+        "settingEncodeUrl":true,
+        "settingRebuildPath":true,
+        "settingFollowRedirects":"global",
+        "_type":"request"
+     },
+     {
+        "_id":"wrk_0fff29c2eef54108af592cbea4c23d7d",
+        "parentId":null,
+        "modified":1605938325508,
+        "created":1605938325508,
+        "name":"Go",
+        "description":"",
+        "scope":null,
+        "_type":"workspace"
+     },
+     {
+        "_id":"req_ccdc54b9d9ab46b6bdcfa4fdf49dd04d",
+        "parentId":"wrk_0fff29c2eef54108af592cbea4c23d7d",
+        "modified":1605938733337,
+        "created":1605938458124,
+        "url":"{{ baseUrl }}/todos/10",
+        "name":"TODO/{id}",
+        "description":"",
+        "method":"GET",
+        "body":{
+           
+        },
+        "parameters":[
+           
+        ],
+        "headers":[
+           
+        ],
+        "authentication":{
+           
+        },
+        "metaSortKey":-1603764740595.5,
+        "isPrivate":false,
+        "settingStoreCookies":true,
+        "settingSendCookies":true,
+        "settingDisableRenderRequestBody":false,
+        "settingEncodeUrl":true,
+        "settingRebuildPath":true,
+        "settingFollowRedirects":"global",
+        "_type":"request"
+     },
+     {
+        "_id":"req_dd2a140a73b84b95aba927593ce39134",
+        "parentId":"wrk_0fff29c2eef54108af592cbea4c23d7d",
+        "modified":1605942170070,
+        "created":1605941858535,
+        "url":"{{ baseUrl }}/todos/10/done",
+        "name":"TODO/{id}/done",
+        "description":"",
+        "method":"PUT",
+        "body":{
+           
+        },
+        "parameters":[
+           
+        ],
+        "headers":[
+           
+        ],
+        "authentication":{
+           
+        },
+        "metaSortKey":-1603221323892.375,
+        "isPrivate":false,
+        "settingStoreCookies":true,
+        "settingSendCookies":true,
+        "settingDisableRenderRequestBody":false,
+        "settingEncodeUrl":true,
+        "settingRebuildPath":true,
+        "settingFollowRedirects":"global",
+        "_type":"request"
+     },
+     {
+        "_id":"req_867f929ff9ff4017a2a38f7149dae3f7",
+        "parentId":"wrk_0fff29c2eef54108af592cbea4c23d7d",
+        "modified":1605942189001,
+        "created":1605942185428,
+        "url":"{{ baseUrl }}/todos/10/pending",
+        "name":"TODO/{id}/pending",
+        "description":"",
+        "method":"PUT",
+        "body":{
+           
+        },
+        "parameters":[
+           
+        ],
+        "headers":[
+           
+        ],
+        "authentication":{
+           
+        },
+        "metaSortKey":-1602949615540.8125,
+        "isPrivate":false,
+        "settingStoreCookies":true,
+        "settingSendCookies":true,
+        "settingDisableRenderRequestBody":false,
+        "settingEncodeUrl":true,
+        "settingRebuildPath":true,
+        "settingFollowRedirects":"global",
+        "_type":"request"
+     },
+     {
+        "_id":"req_560097be68fa448c97d9431ab137def0",
+        "parentId":"wrk_0fff29c2eef54108af592cbea4c23d7d",
+        "modified":1605942251577,
+        "created":1605942219105,
+        "url":"{{ baseUrl }}/todos/10/cook a pancake",
+        "name":"TODO/{id}/{task}",
+        "description":"",
+        "method":"PUT",
+        "body":{
+           
+        },
+        "parameters":[
+           
+        ],
+        "headers":[
+           
+        ],
+        "authentication":{
+           
+        },
+        "metaSortKey":-1602813761365.0312,
+        "isPrivate":false,
+        "settingStoreCookies":true,
+        "settingSendCookies":true,
+        "settingDisableRenderRequestBody":false,
+        "settingEncodeUrl":true,
+        "settingRebuildPath":true,
+        "settingFollowRedirects":"global",
+        "_type":"request"
+     },
+     {
+        "_id":"req_77e2a33219bb442284676d64b095c962",
+        "parentId":"wrk_0fff29c2eef54108af592cbea4c23d7d",
+        "modified":1605939375944,
+        "created":1605938501759,
+        "url":"{{ baseUrl }}/todos",
+        "name":"TODOS",
+        "description":"",
+        "method":"POST",
+        "body":{
+           "mimeType":"application/json",
+           "text":"{\n\t\"id\": 30,\n\t\"task\": \"Clean my Room\",\n\t\"status\": \"pending\",\n\t\"isDeleted\": false\n}"
+        },
+        "parameters":[
+           
+        ],
+        "headers":[
+           {
+              "name":"Content-Type",
+              "value":"application/json",
+              "id":"pair_9042d6b01019489081e10057a54a0df7"
+           }
+        ],
+        "authentication":{
+           
+        },
+        "metaSortKey":-1602677907189.25,
+        "isPrivate":false,
+        "settingStoreCookies":true,
+        "settingSendCookies":true,
+        "settingDisableRenderRequestBody":false,
+        "settingEncodeUrl":true,
+        "settingRebuildPath":true,
+        "settingFollowRedirects":"global",
+        "_type":"request"
+     },
+     {
+        "_id":"req_a4fcae8220f54e66bedf3eed8b0a493a",
+        "parentId":"wrk_0fff29c2eef54108af592cbea4c23d7d",
+        "modified":1605939201311,
+        "created":1605939194369,
+        "url":"{{ baseUrl }}/todos/10",
+        "name":"TODO/{id}",
+        "description":"",
+        "method":"DELETE",
+        "body":{
+           
+        },
+        "parameters":[
+           
+        ],
+        "headers":[
+           
+        ],
+        "authentication":{
+           
+        },
+        "metaSortKey":-1602677907139.25,
+        "isPrivate":false,
+        "settingStoreCookies":true,
+        "settingSendCookies":true,
+        "settingDisableRenderRequestBody":false,
+        "settingEncodeUrl":true,
+        "settingRebuildPath":true,
+        "settingFollowRedirects":"global",
+        "_type":"request"
+     },
+     {
+        "_id":"env_33f5740cb0de7bef0c55ce7343dce5293754ac26",
+        "parentId":"wrk_0fff29c2eef54108af592cbea4c23d7d",
+        "modified":1605938325584,
+        "created":1605938325584,
+        "name":"Base Environment",
+        "data":{
+           
+        },
+        "dataPropertyOrder":null,
+        "color":null,
+        "isPrivate":false,
+        "metaSortKey":1605938325584,
+        "_type":"environment"
+     },
+     {
+        "_id":"jar_33f5740cb0de7bef0c55ce7343dce5293754ac26",
+        "parentId":"wrk_0fff29c2eef54108af592cbea4c23d7d",
+        "modified":1605938325587,
+        "created":1605938325587,
+        "name":"Default Jar",
+        "cookies":[
+           
+        ],
+        "_type":"cookie_jar"
+     },
+     {
+        "_id":"spc_3f3f671b2f304e94b1c53ea02bce627d",
+        "parentId":"wrk_0fff29c2eef54108af592cbea4c23d7d",
+        "modified":1605938325514,
+        "created":1605938325514,
+        "fileName":"Go",
+        "contents":"",
+        "contentType":"yaml",
+        "_type":"api_spec"
+     },
+     {
+        "_id":"env_69adc2c028894834a6df7a5dc83e0435",
+        "parentId":"env_33f5740cb0de7bef0c55ce7343dce5293754ac26",
+        "modified":1605938378893,
+        "created":1605938337963,
+        "name":"Local",
+        "data":{
+           "baseUrl":"http://localhost:3000"
+        },
+        "dataPropertyOrder":{
+           "&":[
+              "baseUrl"
+           ]
+        },
+        "color":"#12aee2",
+        "isPrivate":false,
+        "metaSortKey":1605938337963,
+        "_type":"environment"
+     }
+  ]
+}
