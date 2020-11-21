@@ -15,8 +15,8 @@ func StartApp() {
 	viper.SetConfigName("config") // config file name without extension
 	viper.SetConfigType("yaml")
 	viper.AddConfigPath(".")
-	viper.AddConfigPath("./config/") // config file path
-	viper.AutomaticEnv()             // read value ENV variable
+	viper.AddConfigPath("./src/config/") // config file path
+	viper.AutomaticEnv()                 // read value ENV variable
 
 	err := viper.ReadInConfig()
 	if err != nil {

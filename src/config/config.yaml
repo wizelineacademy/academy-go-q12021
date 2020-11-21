@@ -1,0 +1,7 @@
+app:
+  port: ':8081'
+db:
+  charactersPath: 'src/resources/characters.csv'
+  mapPath: 'src/resources/map.csv'
+rest:
+  maxPagesByDefault: 1
