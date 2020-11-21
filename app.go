@@ -4,13 +4,14 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"strconv"
 
 	"github.com/gorilla/mux"
 )
 
 // Todo struct (Model)
 type Todo struct {
-	ID        string `json:"id"`
+	ID        int    `json:"id"`
 	Task      string `json:"task"`
 	Status    string `json:"status"`
 	IsDeleted bool   `json:"isDeleted"`
@@ -29,7 +30,7 @@ func getTodo(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	params := mux.Vars(r)
 	for _, item := range todos {
-		if item.ID == params["id"] {
+		if id, err := strconv.Atoi(params["id"]); err == nil && item.ID == id {
 			json.NewEncoder(w).Encode(item)
 			return
 		}
@@ -41,8 +42,8 @@ func main() {
 	router := mux.NewRouter()
 
 	// TODO get data from DB
-	todos = append(todos, Todo{ID: "10", Task: "Wash dishes", Status: "pending", IsDeleted: false})
-	todos = append(todos, Todo{ID: "20", Task: "Make report", Status: "pending", IsDeleted: false})
+	todos = append(todos, Todo{ID: 10, Task: "Wash dishes", Status: "pending", IsDeleted: false})
+	todos = append(todos, Todo{ID: 20, Task: "Make report", Status: "pending", IsDeleted: false})
 
 	// Routes
 	router.HandleFunc("/todos", getTodos).Methods("GET")
