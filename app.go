@@ -38,6 +38,14 @@ func getTodo(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(&Todo{})
 }
 
+func createTodo(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Contetn-Type", "application/json")
+	var todo Todo
+	_ = json.NewDecoder(r.Body).Decode(&todo)
+	todos = append(todos, todo)
+	json.NewEncoder(w).Encode(todo)
+}
+
 func main() {
 	router := mux.NewRouter()
 
@@ -48,7 +56,7 @@ func main() {
 	// Routes
 	router.HandleFunc("/todos", getTodos).Methods("GET")
 	router.HandleFunc("/todos/{id}", getTodo).Methods("GET")
-	// router.HandleFunc("/todos", createTodo).Methods("POST")
+	router.HandleFunc("/todos", createTodo).Methods("POST")
 	// router.HandleFunc("/todos/{id}/done", markTaskDone).Methods("PUT")
 	// router.HandleFunc("/todos/{id}/pending", markTaskPending).Methods("PUT")
 	// router.HandleFunc("/todos/{id}/{task}", updateTask).Methods("PUT")
