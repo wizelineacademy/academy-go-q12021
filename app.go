@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"os"
 	"strconv"
+	"strings"
 
 	"github.com/gorilla/mux"
 )
@@ -129,19 +130,30 @@ func main() {
 			break
 		}
 		if err != nil {
-			log.Fatalln("When reading CSV", err)
+			switch t := err.(type) {
+			default:
+				log.Fatalln("When reading CSV", err)
+			case *csv.ParseError:
+				fmt.Println("Ignoring record #", numOfRecords, t)
+				continue
+			}
 		}
 		numOfRecords++
 		fmt.Println(record[0], record[1], record[2], record[3])
 		// skip headers
 		if numOfRecords != 1 {
-			id, idErr := strconv.Atoi(record[0])
-			isDeleted, delErr := strconv.ParseBool(record[3])
+			id, idErr := strconv.Atoi(strings.TrimSpace(record[0]))
+			isDeleted, delErr := strconv.ParseBool(strings.TrimSpace(record[3]))
 			if idErr == nil && delErr == nil {
-				todos = append(todos, Todo{ID: id, Task: record[1], Status: record[2], IsDeleted: isDeleted})
+				var task = strings.TrimSpace(record[1])
+				var status = strings.TrimSpace(record[2])
+				todos = append(todos, Todo{ID: id, Task: task, Status: status, IsDeleted: isDeleted})
+			} else {
+				fmt.Println("Ignoring record #", numOfRecords, idErr, delErr)
 			}
 		}
 	}
+	csvfile.Close()
 
 	// Routes
 	router.HandleFunc("/todos", getTodos).Methods("GET")

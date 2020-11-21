@@ -1,3 +1,3 @@
 ID, Task, Status, IsDeleted
-10, Wash dishes, pending, false
+10, Wash dishes, pending, true
 20, Make report, done, false
