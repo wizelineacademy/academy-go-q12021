@@ -7,25 +7,22 @@ import (
 	"path/filepath"
 
 	"github.com/davecgh/go-spew/spew"
-
 	"github.com/spf13/viper"
 )
 
 // config structure allow me to store Database information as it was using MySQL for storage of the API
 type config struct {
-	Database struct {
-		User                 string
-		Password             string
-		Net                  string
-		Addr                 string
-		DBName               string
-		AllowNativePasswords bool
-		Params               struct {
-			ParseTime string
-		}
-	}
 	Server struct {
 		Address string
+	}
+	Sqlitedb struct {
+		DBPath string
+	}
+	Sources struct {
+		DigimonAPI string
+	}
+	Dest struct {
+		DigimonCSV string
 	}
 }
 

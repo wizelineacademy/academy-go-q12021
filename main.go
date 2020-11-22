@@ -27,7 +27,7 @@ func main() {
 	// From here it begins the clean architecture for the final delivery
 	config.ReadConfig()
 
-	db := datastore.NewDB()
+	db := datastore.NewDB(config.C.Sqlitedb.DBPath)
 	sqlDB, err := db.DB()
 	if err != nil {
 		log.Fatalln(err)
@@ -40,27 +40,33 @@ func main() {
 	e := echo.New()
 	e = router.NewRouter(e, r.NewAppController())
 
-	fmt.Println("Server listen at http://localhost" + ":" + config.C.Server.Address)
 	if err := e.Start(":" + config.C.Server.Address); err != nil {
 		log.Fatalln(err)
 	}
+
+	fmt.Println("Server listen at http://localhost" + ":" + config.C.Server.Address)
 }
 
 // write Obtain data from an external API convert it to an array and save it into csv file
 func write() {
-	resp, err := http.Get("https://digimon-api.vercel.app/api/digimon")
+	resp, err := http.Get(config.C.Sources.DigimonAPI)
 	if err != nil {
 		log.Fatalln(err)
 	}
 
 	defer resp.Body.Close()
-	bodyBytes, _ := ioutil.ReadAll(resp.Body)
+	bodyBytes, err := ioutil.ReadAll(resp.Body)
+
+	if err != nil {
+		fmt.Println(err)
+	}
+
 	fmt.Println(bodyBytes)
 
 	var DigimonStructArray []model.Digimon
 	json.Unmarshal(bodyBytes, &DigimonStructArray)
 
-	csvFile, err := os.Create("./config/digimon.csv")
+	csvFile, err := os.Create(config.C.Dest.DigimonCSV)
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -76,12 +82,11 @@ func write() {
 	}
 	// remember to flush!
 	writer.Flush()
-
 }
 
 // read Takes the information from a csv file, convert it to an array of Digimon structure and convert it to json.
 func read() {
-	csvFile, err := os.Open("./config/digimon.csv")
+	csvFile, err := os.Open(config.C.Dest.DigimonCSV)
 	if err != nil {
 		fmt.Println(err)
 	}

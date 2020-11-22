@@ -1,12 +1,11 @@
-database:
-  user: root
-  password: root
-  net: tcp
-  addr: localhost:3306
-  dbname: golang_bootcamp_2020
-  allowNativePasswords: true
-  params:
-    parseTime: "true"
-
 server:
   address: 8080
+
+sqlitedb: 
+  dbpath: "config/goolang-bootcamp-2020.db"
+
+sources:
+  digimonAPI: "https://digimon-api.vercel.app/api/digimon"
+
+dest:
+  digimonCSV: "./config/digimon.csv"
