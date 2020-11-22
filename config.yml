@@ -1,0 +1,5 @@
+app_name: astronautsAPI
+# Server configurations
+server:
+  host: "localhost"
+  port: ":8000"

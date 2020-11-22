@@ -9,7 +9,7 @@ import (
 	"os"
 )
 
-// HandleRequest is
+// HandleRequest is the handler of my routes
 func HandleRequest(w http.ResponseWriter, r *http.Request) {
 	log.Println("Request recived:", r.Method)
 
