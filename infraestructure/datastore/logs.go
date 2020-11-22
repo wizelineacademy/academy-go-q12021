@@ -46,6 +46,10 @@ func (lo *Logger) Append(record string) error {
 		log.Println("Cannot add the record to the log", err)
 		return err
 	}
+	err = writter.Flush()
+	if err != nil {
+		log.Println(err.Error())
+	}
 	return nil
 }
 
