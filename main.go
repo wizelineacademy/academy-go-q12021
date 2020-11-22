@@ -13,9 +13,10 @@ const CSV_ERROR_MESSAGE = "There was an error when attempting to read the csv fi
 const FILE_PATH = "covid.csv"
 
 type Country struct {
-    Name   string `json:"name"`
-    Cases  int    `json:"cases"`
-    Deaths int    `json:"deaths"`
+    Name   string  `json:"name"`
+    Cases  int     `json:"cases"`
+    Deaths int     `json:"deaths"`
+    Ratio  float32 `json:"death_ratio"`
 }
 
 func csvError(context *gin.Context, err error) {
@@ -25,7 +26,7 @@ func csvError(context *gin.Context, err error) {
     })
 }
 
-func readCSV(context *gin.Context) {
+func covidHandler(context *gin.Context) {
     file, err := os.Open(FILE_PATH)
     log.Println("%T", err)
     if err != nil {
@@ -53,6 +54,7 @@ func readCSV(context *gin.Context) {
             Name:   record[0],
             Cases:  cases,
             Deaths: deaths,
+            Ratio:  float32(deaths) / float32(cases),
         })
     }
 
@@ -61,6 +63,6 @@ func readCSV(context *gin.Context) {
 
 func main() {
     r := gin.Default()
-    r.GET("/readcsv", readCSV)
+    r.GET("/covid", covidHandler)
     r.Run()
 }
