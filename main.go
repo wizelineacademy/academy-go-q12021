@@ -13,9 +13,9 @@ const CSV_ERROR_MESSAGE = "There was an error when attempting to read the csv fi
 const FILE_PATH = "covid.csv"
 
 type Country struct {
-    Name   string
-    Cases  int
-    Deaths int
+    Name   string `json:"name"`
+    Cases  int    `json:"cases"`
+    Deaths int    `json:"deaths"`
 }
 
 func csvError(context *gin.Context, err error) {
