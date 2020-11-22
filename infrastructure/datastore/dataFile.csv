@@ -1,0 +1,10 @@
+#id,name,last_name,gender,city,state,zip,email,age
+111111,John,Doe,M,Albuquerque,New Mexico,87112,jdoe@example.com,17.9
+111112,Jane,Smith,F,New York,New York,10009,jsmith@example.com,18.1
+111113,Sarah,Thomas,M,Pheonix,Arizona,85006,sthomas@example.com,17.6
+111114,Frank,Brown,M,Pheonix,Arizona,85015,fbrown@example.com,19
+111115,Mike,Davis,F,Seattle,Washington,98106,mdavis@example.com,18.2
+111116,Jennifer,Wilson,M,Denver,Colorado,80012,jwilson@example.com,18.5
+111117,Jessica,Garcia,F,Austin,Texas,78703,jgarcia@example.com,18.8
+111118,Fred,Clark,F,Denver,Colorado,80033,fclark@example.com,19.2
+111119,Bob,Lopez,F,Denver,Colorado,80122,blopez@example.com,18.5
