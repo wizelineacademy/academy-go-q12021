@@ -1,6 +1,0 @@
-app_name: golang-bootcamp-2020
-http_port: 9031
-services:
-  ghibliAPI:
-    host: https://ghibliapi.herokuapp.com/
-    db: config/ghibliDB.csv
