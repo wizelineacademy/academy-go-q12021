@@ -1,5 +1,7 @@
 package services
 
+//This file manages the dependency injection system
+
 import (
 	"fmt"
 	"log"
@@ -71,7 +73,7 @@ func (s *ServiceRegistry) StopAll() {
 // to a service currently stored in the service registry. This ensures the input argument is
 // set to the right pointer that refers to the originally registered service.
 func (s *ServiceRegistry) FetchService(service interface{}) error {
-	if reflect.TypeOf(service).Kind() != reflect.Ptr {
+	if reflect.TypeOf(service).Kind() != reflect.Ptr { //TODO: Fix this fetch service
 		return fmt.Errorf("input must be of pointer type, received value type instead: %T", service)
 	}
 	element := reflect.ValueOf(service).Elem()
