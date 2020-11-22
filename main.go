@@ -1,5 +1,7 @@
 package main
 
+/// This software is a HTTP API to retrieve song lyrics. It connects to external Happi API
+/// to get the information
 import (
 	"log"
 	"net/http"
@@ -17,7 +19,7 @@ import (
 func main() {
 	Config := &config.C
 	Config.ReadConfig()
-	startRegistries()
+	startServices()
 	router := router.NewRouter()
 	r.AddRoutes(router)
 
@@ -33,7 +35,8 @@ func main() {
 	log.Fatal(server.ListenAndServe())
 }
 
-func startRegistries() {
+//startServices starts the system services and prepares it to dependency injection
+func startServices() {
 	registry := services.NewServiceRegistry()
 
 	db := datastore.InitializeDB()
