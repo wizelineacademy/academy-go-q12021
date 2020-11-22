@@ -13,7 +13,7 @@ type FilmRepository interface {
 	FindAll() ([]model.Film, error)
 }
 
-// FindAll - function
+// FindAll - reads CSV file and returns an array of Films
 func FindAll() ([]model.Film, error) {
 	films := []model.Film{}
 
