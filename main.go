@@ -13,7 +13,7 @@ const CSV_ERROR_MESSAGE = "There was an error when attempting to read the csv fi
 const FILE_PATH = "covid.csv"
 
 type Country struct {
-    Name   string  `json:"name"`
+    Name   string  `json:"country_name"`
     Cases  int     `json:"cases"`
     Deaths int     `json:"deaths"`
     Ratio  float32 `json:"death_ratio"`
