@@ -49,4 +49,5 @@ func AddRoutes(router *mux.Router) {
 func init() {
 	AppRoutes = append(AppRoutes, userRoutes)
 	AppRoutes = append(AppRoutes, songRoutes)
+	AppRoutes = append(AppRoutes, adminRoutes)
 }

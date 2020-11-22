@@ -14,12 +14,14 @@ func NewUserInteractor() interactor.UserInteractor {
 	registry := services.ServicesRegistry
 	db := &datastore.MySQL{}
 	registry.FetchService(db)
-	return interactor.NewUserInteractor(NewUserRepository(db), NewUserPresenter())
+	logger := &datastore.Logger{}
+	registry.FetchService(logger)
+	return interactor.NewUserInteractor(NewUserRepository(db, logger), NewUserPresenter())
 }
 
 //NewUserRepository creates a new instance of UserRepository
-func NewUserRepository(db services.Database) repository.UserRepository {
-	return ir.NewUserRepository(db)
+func NewUserRepository(db services.Database, logger services.Logger) repository.UserRepository {
+	return ir.NewUserRepository(db, logger)
 }
 
 //NewUserPresenter creates a new instance of UserPresenter
