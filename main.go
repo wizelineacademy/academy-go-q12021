@@ -43,7 +43,7 @@ func startRegistries() {
 	if err != nil {
 		log.Fatal("Cannot get current directory")
 	}
-	logger := datastore.InitializeLogger(path.Join(currentDir, "logfile.txt"))
+	logger := datastore.InitializeLogger(path.Join(currentDir, "logfile.csv"))
 	registry.RegisterService(logger)
 
 	registry.StartAll()
