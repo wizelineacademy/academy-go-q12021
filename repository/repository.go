@@ -15,7 +15,7 @@ type EventRepository interface {
 // ReservationRepository interface
 type ReservationRepository interface {
 	// Reservation related
-	Create(reservation model.Reservation) (model.Reservation, error)
+	Create(eventID string, reservation model.Reservation) (model.Reservation, error)
 
 	// Related to Event
 	GetByEventID(id string) ([]model.Reservation, error)
