@@ -1,24 +1,28 @@
 package controller
 
 import (
-	"encoding/csv"
 	"errors"
-	"golang-bootcamp-2020/domain/model"
 	"io"
 	"log"
 	"os"
 	"strconv"
+	"encoding/csv"
+
+	"golang-bootcamp-2020/config"
+	"golang-bootcamp-2020/domain/model"
 )
 
+// StudentController interface
 type StudentController interface {
 	GetStudents() []model.Student
 }
 
+//GetStudents get students from csv
 func GetStudents() []model.Student {
-	csvFile, err := os.Open("infrastructure/datastore/dataFile.csv")
+	csvFile, err := os.Open(config.CsvPath)
 	check(err)
 
-	var students []model.Student = nil
+	var students []model.Student
 
 	csvReader := csv.NewReader(csvFile)
 	csvReader.Comment = '#'
@@ -43,14 +47,12 @@ func GetStudents() []model.Student {
 			Email:    dataRow[7],
 			Age:      dataRow[8],
 		}
-		students = append(
-			students,
-			student,
-		)
+		students = append(students, student)
 	}
 	return students
 }
 
+//check log if error exist
 func check(e error) {
 	if e != nil {
 		log.Fatal(e)

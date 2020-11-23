@@ -1,5 +1,6 @@
 package model
 
+// Student - struct to store an student
 type Student struct {
 	ID       int
 	Name     string

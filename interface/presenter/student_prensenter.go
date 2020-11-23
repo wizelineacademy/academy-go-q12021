@@ -2,9 +2,11 @@ package presenter
 
 import (
 	"fmt"
+
 	"golang-bootcamp-2020/domain/model"
 )
 
+// ResponseStudents - Show students
 func ResponseStudents(students []model.Student) {
 	var count = len(students)
 
