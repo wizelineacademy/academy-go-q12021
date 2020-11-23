@@ -4,14 +4,20 @@ import(
     "net/http"
     "log"
     "io/ioutil"
+    "fmt"
 )
 
 func main() {
-    http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+    http.HandleFunc("/hello", func(rw http.ResponseWriter, r *http.Request) {
         log.Println("Hello World")
-        d, _ := ioutil.ReadAll(r.Body)
+        d, err := ioutil.ReadAll(r.Body)
 
-        log.Printf("Data %s\n", d)
+        if err != nil {
+            http.Error(rw, "There's an error", http.StatusBadRequest)
+            return 
+        }
+
+        fmt.Fprintf(rw, "Hello %s", d)
     }) 
 
     http.ListenAndServe(":9090", nil)
