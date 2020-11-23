@@ -11,15 +11,19 @@ import (
 	"api-booking-time/infrastructure/datastore"
 )
 
+var (
+	db *datastore.DbRepository
+)
+
 func main() {
 	config.ReadConfig()
-	//db := datastore.OpenDb()
+	db = datastore.OpenDb()
 
 	r := mux.NewRouter()
 	api := r.PathPrefix("/api/v1").Subrouter()
 	api.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintln(w, "api booking-time")
 	})
-	api.HandleFunc("/centres", getMenuView).Methods(http.MethodGet)
+	api.HandleFunc("/centres", getCentres).Methods(http.MethodGet)
 	log.Fatal(http.ListenAndServe(":" + config.Settings.Server.Port, r))
 }
