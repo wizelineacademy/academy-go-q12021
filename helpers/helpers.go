@@ -7,6 +7,7 @@ import (
 	"runtime/debug"
 )
 
+// ServerError writes a 500 error to w and outputs a debug trace
 func ServerError(w http.ResponseWriter, errorLog *log.Logger, err error) {
 	//Debug trace
 	trace := fmt.Sprintf("%s\n%s", err.Error(), debug.Stack())
@@ -15,16 +16,12 @@ func ServerError(w http.ResponseWriter, errorLog *log.Logger, err error) {
 	http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 }
 
-// The clientError helper sends a specific status code and corresponding description
-// to the user. We'll use this later in the book to send responses like 400 "Bad
-// Request" when there's a problem with the request that the user sent.
+// The clientError helper sends a specific status code and corresponding description to the user.
 func clientError(w http.ResponseWriter, status int) {
 	http.Error(w, http.StatusText(status), status)
 }
 
-// For consistency, we'll also implement a notFound helper. This is simply a
-// convenience wrapper around clientError which sends a 404 Not Found response to
-// the user.
-func notFound(w http.ResponseWriter) {
+// NotFound is simply a convenience wrapper around clientError which sends a 404 Not Found response to the user.
+func NotFound(w http.ResponseWriter) {
 	clientError(w, http.StatusNotFound)
 }

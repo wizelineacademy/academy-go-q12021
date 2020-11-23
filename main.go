@@ -18,7 +18,6 @@ func main() {
 
 	//Init Config
 	config, err := config.Init(infoLog, errorLog)
-
 	if err != nil {
 		errorLog.Fatalf("message: unable to initialize config, err: %v", err)
 	}

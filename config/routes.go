@@ -13,7 +13,7 @@ import (
 // InitRoutes initialize the mux routes
 func (c *Config) InitRoutes() *mux.Router {
 	// Champions handler
-	ch := handlers.NewChampHandler(c.InfoLog, c.ErrorLog, repositories.NewChampRepo(c.DB))
+	ch := handlers.NewChampionHandler(c.InfoLog, c.ErrorLog, repositories.NewChampRepo(c.DB))
 
 	// Gorilla serve mux
 	sm := mux.NewRouter()
@@ -25,8 +25,8 @@ func (c *Config) InitRoutes() *mux.Router {
 	getRouter.HandleFunc("/champions/{id:[0-9]+$}", ch.GetChamp)
 
 	// Post
-	// postRouter := sm.Methods(http.MethodPost).Subrouter()
-	// postRouter.HandleFunc("/champion", uh.AddChamp)
+	postRouter := sm.Methods(http.MethodPost).Subrouter()
+	postRouter.HandleFunc("/champion", ch.AddChamp)
 
 	//postRouter.Use(ch.MiddlewareUserValidation)
 

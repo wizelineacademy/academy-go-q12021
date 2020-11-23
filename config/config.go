@@ -20,11 +20,11 @@ type Config struct {
 // Init the application's configuration
 func Init(infoLog, errorLog *log.Logger) (*Config, error) {
 
-	//Read config
+	//Read config file
 	viper.SetConfigName("config")
 	viper.SetConfigType("json")
 	viper.AddConfigPath(".")
-	err := viper.ReadInConfig() // Find and read the config file
+	err := viper.ReadInConfig()
 
 	if err := viper.ReadInConfig(); err != nil {
 		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
@@ -50,15 +50,16 @@ func Init(infoLog, errorLog *log.Logger) (*Config, error) {
 	dbPort := viper.GetString("db.port")
 	dbName := viper.GetString("db.name")
 	dsn := fmt.Sprintf("%s:%s@(%s:%s)/%s?parseTime=true", username, password, dbHost, dbPort, dbName)
-	fmt.Println(dsn)
-	//Open db connection
-	DB, err := openDB(dsn)
+
+	// Open db connection
+	db, err := openDB(dsn)
 	if err != nil {
 		errorLog.Fatalf("message: unable to open db connection, type: database, err: %v", err)
 		return nil, err
 	}
 
-	return &Config{dsn, infoLog, errorLog, DB, &addr}, nil
+	// Retrun the config
+	return &Config{dsn, infoLog, errorLog, db, &addr}, nil
 }
 
 func openDB(dsn string) (*sql.DB, error) {
