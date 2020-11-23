@@ -11,6 +11,7 @@ import (
 	"github.com/gorilla/mux"
 )
 
+// Employee - Main structure, csv file has this format.
 type Employee struct {
 	ID             string `json:"id"`
 	EmployeeName   string `json:"employee_name"`
@@ -19,6 +20,7 @@ type Employee struct {
 	ProfileImage   string `json:"profile_image"`
 }
 
+// Employees - Global Articles array to simulate a database
 var Employees []Employee
 
 func homePage(w http.ResponseWriter, r *http.Request) {
@@ -38,7 +40,6 @@ func handleRequests() {
 	router := mux.NewRouter().StrictSlash(true)
 	router.HandleFunc("/", homePage)
 	router.HandleFunc("/csv", returnAllEmployees)
-	//router.HandleFunc("/csv", returnJson)
 	log.Fatal(http.ListenAndServe(":8001", router))
 }
 
