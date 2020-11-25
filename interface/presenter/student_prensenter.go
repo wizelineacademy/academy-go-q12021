@@ -1,6 +1,7 @@
 package presenter
 
 import (
+	"encoding/json"
 	"fmt"
 
 	"golang-bootcamp-2020/domain/model"
@@ -10,9 +11,12 @@ import (
 func ResponseStudents(students []model.Student) {
 	var count = len(students)
 
-	for _, v := range students {
-		fmt.Println(v)
-	}
+	//for _, v := range students {
+	//	fmt.Println(v)
+	//}
+
+	slcB, _ := json.Marshal(students)
+	fmt.Println(string(slcB))
 
 	fmt.Printf("\n>>>Done ... %v rows were read.\n", count)
 }

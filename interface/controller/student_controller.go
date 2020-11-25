@@ -17,7 +17,7 @@ type StudentController interface {
 	GetStudents() []model.Student
 }
 
-//GetStudents get students from csv
+// GetStudents get students from csv
 func GetStudents() []model.Student {
 	csvFile, err := os.Open(config.CsvPath)
 	check(err)
@@ -52,7 +52,7 @@ func GetStudents() []model.Student {
 	return students
 }
 
-//check log if error exist
+// check log if error exist
 func check(e error) {
 	if e != nil {
 		log.Fatal(e)
