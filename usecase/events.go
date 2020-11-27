@@ -1,6 +1,8 @@
 package usecase
 
 import (
+	"time"
+
 	"github.com/javiertlopez/golang-bootcamp-2020/model"
 	"github.com/javiertlopez/golang-bootcamp-2020/repository"
 
@@ -45,6 +47,11 @@ func (e *events) Create(event model.Event) (model.Event, error) {
 	uuid := guuid.New().String()
 	event.ID = uuid
 
+	// Step 0.1. Now!
+	now := time.Now()
+	event.CreatedAt = &now
+	event.UpdatedAt = &now
+
 	// Step 1. Try to store an event
 	event, err := e.eventRepo.Create(event)
 	if err != nil {
@@ -60,13 +67,13 @@ func (e *events) Create(event model.Event) (model.Event, error) {
 		}
 	}
 
-	return model.Event{}, nil
+	return event, nil
 }
 
 // GetByID returns an event and its reservations
 func (e *events) GetByID(id string) (model.Event, error) {
 	// Step 1. Get event
-	event, err := e.GetByID(id)
+	event, err := e.eventRepo.GetByID(id)
 	if err != nil {
 		return model.Event{}, err
 	}
