@@ -23,8 +23,8 @@ type Event struct {
 	TotalFee     float64       `json:"total_fee"` // should I include this? There's a func for this
 }
 
-// totalFee returns the total cost of the event guests
-func (e *Event) totalFee() float64 {
+// CalculateTotalFee returns the total cost of the event guests
+func (e *Event) CalculateTotalFee() float64 {
 	var total float64
 
 	for _, reservation := range e.Reservations {
