@@ -1,6 +1,7 @@
 package usecase
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/javiertlopez/golang-bootcamp-2020/model"
@@ -60,6 +61,11 @@ func (e *events) Create(event model.Event) (model.Event, error) {
 
 	// Step 2. If there are reservations, store them
 	if event.Reservations != nil {
+		err := e.validateReservation(event.Reservations)
+		if err != nil {
+			return model.Event{}, err
+		}
+
 		event.Reservations, err = e.AddReservations(uuid, event.Reservations)
 
 		if err != nil {
@@ -151,4 +157,33 @@ func (e *events) GetReservations(id string) ([]model.Reservation, error) {
 	}
 
 	return reservations, nil
+}
+
+func (e *events) validateReservation(reservations []model.Reservation) error {
+	// Step 1. Validate fees
+	if reservations != nil {
+		for _, res := range reservations {
+			// 1.1 Adults should be at least 1
+			if res.Adults < 1 {
+				return fmt.Errorf("res.Adults < 1")
+			}
+
+			// 1.2 AdultFee should be more than 0
+			if res.AdultFee <= 0 {
+				return fmt.Errorf("res.AdultFee <= 0")
+			}
+
+			// 1.3 Minors should be more or equal to 0
+			if res.Minors < 0 {
+				return fmt.Errorf("res.Minors <= 0")
+			}
+
+			// 1.4 if Minors, MinorFee should be more than 0
+			if res.Minors > 0 && res.MinorFee <= 0 {
+				return fmt.Errorf("res.Minors > 0 && res.MinorFee <= 0")
+			}
+		}
+	}
+
+	return nil
 }
