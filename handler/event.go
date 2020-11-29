@@ -61,9 +61,6 @@ func (h *Handler) CreateEvent(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Step 3. Get TotalFee
-	response.TotalFee = response.CalculateTotalFee()
-
 	JSONResponse(
 		w,
 		http.StatusCreated,
@@ -89,7 +86,7 @@ func (h *Handler) GetEventByID(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Step 1. Get reservations
-	reservations, err := h.events.GetReservations(id)
+	response.Reservations, err = h.events.GetReservations(id)
 	if err != nil {
 		JSONResponse(
 			w, http.StatusInternalServerError,
@@ -100,10 +97,6 @@ func (h *Handler) GetEventByID(w http.ResponseWriter, r *http.Request) {
 		)
 		return
 	}
-
-	// Step 2. Get TotalFee
-	response.Reservations = reservations
-	response.TotalFee = response.CalculateTotalFee()
 
 	JSONResponse(
 		w,

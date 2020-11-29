@@ -24,14 +24,14 @@ type Event struct {
 }
 
 // CalculateTotalFee returns the total cost of the event guests
-func (e *Event) CalculateTotalFee() float64 {
+func (e *Event) CalculateTotalFee() {
 	var total float64
 
 	for _, reservation := range e.Reservations {
 		total += reservation.totalFee()
 	}
 
-	return total
+	e.TotalFee = total
 }
 
 // filterReservations returns reservations filtered by status

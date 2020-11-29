@@ -65,6 +65,9 @@ func (e *events) Create(event model.Event) (model.Event, error) {
 		if err != nil {
 			return model.Event{}, err
 		}
+
+		// Step 2.1. Get TotalFee
+		event.CalculateTotalFee()
 	}
 
 	return event, nil
@@ -85,6 +88,9 @@ func (e *events) GetByID(id string) (model.Event, error) {
 	}
 
 	event.Reservations = reservations
+
+	// Step 3. Get TotalFee
+	event.CalculateTotalFee()
 
 	return event, nil
 }
