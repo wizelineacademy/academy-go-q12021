@@ -4,8 +4,9 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/gorilla/mux"
 	"github.com/javiertlopez/golang-bootcamp-2020/model"
+
+	"github.com/gorilla/mux"
 )
 
 // GetReservations handler
