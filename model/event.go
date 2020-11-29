@@ -19,19 +19,19 @@ type Event struct {
 	Email string `json:"email"`
 
 	// Guests
-	Reservations []Reservation `json:"reservations"`
-	TotalFee     float64       `json:"total_fee"` // should I include this? There's a func for this
+	Reservations []Reservation `json:"reservations,omitempty"`
+	TotalFee     float64       `json:"total_fee,omitempty"`
 }
 
 // CalculateTotalFee returns the total cost of the event guests
-func (e *Event) CalculateTotalFee() float64 {
+func (e *Event) CalculateTotalFee() {
 	var total float64
 
 	for _, reservation := range e.Reservations {
 		total += reservation.totalFee()
 	}
 
-	return total
+	e.TotalFee = total
 }
 
 // filterReservations returns reservations filtered by status
