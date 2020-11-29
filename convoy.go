@@ -4,10 +4,12 @@ import (
 	"context"
 	"time"
 
-	"github.com/javiertlopez/golang-bootcamp-2020/handler"
+	"github.com/javiertlopez/golang-bootcamp-2020/controller"
 	"github.com/javiertlopez/golang-bootcamp-2020/repository/axiom"
+	"github.com/javiertlopez/golang-bootcamp-2020/router"
 	"github.com/javiertlopez/golang-bootcamp-2020/usecase"
 
+	"github.com/gorilla/mux"
 	"github.com/sirupsen/logrus"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -19,9 +21,9 @@ const (
 
 // App holds the handler, and logger
 type App struct {
-	logger  *logrus.Logger
-	handler handler.Handler
-	config  AppConfig
+	logger *logrus.Logger
+	router *mux.Router
+	config AppConfig
 }
 
 // AppConfig struct with configuration variables
@@ -54,12 +56,20 @@ func New(config AppConfig, logger *logrus.Logger) App {
 	// Init usecase
 	events := usecase.NewEventUseCase(eventsRepo, reservationsRepo)
 
-	// Setup handler
-	handler := handler.New(events)
+	// Init controller
+	controller := controller.NewEventController(events)
+
+	// Setup router
+	router := router.New(controller)
 
 	return App{
 		logger,
-		handler,
+		router.Router(),
 		config,
 	}
+}
+
+// Router returns *mux.Router
+func (a *App) Router() *mux.Router {
+	return a.router
 }

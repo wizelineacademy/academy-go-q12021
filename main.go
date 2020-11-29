@@ -33,7 +33,7 @@ func main() {
 	)
 
 	// Get router
-	router := convoy.handler.Router()
+	router := convoy.Router()
 
 	// Create a Server instance with the router
 	srv := &http.Server{
