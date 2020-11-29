@@ -128,13 +128,13 @@ func (e *events) Delete(id string) error {
 
 // AddReservations stores reservations, and adds an ID per reservation.
 func (e *events) AddReservations(id string, reservations []model.Reservation) ([]model.Reservation, error) {
-	for _, res := range reservations {
+	for i := range reservations {
 		// Step 0. Let's create a UUID
 		uuid := guuid.New().String()
-		res.ID = uuid
+		reservations[i].ID = uuid
 
 		// Step 1. Store the reservation
-		_, err := e.reservationRepo.Create(id, res)
+		_, err := e.reservationRepo.Create(id, reservations[i])
 		if err != nil {
 			return nil, err
 		}
