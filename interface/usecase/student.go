@@ -1,12 +1,12 @@
-package controller
+package usecase
 
 import (
+	"encoding/csv"
 	"errors"
 	"io"
 	"log"
 	"os"
 	"strconv"
-	"encoding/csv"
 
 	"golang-bootcamp-2020/config"
 	"golang-bootcamp-2020/domain/model"
@@ -14,13 +14,24 @@ import (
 
 // StudentController interface
 type StudentController interface {
-	GetStudents() []model.Student
+	GetStudentsFromCsv() ([]model.Student , error)
 }
 
+type Usecase struct {
+	service StudentController
+}
+
+func New (s StudentController) *Usecase{
+	return &Usecase{s}
+}
+
+// usecase
 // GetStudents get students from csv
-func GetStudents() []model.Student {
-	csvFile, err := os.Open(config.CsvPath)
+func (u *Usecase) GetStudentsFromCsv() ([]model.Student, error) {
+	csvFile, err := os.Open(config.C.CsvPath.Path)
 	check(err)
+
+	u.service.GetStudentsFromCsv()
 
 	var students []model.Student
 
@@ -49,7 +60,7 @@ func GetStudents() []model.Student {
 		}
 		students = append(students, student)
 	}
-	return students
+	return students, err
 }
 
 // check log if error exist

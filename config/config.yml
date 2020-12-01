@@ -1,0 +1,7 @@
+
+server:
+  address: localhost
+  port: 8080
+  timeout: 30
+CsvPath:
+  path: "tmp/dataFile.csv"

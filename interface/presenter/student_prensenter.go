@@ -11,10 +11,6 @@ import (
 func ResponseStudents(students []model.Student) {
 	var count = len(students)
 
-	//for _, v := range students {
-	//	fmt.Println(v)
-	//}
-
 	slcB, _ := json.Marshal(students)
 	fmt.Println(string(slcB))
 
