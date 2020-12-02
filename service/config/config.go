@@ -4,6 +4,7 @@ import (
 	"log"
 
 	"github.com/etyberick/golang-bootcamp-2020/entity"
+
 	"github.com/spf13/viper"
 )
 
