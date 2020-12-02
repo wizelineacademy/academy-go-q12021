@@ -23,6 +23,7 @@ type QuoteInteractor interface {
 func NewQuoteInteractor(c entity.Config) QuoteInteractor {
 	return &quoteInteractor{
 		Repository: repository.NewQuoteRepository(c.CSVFilepath),
+		Gateway:    quotegarden.NewClient(),
 	}
 }
 
@@ -43,8 +44,7 @@ func (qi *quoteInteractor) GetAll() ([]byte, error) {
 
 func (qi *quoteInteractor) Update() ([]byte, error) {
 	// Get a new quote
-	qgc := quotegarden.NewClient()
-	q, err := qgc.GetQuote()
+	q, err := qi.Gateway.GetQuote()
 	if err != nil {
 		return nil, err
 	}
