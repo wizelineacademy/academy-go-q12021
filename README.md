@@ -1,3 +1,47 @@
+# Quickstart
+
+## Clone the project
+
+```bash
+git clone git@github.com:etyberick/golang-bootcamp-2020.git
+```
+
+## Run the project
+
+```bash
+go build
+./golang-bootcamp-2020
+```
+
+By default the project runs a web server on `port 8080` and stores the CSV data in a file named `quote.csv`.
+
+### Server endpoints
+
+| Type     | Name      | Description                                                  |
+| -------- | --------- | ------------------------------------------------------------ |
+| **POST** | :v0/quote | Updates its internal database and returns the recently fetched data. |
+| **GET**  | :v0/quote | Returns a JSON array of all the stored quotes.               |
+
+If you want to test the `POST`endpoint I recommend to make it with Curl
+
+```bash
+curl -X POST localhost:8080/v0/quote
+```
+
+For testing the `GET` endpoint you can use any browser, just access
+
+```url
+localhost:8080/v0/quote
+```
+
+## Testing
+
+```bash
+go test ./...
+```
+
+
+
 # Golang Bootcamp
 
 ## Introduction
