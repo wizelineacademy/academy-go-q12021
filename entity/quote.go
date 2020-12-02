@@ -8,11 +8,6 @@ type Quote struct {
 	Genre  string `json:"quoteGenre"`
 }
 
-// QuoteSource manages all external source calls
-type QuoteSource interface {
-	Fetch() (Quote, error) // Retrieves a Quote
-}
-
 // Slice convertion
 func (q Quote) Slice() []string {
 	s := make([]string, 4)
