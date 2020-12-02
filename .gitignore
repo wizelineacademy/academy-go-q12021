@@ -1,4 +1,6 @@
 ### Go ###
+# Project files
+config.yml
 # Default project name
 golang-bootcamp-2020
 # Binaries for programs and plugins
