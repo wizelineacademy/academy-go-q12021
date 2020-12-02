@@ -16,6 +16,9 @@ type quoteRepository struct {
 	quotes []entity.Quote
 }
 
+// EmptyDatabase message response
+const EmptyDatabase = "database is empty"
+
 // QuoteRepository manages all persistency management operations
 type QuoteRepository interface {
 	ReadAll() ([]entity.Quote, error) // Fetches all items from data source
@@ -49,7 +52,7 @@ func NewQuoteRepository(filename string) QuoteRepository {
 // ReadAll items from data source
 func (qr *quoteRepository) ReadAll() ([]entity.Quote, error) {
 	if len(qr.quotes) == 0 {
-		return nil, fmt.Errorf("database is empty")
+		return nil, fmt.Errorf(EmptyDatabase)
 	}
 	return qr.quotes, nil
 }
