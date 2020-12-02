@@ -1,2 +1,2 @@
 database: ./quotes.csv
-api_port: 8080
+api_port: 80
