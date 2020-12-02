@@ -9,16 +9,18 @@ import (
 	"os"
 )
 
+const badRequest = 405
+
 // HandleRequest is the handler of my routes
 func HandleRequest(w http.ResponseWriter, r *http.Request) {
-	log.Println("Request recived:", r.Method)
+	log.Println("Request received:", r.Method)
 
 	switch r.Method {
 	case http.MethodGet:
 		readCSV(w, r)
 		break
 	default:
-		w.WriteHeader(405)
+		w.WriteHeader(badRequest)
 		w.Write([]byte("Method not allowed"))
 		break
 	}
