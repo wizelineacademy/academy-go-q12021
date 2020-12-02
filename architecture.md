@@ -56,7 +56,7 @@ Clean architecture, the items are declared this way:
 | ------------------- | ------------------------ | ------------------------------------------------------------ |
 | entity              | Entities Layer           | Business object model layer. Contains structures and also the use cases interfaces. |
 | usecase             | Use Cases Layer          | Business rules declaration layer.                            |
-| service             | Interface Adapters Layer | Use case input/output port implementations layer. Contains all functional requirement assets. |
+| service             | Interface Adapters Layer | Use case input/output port implementations layer.|
 | service/repository  | Controller               | Stores and reads from quotes database.                       |
 | service/quotegarden | Gateway                  | Fetches a new quote from quote garden, REST API Client.      |
 | service/json        | Presenter                | Presents data as JSON objects.                               |
