@@ -1,30 +1,17 @@
 package main
 
 import (
-	"log"
-	"os"
-
-	"github.com/etyberick/golang-bootcamp-2020/csv"
-	"github.com/etyberick/golang-bootcamp-2020/http"
-	"github.com/gorilla/mux"
+	"github.com/etyberick/golang-bootcamp-2020/entity"
+	"github.com/etyberick/golang-bootcamp-2020/integration/router"
 )
 
 func main() {
-	r := mux.NewRouter()
-
-	//Check if csv file exists
-	filename := "quotes.csv"
-	_, err := os.Stat(filename)
-
-	//Create if it doesn't exists
-	if os.IsNotExist(err) {
-		_, err = os.Create(filename)
-		if err != nil {
-			log.Fatalf("error creating file - %v", err)
-		}
+	//Load Config
+	config := entity.Config{
+		Port:        "8080",
+		CSVFilepath: "quotes.csv",
 	}
 
-	//Serve
-	quoteStorage := csv.NewCsvQuoteRepository(filename)
-	http.NewQuoteHandler(r, quoteStorage)
+	//Initialize API
+	router.Initialize(config)
 }
