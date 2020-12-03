@@ -55,12 +55,13 @@ Clean architecture, the items are declared this way:
 | Package Name        | Equivalent to            | Role                                                         |
 | ------------------- | ------------------------ | ------------------------------------------------------------ |
 | entity              | Entities Layer           | Business object model layer. Contains structures and also the use cases interfaces. |
-| usecase             | Use Cases Layer          | Business rules declaration layer.                            |
-| service             | Interface Adapters Layer | Use case input/output port implementations layer.|
-| service/repository  | Controller               | Stores and reads from quotes database.                       |
-| service/quotegarden | Gateway                  | Fetches a new quote from quote garden, REST API Client.      |
-| service/json        | Presenter                | Presents data as JSON objects.                               |
-| service/handler     | Controller               | Recieves an API request.                                     |
 | integration         | External interfaces      | Database and web access layer.                               |
-| Integration/router  | Web interface            | HTTP API.                                                    |
+| integration/router  | Web interface            | HTTP API.                                                    |
+| service             | Interface Adapters Layer | Use case input/output port implementations layer.            |
+| service/config      | Storage                  | Loads configuration.                                         |
+| service/handler     | Controller               | Recieves an API request.                                     |
+| service/quotegarden | Gateway                  | Fetches a new quote from quote garden, REST API Client.      |
+| service/repository  | Storage                  | Stores and reads from quotes database.                       |
+| usecase             | Use Cases Layer          | Business rules declaration layer.                            |
+| usecase/interactor  | Quote Use Case           | Coordinates the available services according to the business rules.|
 
