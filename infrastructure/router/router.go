@@ -16,9 +16,6 @@ type Controller interface {
 	//DownloadCsv(w http.ResponseWriter, r *http.Request)
 }
 
-//type C struct{
-//	controller Controller
-//}
 // router
 func NewRouter(controller Controller)() {
 	router := mux.NewRouter()
@@ -31,14 +28,10 @@ func NewRouter(controller Controller)() {
 	router.HandleFunc("/readcsv", controller.GetStudents  ).Methods("GET")
 
 	// Get students from url
-	//router.HandleFunc(
-	//	"/storedata",
-	//	controller.DownloadCsv,
-	//).Methods("GET")
+	//router.HandleFunc("/storedata",controller.DownloadCsv).Methods("GET")
 
 	srv := runServer(router)
-
-	log.Fatal(srv.ListenAndServe())
+	log.Fatal("Fail router",srv.ListenAndServe())
 
 }
 

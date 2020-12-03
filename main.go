@@ -21,8 +21,10 @@ func main() {
 	//resty en main
 	fmt.Println("Server listen at " + config.C.Server.Address + ":" + strconv.Itoa(config.C.Server.Port))
 
+	// *service.Client
 	s := services.NewClient()
-	u := usecase.New(s)
+	// *usecase.Usecase
+	u := usecase.NewUsecase(s)
 	c := controller.New(u)
 	router.NewRouter(c)
 }

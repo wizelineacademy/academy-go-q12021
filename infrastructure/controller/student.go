@@ -10,6 +10,7 @@ import (
 
 type Usecase interface {
 	GetStudentsFromCsv() ([]model.Student, error)
+	//DownloadCsv()
 }
 
 type Students struct{
