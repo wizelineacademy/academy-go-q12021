@@ -12,7 +12,7 @@ import (
 )
 
 type Controller interface {
-	GetStudents(w http.ResponseWriter, r *http.Request)
+	GetStudentsHandler(w http.ResponseWriter, r *http.Request)
 	//DownloadCsv(w http.ResponseWriter, r *http.Request)
 }
 
@@ -25,18 +25,19 @@ func NewRouter(controller Controller)() {
 	})
 
 	// GET students from csv
-	router.HandleFunc("/readcsv", controller.GetStudents  ).Methods("GET")
+	router.HandleFunc("/readcsv", controller.GetStudentsHandler).Methods("GET")
 
 	// Get students from url
 	//router.HandleFunc("/storedata",controller.DownloadCsv).Methods("GET")
 
-	srv := runServer(router)
+	// get server
+	srv := server(router)
+	//run server
 	log.Fatal("Fail router",srv.ListenAndServe())
-
 }
 
 
-func runServer(router *mux.Router) *http.Server {
+func server(router *mux.Router) *http.Server {
 	srv := &http.Server{
 		Handler:      router,
 		Addr:         config.C.Server.Address + ":" + strconv.Itoa(config.C.Server.Port),

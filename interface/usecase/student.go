@@ -4,23 +4,23 @@ import (
 	"golang-bootcamp-2020/domain/model"
 )
 
-// StudentController interface
-type StudentController interface {
-	GetStudentsFromCsv() ([]model.Student, error)
+// StudentService interface
+type StudentService interface {
+	GetStudentsService() ([]model.Student, error)
 }
 
 // Usecase struct type
 type Usecase struct {
-	service StudentController
+	service StudentService
 }
 
 // NewUsecase
-func NewUsecase(s StudentController) *Usecase {
+func NewUsecase(s StudentService) *Usecase {
 	return &Usecase{s}
 }
 
-// GetStudents usecase
-func (u *Usecase) GetStudentsFromCsv() ([]model.Student, error) {
-	students, err := u.service.GetStudentsFromCsv()
+// GetStudentsHandler usecase
+func (u *Usecase) GetStudentsService() ([]model.Student, error) {
+	students, err := u.service.GetStudentsService()
 	return students, err
 }

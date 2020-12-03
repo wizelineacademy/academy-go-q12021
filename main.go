@@ -21,10 +21,12 @@ func main() {
 	//resty en main
 	fmt.Println("Server listen at " + config.C.Server.Address + ":" + strconv.Itoa(config.C.Server.Port))
 
-	// *service.Client
+	// get client *service.Client
 	s := services.NewClient()
-	// *usecase.Usecase
+	// load usecase using client and services, return *usecase.Usecase
 	u := usecase.NewUsecase(s)
-	c := controller.New(u)
+	// load controller using usecases , return *Students
+	c := controller.NewController(u)
+	// router using *Students
 	router.NewRouter(c)
 }
