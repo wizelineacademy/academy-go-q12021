@@ -1,4 +1,4 @@
-#id,name,last_name,gender,city,state,zip,email,age
+#id,name,lastname,gender,city,state,zip,email,age
 111111,John,Doe,M,Albuquerque,New Mexico,87112,jdoe@example.com,17.9
 111112,Jane,Smith,F,New York,New York,10009,jsmith@example.com,18.1
 111113,Sarah,Thomas,M,Pheonix,Arizona,85006,sthomas@example.com,17.6

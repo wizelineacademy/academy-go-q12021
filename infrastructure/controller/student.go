@@ -11,43 +11,39 @@ import (
 // Usecase interface
 type Usecase interface {
 	GetStudentsService() ([]model.Student, error)
-	//DownloadCsv()
+	GetUrlService() ([]model.Student, error)
 }
 
 // Student struct
-type Students struct{
+type Students struct {
 	students Usecase
 }
 
-func NewController(u Usecase) *Students{
-	return &Students{students: u }
+func NewController(u Usecase) *Students {
+	return &Students{students: u}
 }
 
-// GetStudents
-func (s *Students) GetStudentsHandler(writer http.ResponseWriter, request *http.Request) {
+// GetStudentsHandler 	route: /readcsv
+func (s *Students) GetStudentsHandler(w http.ResponseWriter, r *http.Request) {
 	students, err := s.students.GetStudentsService()
 	if err != nil {
-		log.Fatal(err)
-		respondWithError(writer, http.StatusInternalServerError, err.Error())
+		log.Fatal("Fail read csv", err)
+		respondWithError(w, http.StatusInternalServerError, err.Error())
 	}
-	respondWithJSON(writer, http.StatusOK, students)
+	respondWithJSON(w, http.StatusOK, students)
 }
 
-// dwonload csv
-func DownloadCsv(writer http.ResponseWriter, request *http.Request) {
-	//usecase.
-	respondWithJSON(writer, http.StatusOK, map[string]bool{"download": true})
+// GetStudentUrlHandler		route: /storedata
+func (s *Students) GetStudentUrlHandler(w http.ResponseWriter, r *http.Request) {
+	students, err := s.students.GetUrlService()
+	if err != nil {
+		log.Fatal("Fail Get from url ", err)
+		respondWithError(w, http.StatusInternalServerError, err.Error())
+	}
+	//fmt.Println("Get info from url: ", students)
+	//respondWithJSON(w, http.StatusOK, map[string]bool{"download": true})
+	respondWithJSON(w, http.StatusOK, students)
 }
-
-// Download Db from csv
-//func DownloadDb(writer http.ResponseWriter, request *http.Request) {
-
-//student, err := datastore.MongoDAO.FindAll()
-//err != nil{
-//	respondWithError(writer, http.StatusInternalServerError, err.Error()),
-//	return
-//}
-//}
 
 func respondWithError(w http.ResponseWriter, code int, msg string) {
 	respondWithJSON(w, code, map[string]string{"error": msg})

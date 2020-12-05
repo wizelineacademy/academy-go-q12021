@@ -13,7 +13,7 @@ import (
 
 type Controller interface {
 	GetStudentsHandler(w http.ResponseWriter, r *http.Request)
-	//DownloadCsv(w http.ResponseWriter, r *http.Request)
+	GetStudentUrlHandler(w http.ResponseWriter, r *http.Request)
 }
 
 // router
@@ -28,7 +28,7 @@ func NewRouter(controller Controller)() {
 	router.HandleFunc("/readcsv", controller.GetStudentsHandler).Methods("GET")
 
 	// Get students from url
-	//router.HandleFunc("/storedata",controller.DownloadCsv).Methods("GET")
+	router.HandleFunc("/storedata",controller.GetStudentUrlHandler).Methods("GET")
 
 	// get server
 	srv := server(router)

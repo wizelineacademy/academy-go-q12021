@@ -7,11 +7,10 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/davecgh/go-spew/spew"
 	"github.com/spf13/viper"
 )
 
-//Config structure
+// Config structure
 type config struct {
 	Server struct {
 		Address string
@@ -44,5 +43,4 @@ func ReadConfig() {
 		os.Exit(1)
 	}
 
-	spew.Dump(C)
 }
