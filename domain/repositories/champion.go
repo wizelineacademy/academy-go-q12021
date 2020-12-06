@@ -24,15 +24,15 @@ type ChampRepo struct {
 	DB *sql.DB
 }
 
-// NewChampRepo returns an inituialized ChampRepo struct
-func NewChampRepo(DB *sql.DB) *ChampRepo {
-	return &ChampRepo{DB}
+// NewChampRepo returns an initialized ChampRepo struct
+func NewChampRepo(db *sql.DB) *ChampRepo {
+	return &ChampRepo{db}
 }
 
 // GetSingle gets a single database row and returns it as a Champion
 func (cr *ChampRepo) GetSingle(id int) (*models.Champion, error) {
 	// SQL statement
-	stmt := `SELECT  name, lore, created FROM champions WHERE id = ?`
+	const stmt = `SELECT  name, lore, created FROM champions WHERE id = ?`
 
 	// This returns a pointer to a sql.Row object which holds the result from the database.
 	row := cr.DB.QueryRow(stmt, id)
@@ -45,19 +45,18 @@ func (cr *ChampRepo) GetSingle(id int) (*models.Champion, error) {
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, ErrNoRecord
-		} else {
-			return nil, err
 		}
+		return nil, err
 	}
 
-	//If everything went OK then return the Champion struct.
+	// If everything went OK then return the Champion struct.
 	return c, nil
 }
 
 // GetMultiple query the DB and returns a slice of Champions
 func (cr *ChampRepo) GetMultiple(limit int) ([]*models.Champion, error) {
 	// SQL statement
-	stmt := `SELECT name, lore, created FROM champions LIMIT ?`
+	const stmt = `SELECT name, lore, created FROM champions LIMIT ?`
 
 	// This returns a pointer to a sql.Row object which holds the result from the database.
 	rows, err := cr.DB.Query(stmt, limit)
@@ -80,12 +79,11 @@ func (cr *ChampRepo) GetMultiple(limit int) ([]*models.Champion, error) {
 		}
 
 		champions = append(champions, c)
-
 	}
 
 	// When the rows.Next() loop has finished we call rows.Err() to retrieve any error that was encountered during the iteration.
-	if err = rows.Err(); err != nil {
-		return nil, err
+	if rows.Err() != nil {
+		return nil, rows.Err()
 	}
 
 	//If everything went OK then return the Champion struct.
@@ -94,7 +92,7 @@ func (cr *ChampRepo) GetMultiple(limit int) ([]*models.Champion, error) {
 
 // Insert a new Champion into the database.
 func (cr *ChampRepo) Insert(champion *models.Champion) (int, error) {
-	stmt := `INSERT INTO champions (name, lore) VALUES (?, ?)`
+	const stmt = `INSERT INTO champions (name, lore) VALUES (?, ?)`
 
 	// Execute the SQL statement
 	result, err := cr.DB.Exec(stmt, champion.Name, champion.Lore)

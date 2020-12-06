@@ -27,14 +27,7 @@ func Init(infoLog, errorLog *log.Logger) (*Config, error) {
 	err := viper.ReadInConfig()
 
 	if err := viper.ReadInConfig(); err != nil {
-		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
-			// Config file not found
-			panic(fmt.Errorf("fatal error config file not found: %s", err))
-
-		} else {
-			// Config file was found but another error was produced
-			panic(fmt.Errorf("fatal error config file: %s", err))
-		}
+		return nil, err
 	}
 
 	// Get the server address/port

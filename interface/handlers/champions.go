@@ -56,10 +56,7 @@ func (ch *ChampionHandler) GetChamp(w http.ResponseWriter, r *http.Request) {
 
 // GetChamps returns multiple Champions. It defaults to 10 if a limit isn't specified or if the limit is < 1.
 func (ch *ChampionHandler) GetChamps(w http.ResponseWriter, r *http.Request) {
-
-	const (
-		defaultLimit = 10
-	)
+	const defaultLimit = 10
 
 	limit := 0
 	params := r.URL.Query()
@@ -100,7 +97,6 @@ func (ch *ChampionHandler) GetChamps(w http.ResponseWriter, r *http.Request) {
 			helpers.ServerError(w, ch.errorLog, err)
 		}
 	}
-
 }
 
 // AddChamp inserts a new Champ into the DB
@@ -124,5 +120,4 @@ func (ch *ChampionHandler) AddChamp(w http.ResponseWriter, r *http.Request) {
 	}
 
 	fmt.Fprintf(w, "Success creating the Champion: %v\n", id)
-
 }

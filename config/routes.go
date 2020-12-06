@@ -4,7 +4,6 @@ import (
 	"net/http"
 
 	"github.com/wizelineacademy/golang-bootcamp-2020/domain/repositories"
-
 	"github.com/wizelineacademy/golang-bootcamp-2020/interface/handlers"
 
 	"github.com/gorilla/mux"
