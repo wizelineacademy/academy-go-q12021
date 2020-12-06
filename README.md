@@ -10,13 +10,12 @@ This API can read, add, edit or remove items from a Database. The items are leag
 
 ## Installation
 
-
 1. Clone the project
-1. Run the main file: `go run main.go`. This will automatically install all the dependencies, which are gorilla mux and a few for firestore handling.
+1. Go to `/infrastructure/datastore/firestore.go` and edit the **credentialsPath** variable with the path to your GOOGLE_APPLICATION_CREDENTIALS file.
+**Example:** `credentialsPath string = "/home/user/Downloads/my-key.json"`
+
+3. Run the main file: `go run main.go`. This will automatically install all the dependencies, which are gorilla mux and a few for firestore handling.
 **Note:** By default port 8081 will be used, but this can be changed by adding the port flag: `go run main.go --port :PORT`
-
-
-
 
 ## Setting up the environment
 
