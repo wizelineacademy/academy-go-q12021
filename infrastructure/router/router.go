@@ -4,7 +4,6 @@ Router Mux
 package router
 
 import (
-	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
@@ -24,16 +23,17 @@ type Controller interface {
 func NewRouter(controller Controller) {
 	router := mux.NewRouter()
 
-	// root /
-	router.HandleFunc("/", func(writer http.ResponseWriter, request *http.Request) {
-		json.NewEncoder(writer).Encode(map[string]bool{"ok": true})
-	})
-
 	// GET students from csv
-	router.HandleFunc("/readcsv", controller.GetStudentsHandler).Methods("GET")
+	router.HandleFunc(
+		"/readcsv",
+		controller.GetStudentsHandler,
+	).Methods("GET")
 
 	// Get csv from url
-	router.HandleFunc("/storedata", controller.GetStudentURLHandler).Methods("GET")
+	router.HandleFunc(
+		"/storedata",
+		controller.GetStudentURLHandler,
+	).Methods("GET")
 
 	// Run server
 	srv := server(router)

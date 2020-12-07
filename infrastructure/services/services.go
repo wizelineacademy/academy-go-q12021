@@ -14,6 +14,7 @@ import (
 
 func (c *Client) GetStudentsService() ([]model.Student, error) {
 	var students []model.Student
+
 	// open csv
 	csvFile, err := os.Open(config.C.CsvPath.Path)
 	if err != nil {
@@ -21,6 +22,7 @@ func (c *Client) GetStudentsService() ([]model.Student, error) {
 	}
 	defer csvFile.Close()
 
+	// setup csv
 	csvReader := csv.NewReader(csvFile)
 	csvReader.Comment = '#'
 	csvReader.FieldsPerRecord = 9
@@ -30,13 +32,13 @@ func (c *Client) GetStudentsService() ([]model.Student, error) {
 		if errors.Is(err, io.EOF) {
 			break
 		} else if err != nil {
-			return students, fmt.Errorf("Csv reader failure")
+			return students, fmt.Errorf("csv reader failure")
 		}
 
 		// fill struct with data
 		student, err := model.Student{}.ToStruct(dataRow)
 		if err != nil {
-			return students, fmt.Errorf("Cannot convert data to Student {}")
+			return students, fmt.Errorf("cannot convert data to Student {}")
 		}
 		// add struct student to []Student
 		students = append(students, student)
@@ -44,7 +46,7 @@ func (c *Client) GetStudentsService() ([]model.Student, error) {
 	if students != nil {
 		return students, err
 	} else {
-		return students, fmt.Errorf("Csv is empty")
+		return students, fmt.Errorf("csv is empty")
 	}
 }
 

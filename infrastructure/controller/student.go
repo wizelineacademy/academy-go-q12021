@@ -2,6 +2,7 @@ package controller
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
 	"strconv"
 
@@ -27,21 +28,41 @@ func NewController(u Usecase) *Students {
 // GetStudentsHandler 	Handler for: /readcsv
 func (s *Students) GetStudentsHandler(w http.ResponseWriter, r *http.Request) {
 	students, err := s.students.GetStudentsService()
+
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, err.Error())
-	}else {
-		respondWithJSON(w, http.StatusOK, students)
+	} else {
+		sJSON, err := json.Marshal(students)
+		if err != nil {
+			log.Fatal("Cannot encode to JSON ", err)
+		}
+		respondWithJSON(
+			w,
+			http.StatusOK,
+			map[string]string{
+				"ok":       "true",
+				"students": string(sJSON),
+			},
+		)
 	}
 }
 
-// GetStudentUrlHandler	 Handler for: /storedata
+// GetStudentURLHandler	 Handler for: /storedata
 func (s *Students) GetStudentURLHandler(w http.ResponseWriter, r *http.Request) {
 	students, err := s.students.GetURLService()
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, err.Error())
 	} else {
 		total := strconv.Itoa(len(students))
-		respondWithJSON(w, http.StatusOK, map[string]string{"ok": "true", "msj": "Csv created", "total": total})
+		respondWithJSON(
+			w,
+			http.StatusOK,
+			map[string]string{
+				"ok":    "true",
+				"msj":   "Csv created",
+				"total": total,
+			},
+		)
 	}
 }
 

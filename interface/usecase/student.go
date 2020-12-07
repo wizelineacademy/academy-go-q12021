@@ -35,12 +35,12 @@ func (u *Usecase) GetURLService() ([]model.Student, error) {
 	// get data from api into []students
 	students, err := u.service.GetURLService()
 	if err != nil {
-		return students, fmt.Errorf("The URL could not be obtained")
+		return students, fmt.Errorf("the URL could not be obtained")
 	}
 	// Save students in csv file
 	res, err2 := u.service.SaveToCsv(students)
-	if err2 != nil || res != true {
-		return students, fmt.Errorf("Failed to save csv")
+	if err2 != nil || !res {
+		return students, fmt.Errorf("failed to save csv")
 	}
 	return students, err
 }
