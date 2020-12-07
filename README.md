@@ -11,7 +11,7 @@ Based on the self-study material and mentorship covered until this deliverable, 
 
 ## Run
 
-Clone the repository and execute the following command on the root folder.
+####Clone the repository and execute the following command on the root folder.
 
 ``` bash
 git clone https://github.com/ruvaz/golang-bootcamp-2020.git
@@ -20,26 +20,46 @@ go build .
 ./golang-bootcamp-2020
 ``` 
 
+## Usage
+
+####Create csv from URL and get status in response json
+``` bash
+curl --location --request GET 'localhost:8080/storedata'
+``` 
+
+####Read Csv file and get response in json
+``` bash
+curl --location --request GET 'localhost:8080/readcsv'
+``` 
+
 ## Selected architecture
 
 Since the applications made in Go must be applications that are characterized by the speed and simplicity in their code as well as the low level of depth, I found that the clean architecture fits very well with the way of working with Go with its separation of each layer. By layering the software and adhering to the dependency rule, I will create a system that is easily testable, with all the benefits that come with such as when some of the external parts of the system become obsolete, such as the database or the web framework. , you can replace those outdated items with a minimum of effort.
 
 ```text
-    .  
+    .
+    ├── config
+    │ └── config.go
+    │ └── config.yml    
     ├── domain  
     │ └── model  
     │ │ └── student.go  
     ├── infrastructure  
-    │ ├──  datastore  
-    │ │ └── dataFile.csv  
+    │ ├──  controller  
+    │ │ └── student.go
+    │ ├──  router
+    │ │ └── router.go
+    │ ├──  services
+    │ │ └── restclient.go  
+    │ │ └── services.go  
     ├── interface  
-    │ ├── controller  
-    │ │ ├── student_controller.go 
-    │ ├── presenter  
-    │ │ └── user_presenter.go   
+    │ ├── usecase  
+    │ │ ├── student.go   
+    ├── tmp
+    │ └── dataFile.csv
     ├── main.go  
 ```
 
-## Files
+## Creator
 
- - dataFile.csv  Sample file to be displayed  in console by Go.
+[Rubén Vázquez](https://github.com/ruvaz) (ruvaz@me.com)
