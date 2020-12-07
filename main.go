@@ -1,9 +1,6 @@
 package main
 
 import (
-	"fmt"
-	"strconv"
-
 	"golang-bootcamp-2020/config"
 	"golang-bootcamp-2020/infrastructure/controller"
 	"golang-bootcamp-2020/infrastructure/router"
@@ -12,21 +9,24 @@ import (
 )
 
 func main() {
-	fmt.Println("Starting the app ...")
+	// Dependency injection section
+	// load environment settings
 	config.ReadConfig()
-	//db, ctx := datastore.NewDb()
-	//defer db.Disconnect(ctx)
-	//fmt.Println("DB ready")
 
-	//resty en main
-	fmt.Println("Server listen at " + config.C.Server.Address + ":" + strconv.Itoa(config.C.Server.Port))
+	// load db
+	// db, ctx := datastore.NewDb()
+	// defer db.Disconnect(ctx)
+	// fmt.Println("DB ready")
 
-	// get client *service.Client
+	// Load client *service.Client
 	s := services.NewClient()
-	// load usecase using client and services, return *usecase.Usecase
+
+	// load Usecase with client and services
 	u := usecase.NewUsecase(s)
-	// load controller using usecases , return *Students
+
+	// load controller using usecases
 	c := controller.NewController(u)
-	// router using *Students
+
+	// router using controller
 	router.NewRouter(c)
 }

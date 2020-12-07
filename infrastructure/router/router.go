@@ -1,25 +1,30 @@
+/**
+Router Mux
+*/
 package router
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
-	"strconv"
 	"time"
 
-	"github.com/gorilla/mux"
 	"golang-bootcamp-2020/config"
+
+	"github.com/gorilla/mux"
 )
 
 type Controller interface {
 	GetStudentsHandler(w http.ResponseWriter, r *http.Request)
-	GetStudentUrlHandler(w http.ResponseWriter, r *http.Request)
+	GetStudentURLHandler(w http.ResponseWriter, r *http.Request)
 }
 
 // router
-func NewRouter(controller Controller)() {
+func NewRouter(controller Controller) {
 	router := mux.NewRouter()
 
+	// root /
 	router.HandleFunc("/", func(writer http.ResponseWriter, request *http.Request) {
 		json.NewEncoder(writer).Encode(map[string]bool{"ok": true})
 	})
@@ -27,20 +32,19 @@ func NewRouter(controller Controller)() {
 	// GET students from csv
 	router.HandleFunc("/readcsv", controller.GetStudentsHandler).Methods("GET")
 
-	// Get students from url
-	router.HandleFunc("/storedata",controller.GetStudentUrlHandler).Methods("GET")
+	// Get csv from url
+	router.HandleFunc("/storedata", controller.GetStudentURLHandler).Methods("GET")
 
-	// get server
+	// Run server
 	srv := server(router)
-	//run server
-	log.Fatal("Fail router",srv.ListenAndServe())
+	fmt.Println("Server listen at " + config.C.GetServerAddr())
+	log.Fatal("Fail router", srv.ListenAndServe())
 }
-
 
 func server(router *mux.Router) *http.Server {
 	srv := &http.Server{
 		Handler:      router,
-		Addr:         config.C.Server.Address + ":" + strconv.Itoa(config.C.Server.Port),
+		Addr:         config.C.GetServerAddr(),
 		WriteTimeout: config.C.Server.Timeout * time.Second,
 		ReadTimeout:  config.C.Server.Timeout * time.Second,
 	}

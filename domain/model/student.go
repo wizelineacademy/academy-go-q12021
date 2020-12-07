@@ -1,3 +1,6 @@
+/**
+Student Model
+*/
 package model
 
 import (
@@ -5,7 +8,7 @@ import (
 	"strconv"
 )
 
-// Student - struct to store an student
+// Student  struct for a student
 type Student struct {
 	ID       int    `json:"id"`
 	Name     string `json:"name"`
@@ -18,10 +21,11 @@ type Student struct {
 	Age      string `json:"age"`
 }
 
+// ToSlice convert a Student{} to []string
 func (s Student) ToSlice() []string {
 	id := strconv.Itoa(s.ID)
-	zip:= strconv.Itoa(s.Zip)
-	row := make([]string, 9, 9) // Since you only have 1 field in the struct
+	zip := strconv.Itoa(s.Zip)
+	row := make([]string, 9, 9)
 	row[0] = id
 	row[1] = s.Name
 	row[2] = s.LastName
@@ -33,13 +37,19 @@ func (s Student) ToSlice() []string {
 	row[8] = s.Age
 	return row
 }
-func (s Student) ToStruct(data []string) (Student ,error) {
+
+// ToStruct convert a []String to Student{} struct
+func (s Student) ToStruct(data []string) (Student, error) {
 	id, err := strconv.Atoi(data[0])
-	checkError("Can't convert ID to int", err)
+	if err != nil {
+		log.Fatal("Error: Can't convert ID to int", err)
+	}
 	zip, err := strconv.Atoi(data[6])
-	checkError("Can't convert Zip to int", err)
+	if err != nil {
+		log.Fatal("Error: Can't convert Zip to int", err)
+	}
 	// fill struct with data
-	student :=  Student{
+	student := Student{
 		ID:       id,
 		Name:     data[1],
 		LastName: data[2],
@@ -50,11 +60,5 @@ func (s Student) ToStruct(data []string) (Student ,error) {
 		Email:    data[7],
 		Age:      data[8],
 	}
-	return student,err
-}
-
-func checkError(message string, err error) {
-	if err != nil {
-		log.Fatal(message, err)
-	}
+	return student, err
 }

@@ -1,3 +1,6 @@
+/**
+Get config environment settings
+*/
 package config
 
 import (
@@ -5,6 +8,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"strconv"
 	"time"
 
 	"github.com/spf13/viper"
@@ -14,23 +18,24 @@ import (
 type config struct {
 	Server struct {
 		Address string
-		Port int
-		Timeout  time.Duration
+		Port    int
+		Timeout time.Duration
 	}
-	CsvPath struct{
+	CsvPath struct {
 		Path string
 	}
 }
 
+// C global var type config
 var C config
 
-// Ready config file yml
+// ReadConfig read  yml file
 func ReadConfig() {
 	Config := &C
 
 	viper.SetConfigName("config")
 	viper.SetConfigType("yml")
-	viper.AddConfigPath(filepath.Join("$GOPATH", "src",  "golang-bootcamp-2020", "config"))
+	viper.AddConfigPath(filepath.Join("$GOPATH", "src", "golang-bootcamp-2020", "config"))
 	viper.AutomaticEnv()
 
 	if err := viper.ReadInConfig(); err != nil {
@@ -42,5 +47,10 @@ func ReadConfig() {
 		fmt.Println(err)
 		os.Exit(1)
 	}
+}
 
+// GetServerAddr obtain the full server address in a string
+func (c config) GetServerAddr() string {
+	s := C.Server.Address + ":" + strconv.Itoa(C.Server.Port)
+	return s
 }

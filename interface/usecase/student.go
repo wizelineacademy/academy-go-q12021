@@ -1,8 +1,8 @@
+// Student usecase
 package usecase
 
 import (
 	"fmt"
-	"log"
 
 	"golang-bootcamp-2020/domain/model"
 )
@@ -10,38 +10,37 @@ import (
 // StudentService interface
 type StudentService interface {
 	GetStudentsService() ([]model.Student, error)
-	GetUrlService() ([]model.Student, error)
+	GetURLService() ([]model.Student, error)
 	SaveToCsv(students []model.Student) (bool, error)
 }
 
-// Usecase struct type
+// Usecase struct
 type Usecase struct {
 	service StudentService
 }
 
-// NewUsecase
+// NewUsecase using student service interface
 func NewUsecase(s StudentService) *Usecase {
 	return &Usecase{s}
 }
 
-// GetStudentsHandler usecase
+// GetStudentsService in usecase
 func (u *Usecase) GetStudentsService() ([]model.Student, error) {
 	students, err := u.service.GetStudentsService()
 	return students, err
 }
 
-func (u *Usecase) GetUrlService() ([]model.Student, error) {
-	students, err := u.service.GetUrlService()
+// GetURLService in usecase
+func (u *Usecase) GetURLService() ([]model.Student, error) {
+	// get data from api into []students
+	students, err := u.service.GetURLService()
 	if err != nil {
-		log.Fatal("Fallo leer url ", err)
+		return students, fmt.Errorf("The URL could not be obtained")
 	}
-	res, err := u.service.SaveToCsv(students)
-	if err != nil {
-		log.Fatal("Fallo el salvar csv ", err)
+	// Save students in csv file
+	res, err2 := u.service.SaveToCsv(students)
+	if err2 != nil || res != true {
+		return students, fmt.Errorf("Failed to save csv")
 	}
-	if res {
-		fmt.Println("se guardo con exito")
-	}
-
 	return students, err
 }

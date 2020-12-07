@@ -42,4 +42,4 @@ Since the applications made in Go must be applications that are characterized by
 
 ## Files
 
- - dataFile.csv  Sample file to be displayed  in console by Go.
+ - dataFile.csv  Sample file to be displayed  in a console by Go.

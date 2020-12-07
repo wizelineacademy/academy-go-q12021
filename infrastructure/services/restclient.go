@@ -1,22 +1,25 @@
+/**
+Resty Client
+*/
 package services
 
 import (
-	"strconv"
 	"time"
 
-	"github.com/go-resty/resty/v2"
 	"golang-bootcamp-2020/config"
+
+	"github.com/go-resty/resty/v2"
 )
 
 // client struct
-type Client struct{
+type Client struct {
 	client *resty.Client
 }
 
 // GET new client Resty
-func  NewClient() *Client {
+func NewClient() *Client {
 	var (
-		host    = config.C.Server.Address + ":" + strconv.Itoa(config.C.Server.Port)
+		host    = config.C.GetServerAddr()
 		timeout = config.C.Server.Timeout * time.Second
 	)
 
