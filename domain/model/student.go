@@ -25,7 +25,7 @@ type Student struct {
 func (s Student) ToSlice() []string {
 	id := strconv.Itoa(s.ID)
 	zip := strconv.Itoa(s.Zip)
-	row := make([]string, 9, 9)
+	row := make([]string, 9)
 	row[0] = id
 	row[1] = s.Name
 	row[2] = s.LastName

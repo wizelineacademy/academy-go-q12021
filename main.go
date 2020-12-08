@@ -9,14 +9,8 @@ import (
 )
 
 func main() {
-	// Dependency injection section
 	// load environment settings
 	config.ReadConfig()
-
-	// load db
-	// db, ctx := datastore.NewDb()
-	// defer db.Disconnect(ctx)
-	// fmt.Println("DB ready")
 
 	// Load client *service.Client
 	s := services.NewClient()

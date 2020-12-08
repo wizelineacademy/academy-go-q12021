@@ -1,3 +1,6 @@
+/**
+Student controller
+*/
 package controller
 
 import (
@@ -11,8 +14,8 @@ import (
 
 // Usecase interface
 type Usecase interface {
-	GetStudentsService() ([]model.Student, error)
-	GetURLService() ([]model.Student, error)
+	ReadStudentsService() ([]model.Student, error)
+	StoreURLService() ([]model.Student, error)
 }
 
 // Students Use case struct
@@ -20,14 +23,14 @@ type Students struct {
 	students Usecase
 }
 
-// NewController
+// NewController student
 func NewController(u Usecase) *Students {
 	return &Students{students: u}
 }
 
-// GetStudentsHandler 	Handler for: /readcsv
-func (s *Students) GetStudentsHandler(w http.ResponseWriter, r *http.Request) {
-	students, err := s.students.GetStudentsService()
+// ReadStudentsHandler 	Handler for: /readcsv
+func (s *Students) ReadStudentsHandler(w http.ResponseWriter, r *http.Request) {
+	students, err := s.students.ReadStudentsService()
 
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, err.Error())
@@ -47,9 +50,9 @@ func (s *Students) GetStudentsHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// GetStudentURLHandler	 Handler for: /storedata
-func (s *Students) GetStudentURLHandler(w http.ResponseWriter, r *http.Request) {
-	students, err := s.students.GetURLService()
+// StoreStudentURLHandler	 Handler for: /storedata
+func (s *Students) StoreStudentURLHandler(w http.ResponseWriter, r *http.Request) {
+	students, err := s.students.StoreURLService()
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, err.Error())
 	} else {

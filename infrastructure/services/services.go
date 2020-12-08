@@ -1,3 +1,6 @@
+/**
+Student Services
+*/
 package services
 
 import (
@@ -12,13 +15,14 @@ import (
 	"golang-bootcamp-2020/domain/model"
 )
 
-func (c *Client) GetStudentsService() ([]model.Student, error) {
+// ReadStudentsService read students from csv file return []Students
+func (c *Client) ReadStudentsService() ([]model.Student, error) {
 	var students []model.Student
 
 	// open csv
 	csvFile, err := os.Open(config.C.CsvPath.Path)
 	if err != nil {
-		return students, fmt.Errorf("Unable to open csv file")
+		return students, fmt.Errorf("unable to open csv file")
 	}
 	defer csvFile.Close()
 
@@ -43,42 +47,40 @@ func (c *Client) GetStudentsService() ([]model.Student, error) {
 		// add struct student to []Student
 		students = append(students, student)
 	}
+
 	if students != nil {
 		return students, err
-	} else {
-		return students, fmt.Errorf("csv is empty")
 	}
+	return students, fmt.Errorf("csv is empty")
 }
 
-/**
-ReadURL and return students Array from URL in structure
-*/
-func (c *Client) GetURLService() ([]model.Student, error) {
-	const ApiUrl = "https://login-app-crud.firebaseio.com/.json"
+// StoreURLService and return students Array from URL in structure
+func (c *Client) StoreURLService() ([]model.Student, error) {
+	const API_URL = "https://login-app-crud.firebaseio.com/.json"
 	var students []model.Student
 
 	resp, err := c.client.R().SetHeader(
 		"Accept",
 		"application/json",
-	).Get(ApiUrl)
+	).Get(API_URL)
 	if err != nil {
-		return students, fmt.Errorf("Could not get the URL information")
+		return students, fmt.Errorf("could not get the URL information")
 	}
 
 	// convert json to []Students
 	err = json.Unmarshal(resp.Body(), &students)
-	if err != nil {
-		return students, fmt.Errorf("Error converting json to [] students")
+	if err := json.Unmarshal(resp.Body(), &students); err != nil {
+		return students, fmt.Errorf("error converting json to [] students")
 	}
 	return students, err
 }
 
-// SaveToCsv  take and []Student and save it in a csv file
+// SaveToCsv take and []Student and save it in a csv file
 func (c *Client) SaveToCsv(students []model.Student) (bool, error) {
 	// create csv file
 	file, err := os.Create(config.C.CsvPath.Path)
 	if err != nil {
-		return false, fmt.Errorf("Could not create csv file")
+		return false, fmt.Errorf("could not create csv file")
 	}
 	defer file.Close()
 

@@ -11,17 +11,15 @@ import (
 	"github.com/go-resty/resty/v2"
 )
 
-// client struct
+// Client struct
 type Client struct {
 	client *resty.Client
 }
 
-// GET new client Resty
+// NewClient new client Resty
 func NewClient() *Client {
-	var (
-		host    = config.C.GetServerAddr()
-		timeout = config.C.Server.Timeout * time.Second
-	)
+	host := config.C.GetServerAddr()
+	timeout := config.C.Server.Timeout * time.Second
 
 	client := resty.New().
 		SetHostURL(host).

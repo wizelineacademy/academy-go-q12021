@@ -1,4 +1,6 @@
-// Student usecase
+/**
+Student usecase
+*/
 package usecase
 
 import (
@@ -9,8 +11,8 @@ import (
 
 // StudentService interface
 type StudentService interface {
-	GetStudentsService() ([]model.Student, error)
-	GetURLService() ([]model.Student, error)
+	ReadStudentsService() ([]model.Student, error)
+	StoreURLService() ([]model.Student, error)
 	SaveToCsv(students []model.Student) (bool, error)
 }
 
@@ -24,23 +26,23 @@ func NewUsecase(s StudentService) *Usecase {
 	return &Usecase{s}
 }
 
-// GetStudentsService in usecase
-func (u *Usecase) GetStudentsService() ([]model.Student, error) {
-	students, err := u.service.GetStudentsService()
+// ReadStudentsService in usecase
+func (u *Usecase) ReadStudentsService() ([]model.Student, error) {
+	students, err := u.service.ReadStudentsService()
 	return students, err
 }
 
-// GetURLService in usecase
-func (u *Usecase) GetURLService() ([]model.Student, error) {
+// StoreURLService in usecase
+func (u *Usecase) StoreURLService() ([]model.Student, error) {
 	// get data from api into []students
-	students, err := u.service.GetURLService()
+	students, err := u.service.StoreURLService()
 	if err != nil {
 		return students, fmt.Errorf("the URL could not be obtained")
 	}
 	// Save students in csv file
-	res, err2 := u.service.SaveToCsv(students)
-	if err2 != nil || !res {
+	res, err := u.service.SaveToCsv(students)
+	if err != nil || !res {
 		return students, fmt.Errorf("failed to save csv")
 	}
-	return students, err
+	return students, nil
 }

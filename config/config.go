@@ -14,7 +14,7 @@ import (
 	"github.com/spf13/viper"
 )
 
-// Config structure
+// config structure
 type config struct {
 	Server struct {
 		Address string
@@ -51,6 +51,5 @@ func ReadConfig() {
 
 // GetServerAddr obtain the full server address in a string
 func (c config) GetServerAddr() string {
-	s := C.Server.Address + ":" + strconv.Itoa(C.Server.Port)
-	return s
+	return C.Server.Address + ":" + strconv.Itoa(C.Server.Port)
 }

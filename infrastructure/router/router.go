@@ -14,25 +14,26 @@ import (
 	"github.com/gorilla/mux"
 )
 
+// Controller interfaces
 type Controller interface {
-	GetStudentsHandler(w http.ResponseWriter, r *http.Request)
-	GetStudentURLHandler(w http.ResponseWriter, r *http.Request)
+	ReadStudentsHandler(w http.ResponseWriter, r *http.Request)
+	StoreStudentURLHandler(w http.ResponseWriter, r *http.Request)
 }
 
-// router
+// NewRouter new mux router
 func NewRouter(controller Controller) {
 	router := mux.NewRouter()
 
 	// GET students from csv
 	router.HandleFunc(
 		"/readcsv",
-		controller.GetStudentsHandler,
+		controller.ReadStudentsHandler,
 	).Methods("GET")
 
 	// Get csv from url
 	router.HandleFunc(
 		"/storedata",
-		controller.GetStudentURLHandler,
+		controller.StoreStudentURLHandler,
 	).Methods("GET")
 
 	// Run server
@@ -41,6 +42,7 @@ func NewRouter(controller Controller) {
 	log.Fatal("Fail router", srv.ListenAndServe())
 }
 
+// server obtain server setup
 func server(router *mux.Router) *http.Server {
 	srv := &http.Server{
 		Handler:      router,
