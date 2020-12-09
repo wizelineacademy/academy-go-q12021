@@ -15,14 +15,13 @@ import (
 
 // ChampionHandler defines the Champion Handler properties
 type ChampionHandler struct {
-	infoLog   *log.Logger
-	errorLog  *log.Logger
-	champRepo repositories.ChampionRepository
+	infoLog  *log.Logger
+	errorLog *log.Logger
 }
 
 // NewChampionHandler returns a ChampModel struct with a logger.
-func NewChampionHandler(infoLog, errorLog *log.Logger, cr repositories.ChampionRepository) *ChampionHandler {
-	return &ChampionHandler{infoLog, errorLog, cr}
+func NewChampionHandler(infoLog, errorLog *log.Logger) *ChampionHandler {
+	return &ChampionHandler{infoLog, errorLog}
 }
 
 // GetChamp returns a single Champion by id
@@ -35,8 +34,16 @@ func (ch *ChampionHandler) GetChamp(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Query the database to get a single Champions
-	c, err := ch.champRepo.GetSingle(id)
+	// Create a new chap repo to access the db
+	cr, err := repositories.NewChampRepo(ch.errorLog)
+	if err != nil {
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		ch.errorLog.Printf("message: error while creating a new champ repo, handler: champions, method: GET, id: %v, err: %v\n", id, err)
+	}
+	defer cr.DB.Close()
+
+	// Query the database to get a single Champion
+	c, err := cr.GetSingle(id)
 	if err != nil {
 		if errors.Is(err, repositories.ErrNoRecord) {
 			http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
@@ -58,7 +65,7 @@ func (ch *ChampionHandler) GetChamp(w http.ResponseWriter, r *http.Request) {
 func (ch *ChampionHandler) GetChamps(w http.ResponseWriter, r *http.Request) {
 	const defaultLimit = 10
 
-	limit := 0
+	limit := defaultLimit
 	params := r.URL.Query()
 	// If query param "limit" is found
 	if params.Get("limit") != "" {
@@ -68,19 +75,23 @@ func (ch *ChampionHandler) GetChamps(w http.ResponseWriter, r *http.Request) {
 			helpers.NotFound(w)
 			return
 		}
-
 		if paramLimit < 1 {
 			ch.infoLog.Printf("message: limit < 1, using default limit %v, handler: champions, method: GET", defaultLimit)
-			limit = defaultLimit
 		} else {
 			limit = paramLimit
 		}
-	} else { // If query param "limit" isn't found
-		limit = defaultLimit
 	}
 
+	// Create a new chap repo to access the db
+	cr, err := repositories.NewChampRepo(ch.errorLog)
+	if err != nil {
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		ch.errorLog.Printf("message: error while creating a new champ repo, handler: champions, method: GET, err: %v\n", err)
+	}
+	defer cr.DB.Close()
+
 	// Query the database and get a slice of Champions
-	champions, err := ch.champRepo.GetMultiple(limit)
+	champions, err := cr.GetMultiple(limit)
 	if err != nil {
 		helpers.ServerError(w, ch.errorLog, err)
 		return
@@ -110,9 +121,17 @@ func (ch *ChampionHandler) AddChamp(w http.ResponseWriter, r *http.Request) {
 		helpers.ServerError(w, ch.errorLog, err)
 		return
 	}
+
+	// Create a new chap repo to access the db
+	cr, err := repositories.NewChampRepo(ch.errorLog)
+	if err != nil {
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		ch.errorLog.Printf("message: error while creating a new champ repo, handler: champions, method: GET, err: %v\n", err)
+	}
+	defer cr.DB.Close()
 	// Pass the data to the SnippetModel.Insert() method, receiving the
 	// ID of the new record back.
-	id, err := ch.champRepo.Insert(champ)
+	id, err := cr.Insert(champ)
 	if err != nil {
 		fmt.Printf("err %v\n", err)
 		helpers.ServerError(w, ch.errorLog, err)

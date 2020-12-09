@@ -3,7 +3,6 @@ package config
 import (
 	"net/http"
 
-	"github.com/wizelineacademy/golang-bootcamp-2020/domain/repositories"
 	"github.com/wizelineacademy/golang-bootcamp-2020/interface/handlers"
 
 	"github.com/gorilla/mux"
@@ -11,8 +10,9 @@ import (
 
 // InitRoutes initialize the mux routes
 func (c *Config) InitRoutes() *mux.Router {
+
 	// Champions handler
-	ch := handlers.NewChampionHandler(c.InfoLog, c.ErrorLog, repositories.NewChampRepo(c.DB))
+	ch := handlers.NewChampionHandler(c.InfoLog, c.ErrorLog)
 
 	// Gorilla serve mux
 	sm := mux.NewRouter()

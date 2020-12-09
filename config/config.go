@@ -1,68 +1,47 @@
 package config
 
 import (
-	"database/sql"
-	"fmt"
 	"log"
+	"time"
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/spf13/viper"
 )
 
+// Config returns the information required by the application to run
 type Config struct {
-	DSN      string
-	InfoLog  *log.Logger
-	ErrorLog *log.Logger
-	DB       *sql.DB
-	Addr     *string
+	InfoLog         *log.Logger
+	ErrorLog        *log.Logger
+	Addr            *string
+	ReadTimeout     time.Duration
+	WriteTimeout    time.Duration
+	IdleTimeout     time.Duration
+	ShutdownTimeout time.Duration
 }
 
 // Init the application's configuration
 func Init(infoLog, errorLog *log.Logger) (*Config, error) {
 
-	//Read config file
+	const (
+		readTimeout     = 5 * time.Second   //Seconds
+		writeTimeout    = 10 * time.Second  //Seconds
+		idleTimeout     = 120 * time.Second //Seconds
+		shutdownTimeout = 30 * time.Second  //Seconds
+	)
+
+	// Read config file
 	viper.SetConfigName("config")
 	viper.SetConfigType("json")
 	viper.AddConfigPath(".")
 	err := viper.ReadInConfig()
 
-	if err := viper.ReadInConfig(); err != nil {
+	if err = viper.ReadInConfig(); err != nil {
 		return nil, err
 	}
 
 	// Get the server address/port
 	addr := viper.GetString("addr")
 
-	// Create the Data Source Name
-	// *We need to use the parseTime=true parameter in our
-	// DSN to force it to convert TIME and DATE fields to time.Time. Otherwise it returns these as
-	// []byte objects.
-	username := viper.GetString("db.username")
-	password := viper.GetString("db.password")
-	dbHost := viper.GetString("db.host")
-	dbPort := viper.GetString("db.port")
-	dbName := viper.GetString("db.name")
-	dsn := fmt.Sprintf("%s:%s@(%s:%s)/%s?parseTime=true", username, password, dbHost, dbPort, dbName)
-
-	// Open db connection
-	db, err := openDB(dsn)
-	if err != nil {
-		errorLog.Fatalf("message: unable to open db connection, type: database, err: %v", err)
-		return nil, err
-	}
-
 	// Retrun the config
-	return &Config{dsn, infoLog, errorLog, db, &addr}, nil
-}
-
-func openDB(dsn string) (*sql.DB, error) {
-	db, err := sql.Open("mysql", dsn)
-	if err != nil {
-		return nil, err
-	}
-	//Check if the DB is responding
-	if err = db.Ping(); err != nil {
-		return nil, err
-	}
-	return db, nil
+	return &Config{infoLog, errorLog, &addr, readTimeout, writeTimeout, idleTimeout, shutdownTimeout}, nil
 }

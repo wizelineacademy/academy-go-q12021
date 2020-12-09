@@ -3,7 +3,10 @@ package repositories
 import (
 	"database/sql"
 	"errors"
+	"fmt"
+	"log"
 
+	"github.com/spf13/viper"
 	"github.com/wizelineacademy/golang-bootcamp-2020/domain/models"
 )
 
@@ -25,8 +28,29 @@ type ChampRepo struct {
 }
 
 // NewChampRepo returns an initialized ChampRepo struct
-func NewChampRepo(db *sql.DB) *ChampRepo {
-	return &ChampRepo{db}
+func NewChampRepo(errorLog *log.Logger) (*ChampRepo, error) {
+
+	// Create the Data Source Name
+	// *We need to use the parseTime=true parameter in our
+	// DSN to force it to convert TIME and DATE fields to time.Time. Otherwise it returns these as
+	// []byte objects.
+	// Note: at this point; viper is already initialized in the main config.
+	username := viper.GetString("db.username")
+	password := viper.GetString("db.password")
+	dbHost := viper.GetString("db.host")
+	dbPort := viper.GetString("db.port")
+	dbName := viper.GetString("db.name")
+	dsn := fmt.Sprintf("%s:%s@(%s:%s)/%s?parseTime=true", username, password, dbHost, dbPort, dbName)
+
+	// Open db connection
+	db, err := openDB(dsn)
+	if err != nil {
+		errorLog.Fatalf("message: unable to open db connection, type: database, err: %v", err)
+		return nil, err
+	}
+
+	// Retrun a new ChampRepo struct initialized with its DB object
+	return &ChampRepo{db}, nil
 }
 
 // GetSingle gets a single database row and returns it as a Champion
@@ -86,7 +110,7 @@ func (cr *ChampRepo) GetMultiple(limit int) ([]*models.Champion, error) {
 		return nil, rows.Err()
 	}
 
-	//If everything went OK then return the Champion struct.
+	// If everything went OK then return the Champion struct.
 	return champions, nil
 }
 
@@ -116,4 +140,16 @@ func (cr *ChampRepo) Update(db *sql.DB) error {
 
 func (cr *ChampRepo) Delete(db *sql.DB) error {
 	return errors.New("Not implemented")
+}
+
+func openDB(dsn string) (*sql.DB, error) {
+	db, err := sql.Open("mysql", dsn)
+	if err != nil {
+		return nil, err
+	}
+	//Check if the DB is responding
+	if err = db.Ping(); err != nil {
+		return nil, err
+	}
+	return db, nil
 }
