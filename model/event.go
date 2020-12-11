@@ -39,7 +39,7 @@ func (e *Event) filterReservations(status string) []Reservation {
 	var list []Reservation
 
 	for _, reservation := range e.Reservations {
-		if e.Status == status {
+		if reservation.Status == status {
 			list = append(list, reservation)
 		}
 	}
