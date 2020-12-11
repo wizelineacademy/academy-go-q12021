@@ -16,8 +16,6 @@ type Events interface {
 	Create(event model.Event) (model.Event, error)
 	GetByID(id string) (model.Event, error)
 	GetAll() ([]model.Event, error)
-	Update(event model.Event) (model.Event, error)
-	Delete(id string) error
 
 	// Reservation related. For CSV use.
 	AddReservations(id string, reservations []model.Reservation) ([]model.Reservation, error)
@@ -109,27 +107,6 @@ func (e *events) GetAll() ([]model.Event, error) {
 	}
 
 	return events, nil
-}
-
-// Update an event. Where should I prevent certain fields from being updated?
-func (e *events) Update(event model.Event) (model.Event, error) {
-	event, err := e.eventRepo.Update(event)
-	if err != nil {
-		return model.Event{}, err
-	}
-
-	return event, nil
-}
-
-// Delete an event. This should be an idempotent request
-// what should I return if the event has already been deleted?
-func (e *events) Delete(id string) error {
-	err := e.eventRepo.Delete(id)
-	if err != nil {
-		return nil
-	}
-
-	return err
 }
 
 // AddReservations stores reservations, and adds an ID per reservation.
