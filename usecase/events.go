@@ -2,12 +2,9 @@ package usecase
 
 import (
 	"fmt"
-	"time"
 
 	"github.com/javiertlopez/golang-bootcamp-2020/model"
 	"github.com/javiertlopez/golang-bootcamp-2020/repository"
-
-	guuid "github.com/google/uuid"
 )
 
 // Events interface
@@ -16,8 +13,6 @@ type Events interface {
 	Create(event model.Event) (model.Event, error)
 	GetByID(id string) (model.Event, error)
 	GetAll() ([]model.Event, error)
-	Update(event model.Event) (model.Event, error)
-	Delete(id string) error
 
 	// Reservation related. For CSV use.
 	AddReservations(id string, reservations []model.Reservation) ([]model.Reservation, error)
@@ -44,15 +39,6 @@ func NewEventUseCase(
 
 // Create a new event. Reservation is optional.
 func (e *events) Create(event model.Event) (model.Event, error) {
-	// Step 0. Let's create a UUID
-	uuid := guuid.New().String()
-	event.ID = uuid
-
-	// Step 0.1. Now!
-	now := time.Now()
-	event.CreatedAt = &now
-	event.UpdatedAt = &now
-
 	// Step 1. Try to store an event
 	event, err := e.eventRepo.Create(event)
 	if err != nil {
@@ -66,7 +52,7 @@ func (e *events) Create(event model.Event) (model.Event, error) {
 			return model.Event{}, err
 		}
 
-		event.Reservations, err = e.AddReservations(uuid, event.Reservations)
+		event.Reservations, err = e.AddReservations(event.ID, event.Reservations)
 
 		if err != nil {
 			return model.Event{}, err
@@ -111,39 +97,16 @@ func (e *events) GetAll() ([]model.Event, error) {
 	return events, nil
 }
 
-// Update an event. Where should I prevent certain fields from being updated?
-func (e *events) Update(event model.Event) (model.Event, error) {
-	event, err := e.eventRepo.Update(event)
-	if err != nil {
-		return model.Event{}, err
-	}
-
-	return event, nil
-}
-
-// Delete an event. This should be an idempotent request
-// what should I return if the event has already been deleted?
-func (e *events) Delete(id string) error {
-	err := e.eventRepo.Delete(id)
-	if err != nil {
-		return nil
-	}
-
-	return err
-}
-
 // AddReservations stores reservations, and adds an ID per reservation.
 func (e *events) AddReservations(id string, reservations []model.Reservation) ([]model.Reservation, error) {
 	for i := range reservations {
-		// Step 0. Let's create a UUID
-		uuid := guuid.New().String()
-		reservations[i].ID = uuid
-
 		// Step 1. Store the reservation
-		_, err := e.reservationRepo.Create(id, reservations[i])
+		reservation, err := e.reservationRepo.Create(id, reservations[i])
 		if err != nil {
 			return nil, err
 		}
+
+		reservations[i] = reservation
 	}
 
 	return reservations, nil
@@ -175,7 +138,7 @@ func (e *events) validateReservation(reservations []model.Reservation) error {
 
 			// 1.3 Minors should be more or equal to 0
 			if res.Minors < 0 {
-				return fmt.Errorf("res.Minors <= 0")
+				return fmt.Errorf("res.Minors < 0")
 			}
 
 			// 1.4 if Minors, MinorFee should be more than 0

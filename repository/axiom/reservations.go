@@ -8,6 +8,7 @@ import (
 	"github.com/javiertlopez/golang-bootcamp-2020/model"
 	"github.com/javiertlopez/golang-bootcamp-2020/repository"
 
+	guuid "github.com/google/uuid"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 )
@@ -52,6 +53,9 @@ func NewReservationRepo(db string, m *mongo.Client) repository.ReservationReposi
 
 func (r *reservations) Create(eventID string, reservation model.Reservation) (model.Reservation, error) {
 	collection := r.mongo.Database(r.db).Collection(collection)
+	// Step 0. Let's create a UUID
+	uuid := guuid.New().String()
+	reservation.ID = uuid
 
 	insert := &mongoReservation{
 		ID:        reservation.ID,
