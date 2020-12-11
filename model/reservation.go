@@ -36,7 +36,9 @@ func (r *Reservation) totalFee() float64 {
 
 // nights returns the total days of stay
 func (r *Reservation) nights() int {
-	// should I rule out the nil case? This is not going to be empty
-	// might be edge cases with dates + hours
-	return int(r.Departure.Sub(*r.Arrival).Hours() / 24)
+	// filter out hours, minutes and seconds
+	arrival := time.Date(r.Arrival.Year(), r.Arrival.Month(), r.Arrival.Day(), 0, 0, 0, 0, time.UTC)
+	departure := time.Date(r.Departure.Year(), r.Departure.Month(), r.Departure.Day(), 0, 0, 0, 0, time.UTC)
+
+	return int(departure.Sub(arrival).Hours() / 24)
 }
