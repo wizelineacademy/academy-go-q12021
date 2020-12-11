@@ -2,12 +2,9 @@ package usecase
 
 import (
 	"fmt"
-	"time"
 
 	"github.com/javiertlopez/golang-bootcamp-2020/model"
 	"github.com/javiertlopez/golang-bootcamp-2020/repository"
-
-	guuid "github.com/google/uuid"
 )
 
 // Events interface
@@ -42,15 +39,6 @@ func NewEventUseCase(
 
 // Create a new event. Reservation is optional.
 func (e *events) Create(event model.Event) (model.Event, error) {
-	// Step 0. Let's create a UUID
-	uuid := guuid.New().String()
-	event.ID = uuid
-
-	// Step 0.1. Now!
-	now := time.Now()
-	event.CreatedAt = &now
-	event.UpdatedAt = &now
-
 	// Step 1. Try to store an event
 	event, err := e.eventRepo.Create(event)
 	if err != nil {
@@ -64,7 +52,7 @@ func (e *events) Create(event model.Event) (model.Event, error) {
 			return model.Event{}, err
 		}
 
-		event.Reservations, err = e.AddReservations(uuid, event.Reservations)
+		event.Reservations, err = e.AddReservations(event.ID, event.Reservations)
 
 		if err != nil {
 			return model.Event{}, err
@@ -112,15 +100,13 @@ func (e *events) GetAll() ([]model.Event, error) {
 // AddReservations stores reservations, and adds an ID per reservation.
 func (e *events) AddReservations(id string, reservations []model.Reservation) ([]model.Reservation, error) {
 	for i := range reservations {
-		// Step 0. Let's create a UUID
-		uuid := guuid.New().String()
-		reservations[i].ID = uuid
-
 		// Step 1. Store the reservation
-		_, err := e.reservationRepo.Create(id, reservations[i])
+		reservation, err := e.reservationRepo.Create(id, reservations[i])
 		if err != nil {
 			return nil, err
 		}
+
+		reservations[i] = reservation
 	}
 
 	return reservations, nil

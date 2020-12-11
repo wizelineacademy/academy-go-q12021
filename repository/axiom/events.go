@@ -9,6 +9,7 @@ import (
 	"github.com/javiertlopez/golang-bootcamp-2020/model"
 	"github.com/javiertlopez/golang-bootcamp-2020/repository"
 
+	guuid "github.com/google/uuid"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 )
@@ -47,6 +48,15 @@ func NewEventsRepo(db string, m *mongo.Client) repository.EventRepository {
 
 func (e *events) Create(event model.Event) (model.Event, error) {
 	collection := e.mongo.Database(e.db).Collection(Collection)
+
+	// Step 0. Let's create a UUID
+	uuid := guuid.New().String()
+	event.ID = uuid
+
+	// Step 0.1. Now!
+	now := time.Now()
+	event.CreatedAt = &now
+	event.UpdatedAt = &now
 
 	insert := &mongoEvent{
 		ID:            event.ID,
