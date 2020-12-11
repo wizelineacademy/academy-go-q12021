@@ -1,3 +1,4 @@
+//Package routes -> THIS FILE WAS JUST AN EXERCISE STILL INCLUDED TO SHOW THE WORK MADE ON LOOPS THAT I DIDNT HAVE ON THE NORMAL REQUESTS
 package routes
 
 import (
@@ -10,10 +11,11 @@ import (
 	"github.com/gorilla/mux"
 )
 
+// task structure for the requests
 type task struct {
-	ID   int    `json:ID`
-	Name string `json:Name`
-	Cont string `json:Cont`
+	ID   int
+	Name string
+	Cont string
 }
 
 type allTasks []task
@@ -26,28 +28,30 @@ var tasks = allTasks{
 	},
 }
 
-//Example returns Success
+//GetTasks returns all tasks
 func GetTasks(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(tasks)
 
 }
 
+//GetTask returns one task
 func GetTask(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	taskId, err := strconv.Atoi(vars["id"])
+	taskID, err := strconv.Atoi(vars["id"])
 	if err != nil {
 		fmt.Fprintf(w, "Invalid ID")
 		return
 	}
 	for _, task := range tasks {
-		if task.ID == taskId {
+		if task.ID == taskID {
 			w.Header().Set("Content-Type", "application/json")
 			json.NewEncoder(w).Encode(task)
 		}
 	}
 }
 
+//CreateTasks function to create a task
 func CreateTasks(w http.ResponseWriter, r *http.Request) {
 	var newTask task
 	reqBody, err := ioutil.ReadAll(r.Body)
@@ -64,24 +68,26 @@ func CreateTasks(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(newTask)
 }
 
+//DeleteTask function to delete a task
 func DeleteTask(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	taskId, err := strconv.Atoi(vars["id"])
+	taskID, err := strconv.Atoi(vars["id"])
 	if err != nil {
 		fmt.Fprintf(w, "Invalid ID")
 		return
 	}
 	for i, task := range tasks {
-		if task.ID == taskId {
+		if task.ID == taskID {
 			tasks = append(tasks[:i], tasks[i+1:]...)
-			fmt.Fprintf(w, "task with id %v was deleted", taskId)
+			fmt.Fprintf(w, "task with id %v was deleted", taskID)
 		}
 	}
 }
 
+//PutTask function to modify task
 func PutTask(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	taskId, err := strconv.Atoi(vars["id"])
+	taskID, err := strconv.Atoi(vars["id"])
 	var updatedTask task
 
 	if err != nil {
@@ -96,7 +102,7 @@ func PutTask(w http.ResponseWriter, r *http.Request) {
 	json.Unmarshal(reqBody, &updatedTask)
 
 	for i, task := range tasks {
-		if task.ID == taskId {
+		if task.ID == taskID {
 			tasks[i].Name = updatedTask.Name
 			tasks[i].Cont = updatedTask.Cont
 			w.Header().Set("Content-Type", "application/json")
