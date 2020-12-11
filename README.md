@@ -1,4 +1,4 @@
-# convoy
+# convoy    ![Go](https://github.com/javiertlopez/golang-bootcamp-2020/workflows/Go/badge.svg?branch=main)  [![codecov](https://codecov.io/gh/javiertlopez/golang-bootcamp-2020/branch/main/graph/badge.svg?token=8XM6UUO8UZ)](https://codecov.io/gh/javiertlopez/golang-bootcamp-2020)
 
     convoy espacial, que tan lejos nos llevará?
 
@@ -8,7 +8,7 @@ The app handles events such as weddings, family trips and school excursions; it 
 
 ## What's the deal?
 
-The app is based on the Clean Architecture. The first deliverable contains:
+The app is based on Clean Architecture. The first deliverable contains:
 
 - Domain (under the `model` folder)
 - Usecase (under the `usecase` folder)
@@ -22,7 +22,7 @@ The app is based on the Clean Architecture. The first deliverable contains:
 
 Install dependencies using
 ```bash
-go get
+go get ./...
 ```
 
 ## Run app
@@ -45,3 +45,10 @@ go run .
 ### From Visual Studio
 
 The project is setup to run directly from Visual Studio Run tab. Just fill the credentials, and rename the file from `dev.env.example` to `dev.env`.
+
+## Testing
+
+Run tests
+```bash
+go test -v ./...
+```
