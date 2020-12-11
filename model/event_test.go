@@ -47,6 +47,11 @@ func TestEvent_CalculateTotalFee(t *testing.T) {
 				Reservations: tt.fields.Reservations,
 			}
 			e.CalculateTotalFee()
+
+			if got := e.TotalFee; got != tt.want {
+				t.Errorf("Event.TotalFee = %v, want %v", got, tt.want)
+			}
+
 		})
 	}
 }
