@@ -3,4 +3,8 @@ server:
   port: 8080
   timeout: 30
 CsvPath:
-  path: "tmp/dataFile.csv"
+  prod: "tmp/dataFile.csv"
+  test: "../../tmp/dataFile.csv"
+  empty: "../../tmp/emptyFile.csv"
+Api:
+  url: "https://login-app-crud.firebaseio.com/.json"

@@ -23,21 +23,22 @@ type Controller interface {
 // NewRouter new mux router
 func NewRouter(controller Controller) {
 	router := mux.NewRouter()
-
+	apiRouter := router.PathPrefix("/api").Subrouter()
 	// GET students from csv
-	router.HandleFunc(
-		"/readcsv",
-		controller.ReadStudentsHandler,
-	).Methods("GET")
+	apiRouter.PathPrefix("/readcsv").HandlerFunc(controller.ReadStudentsHandler).Methods("GET")
+	//router.HandleFunc(
+	//	"/readcsv",
+	//	controller.ReadStudentsHandler,
+	//).Methods("GET")
 
 	// Get csv from url
-	router.HandleFunc(
-		"/storedata",
-		controller.StoreStudentURLHandler,
-	).Methods("GET")
-
+	//router.HandleFunc(
+	//	"/storedata",
+	//	controller.StoreStudentURLHandler,
+	//).Methods("GET")
+	apiRouter.PathPrefix("/storedata").HandlerFunc(controller.StoreStudentURLHandler).Methods("GET")
 	// Run server
-	srv := server(router)
+	srv := server(apiRouter)
 	fmt.Println("Server listen at " + config.C.GetServerAddr())
 	log.Fatal("Fail router", srv.ListenAndServe())
 }

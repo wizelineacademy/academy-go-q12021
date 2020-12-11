@@ -11,18 +11,17 @@ import (
 	"io"
 	"os"
 
-	"golang-bootcamp-2020/config"
 	"golang-bootcamp-2020/domain/model"
 )
 
 // ReadStudentsService read students from csv file return []Students
-func (c *Client) ReadStudentsService() ([]model.Student, error) {
+func (c *Client) ReadStudentsService(filePath string) ([]model.Student, error) {
 	var students []model.Student
 
 	// open csv
-	csvFile, err := os.Open(config.C.CsvPath.Path)
+	csvFile, err := os.OpenFile(filePath,os.O_RDWR, 0664)
 	if err != nil {
-		return students, fmt.Errorf("unable to open csv file")
+		return students, err
 	}
 	defer csvFile.Close()
 
@@ -36,33 +35,29 @@ func (c *Client) ReadStudentsService() ([]model.Student, error) {
 		if errors.Is(err, io.EOF) {
 			break
 		} else if err != nil {
-			return students, fmt.Errorf("csv reader failure")
+			return students, err
 		}
 
 		// fill struct with data
 		student, err := model.Student{}.ToStruct(dataRow)
 		if err != nil {
-			return students, fmt.Errorf("cannot convert data to Student {}")
+			return students, err
 		}
 		// add struct student to []Student
 		students = append(students, student)
 	}
 
-	if students != nil {
-		return students, err
-	}
-	return students, fmt.Errorf("csv is empty")
+	return students,nil
 }
 
 // StoreURLService and return students Array from URL in structure
-func (c *Client) StoreURLService() ([]model.Student, error) {
-	const API_URL = "https://login-app-crud.firebaseio.com/.json"
+func (c *Client) StoreURLService(apiURL string) ([]model.Student, error) {
 	var students []model.Student
 
 	resp, err := c.client.R().SetHeader(
 		"Accept",
 		"application/json",
-	).Get(API_URL)
+	).Get(apiURL)
 	if err != nil {
 		return students, fmt.Errorf("could not get the URL information")
 	}
@@ -76,9 +71,10 @@ func (c *Client) StoreURLService() ([]model.Student, error) {
 }
 
 // SaveToCsv take and []Student and save it in a csv file
-func (c *Client) SaveToCsv(students []model.Student) (bool, error) {
+func (c *Client) SaveToCsv(students []model.Student, filePath string) (bool, error) {
 	// create csv file
-	file, err := os.Create(config.C.CsvPath.Path)
+	//file, err := os.Create(config.C.CsvPath.Path)
+	file, err := os.Create(filePath)
 	if err != nil {
 		return false, fmt.Errorf("could not create csv file")
 	}
@@ -90,7 +86,7 @@ func (c *Client) SaveToCsv(students []model.Student) (bool, error) {
 	header := []string{"#id", "name", "lastname", "gender", "city", "state", "zip", "email", "age"}
 	err = w.Write(header)
 	if err != nil {
-		return false, err
+		return false, errors.New("fail create csv headers")
 	}
 
 	// save each struct as a row in csv

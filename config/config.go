@@ -22,7 +22,12 @@ type config struct {
 		Timeout time.Duration
 	}
 	CsvPath struct {
-		Path string
+		Prod string
+		Test string
+		Empty string
+	}
+	Api struct{
+		Url string
 	}
 }
 

@@ -22,16 +22,16 @@ go build .
 
 ## Usage
 
-####Create csv from URL and get status in response json
+###Create csv from URL and response status
 
 ``` bash
-curl --location --request GET 'localhost:8080/storedata'
+curl --location --request GET 'localhost:8080/api/storedata'
 ``` 
 
-####Read Csv file and get response in json
+###Read Csv file  and response json with the info
 
 ``` bash
-curl --location --request GET 'localhost:8080/readcsv'
+curl --location --request GET 'localhost:8080/api/readcsv'
 ``` 
 
 ## Selected architecture

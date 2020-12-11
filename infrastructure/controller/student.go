@@ -14,8 +14,8 @@ import (
 
 // Usecase interface
 type Usecase interface {
-	ReadStudentsService() ([]model.Student, error)
-	StoreURLService() ([]model.Student, error)
+	ReadStudentsService(filePath string) ([]model.Student, error)
+	StoreURLService(apiURL string) ([]model.Student, error)
 }
 
 // Students Use case struct
@@ -28,9 +28,13 @@ func NewController(u Usecase) *Students {
 	return &Students{students: u}
 }
 
-// ReadStudentsHandler 	Handler for: /readcsv
+// ReadStudentsHandler: Get all students
+// URL : /readcsv
+// Parameters: none
+// Method: GET
+// Output: JSON Encoded Student object
 func (s *Students) ReadStudentsHandler(w http.ResponseWriter, r *http.Request) {
-	students, err := s.students.ReadStudentsService()
+	students, err := s.students.ReadStudentsService("tmp/dataFile.csv")
 
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, err.Error())
@@ -52,7 +56,9 @@ func (s *Students) ReadStudentsHandler(w http.ResponseWriter, r *http.Request) {
 
 // StoreStudentURLHandler	 Handler for: /storedata
 func (s *Students) StoreStudentURLHandler(w http.ResponseWriter, r *http.Request) {
-	students, err := s.students.StoreURLService()
+	const ApiUrl = "https://login-app-crud.firebaseio.com/.json"
+
+	students, err := s.students.StoreURLService(ApiUrl)
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, err.Error())
 	} else {
