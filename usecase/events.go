@@ -175,7 +175,7 @@ func (e *events) validateReservation(reservations []model.Reservation) error {
 
 			// 1.3 Minors should be more or equal to 0
 			if res.Minors < 0 {
-				return fmt.Errorf("res.Minors <= 0")
+				return fmt.Errorf("res.Minors < 0")
 			}
 
 			// 1.4 if Minors, MinorFee should be more than 0
