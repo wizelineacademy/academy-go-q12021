@@ -34,3 +34,15 @@ jobs:
 
     - name: Test
       run: go test -v ./...
+
+    - name: Generate coverage report
+      run: go test -v ./... -race -coverprofile=coverage.xml -covermode=atomic
+
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v1
+      with:
+        file: ./coverage.xml
+        name: codecov-umbrella
+        fail_ci_if_error: true
+        path_to_write_report: ./codecov_report.gz
+        verbose: true
