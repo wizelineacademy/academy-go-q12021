@@ -17,7 +17,7 @@ func (e *eventController) CreateEvent(w http.ResponseWriter, r *http.Request) {
 		JSONResponse(
 			w, http.StatusBadRequest,
 			Response{
-				Message: err.Error(),
+				Message: "Bad request",
 				Status:  http.StatusBadRequest,
 			},
 		)
@@ -31,8 +31,8 @@ func (e *eventController) CreateEvent(w http.ResponseWriter, r *http.Request) {
 		JSONResponse(
 			w, http.StatusInternalServerError,
 			Response{
-				Message: err.Error(),
-				Status:  http.StatusBadRequest,
+				Message: "Internal server error",
+				Status:  http.StatusInternalServerError,
 			},
 		)
 
@@ -56,7 +56,7 @@ func (e *eventController) GetEventByID(w http.ResponseWriter, r *http.Request) {
 		JSONResponse(
 			w, http.StatusNotFound,
 			Response{
-				Message: err.Error(),
+				Message: "Not found",
 				Status:  http.StatusNotFound,
 			},
 		)
@@ -69,7 +69,7 @@ func (e *eventController) GetEventByID(w http.ResponseWriter, r *http.Request) {
 		JSONResponse(
 			w, http.StatusInternalServerError,
 			Response{
-				Message: err.Error(),
+				Message: "Internal server error",
 				Status:  http.StatusInternalServerError,
 			},
 		)
@@ -78,7 +78,7 @@ func (e *eventController) GetEventByID(w http.ResponseWriter, r *http.Request) {
 
 	JSONResponse(
 		w,
-		http.StatusCreated,
+		http.StatusOK,
 		response,
 	)
 }
