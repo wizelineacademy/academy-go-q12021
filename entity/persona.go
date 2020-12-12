@@ -34,3 +34,7 @@ func (p *Persona) Validate() error {
 	}
 	return nil
 }
+
+/* func (p *Persona) LoadFromRepository(repo *Repository) (*Persona, error) {
+
+}*/

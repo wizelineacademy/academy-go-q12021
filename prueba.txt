@@ -1,0 +1,4 @@
+id,nombre,apellido,edad,peso,estatura
+1,fausto,salazar,33,75,1.75
+2,maria,gomez,32,48,1.59
+3,ernesto,fernandez,21,94,1.60
