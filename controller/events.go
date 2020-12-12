@@ -93,7 +93,7 @@ func (e *eventController) GetReservations(w http.ResponseWriter, r *http.Request
 		JSONResponse(
 			w, http.StatusNotFound,
 			Response{
-				Message: err.Error(),
+				Message: "Not found",
 				Status:  http.StatusNotFound,
 			},
 		)
@@ -106,7 +106,7 @@ func (e *eventController) GetReservations(w http.ResponseWriter, r *http.Request
 		JSONResponse(
 			w, http.StatusInternalServerError,
 			Response{
-				Message: err.Error(),
+				Message: "Internal server error",
 				Status:  http.StatusInternalServerError,
 			},
 		)

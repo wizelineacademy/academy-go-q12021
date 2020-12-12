@@ -245,8 +245,8 @@ func Test_eventController_GetReservations(t *testing.T) {
 		{
 			"Success",
 			"123",
-			201,
-			`{"id":"123","description":"Wedding","type":"","status":"NEW","created_at":null,"updated_at":null,"event_date":null,"event_location":"","name":"","phone":"","email":""}`,
+			200,
+			`[{"id":"","status":"","plan":"","adults":2,"minors":0,"adult_fee":7,"minor_fee":0,"arrival":"2020-01-01T04:00:00Z","departure":"2020-01-03T18:00:00Z","created_at":null,"updated_at":null,"name":"","phone":"","email":""},{"id":"","status":"","plan":"","adults":2,"minors":2,"adult_fee":7,"minor_fee":1,"arrival":"2020-01-01T04:00:00Z","departure":"2020-01-03T18:00:00Z","created_at":null,"updated_at":null,"name":"","phone":"","email":""}]`,
 		},
 		{
 			"Error",
