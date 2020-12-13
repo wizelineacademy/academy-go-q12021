@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"log"
 	"os"
+	"strings"
 )
 
 type Record struct {
@@ -15,8 +16,8 @@ type Record struct {
 	estatura string
 }
 
-func ReadFile(file string) []string {
-	file, err := os.Open(file)
+func ReadFile(filepath string) []*Record {
+	file, err := os.Open(filepath)
 
 	if err != nil {
 		log.Fatalf("failed to open")
@@ -25,22 +26,22 @@ func ReadFile(file string) []string {
 	scanner := bufio.NewScanner(file)
 
 	scanner.Split(bufio.ScanLines)
-	var text []string
+	var lines []string
 
 	for scanner.Scan() {
-		text = append(text, scanner.Text())
+		lines = append(lines, scanner.Text())
 	}
 
 	file.Close()
 
-	var records []string
-	for _, ln = range text {
-		records = append(records, NewRecord(strings.split(ln)))
+	var records []*Record
+	for _, ln := range lines {
+		records = append(records, NewRecord(strings.Split(ln, ",")))
 	}
 	return records
 }
 
-func NewRecord(fields *[]string) *Record {
+func NewRecord(fields []string) *Record {
 	return &Record{
 		ID:       fields[0],
 		nombre:   fields[1],
