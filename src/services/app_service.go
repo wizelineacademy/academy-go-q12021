@@ -30,10 +30,11 @@ func NewService(restRepo rest.RickAndMortyAPIRepository, dbRepo db.DataBaseRepos
 
 //FetchData - Fetch data from rest repository and then make csv file
 func (s *service) FetchData(maxPages int) ([]model.Character, _errors.RestError) {
-	//TODO: hanle this error correctly
 	ch, err := s.restRepo.FetchData(maxPages)
 
-	s.dbRepo.CreateCharactersCSV(ch)
+	if err := s.dbRepo.CreateCharactersCSV(ch); err != nil {
+		return nil, _errors.NewInternalServerError("error when trying to save data in csv")
+	}
 
 	return ch, err
 }

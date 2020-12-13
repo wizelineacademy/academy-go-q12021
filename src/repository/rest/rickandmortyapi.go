@@ -56,7 +56,9 @@ func (api *rickAndMortyAPI) FetchData(maxPages int) ([]model.Character, _errors.
 
 	for i := range resp {
 		var ch []model.Character
-		json.Unmarshal(resp[i], &ch)
+		if err := json.Unmarshal(resp[i], &ch); err != nil {
+			return nil, _errors.NewInternalServerError("error when trying to unmarshal results")
+		}
 		characters = append(characters, ch...)
 	}
 
@@ -80,7 +82,9 @@ func (api *rickAndMortyAPI) processRequest(endpoint string, maxPages int) ([][]b
 		}
 
 		restR := &restResponse{}
-		json.Unmarshal([]byte(resp.String()), restR)
+		if err := json.Unmarshal([]byte(resp.String()), restR); err != nil {
+			return nil, _errors.NewInternalServerError("error when trying to unmarshal results")
+		}
 		jsonResult, err := json.Marshal(restR.Results)
 		if err != nil {
 			return nil, _errors.NewInternalServerError("error when trying to marshal results")
