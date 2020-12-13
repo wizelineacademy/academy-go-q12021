@@ -19,7 +19,7 @@ func (c *Client) ReadStudentsService(filePath string) ([]model.Student, error) {
 	var students []model.Student
 
 	// open csv
-	csvFile, err := os.OpenFile(filePath,os.O_RDWR, 0664)
+	csvFile, err := os.OpenFile(filePath, os.O_RDWR, 0664)
 	if err != nil {
 		return students, err
 	}
@@ -47,7 +47,7 @@ func (c *Client) ReadStudentsService(filePath string) ([]model.Student, error) {
 		students = append(students, student)
 	}
 
-	return students,nil
+	return students, nil
 }
 
 // StoreURLService and return students Array from URL in structure

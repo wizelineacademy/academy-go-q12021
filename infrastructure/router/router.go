@@ -22,31 +22,31 @@ type Controller interface {
 
 // NewRouter new mux router
 func NewRouter(controller Controller) {
-	router := mux.NewRouter()
-	apiRouter := router.PathPrefix("/api").Subrouter()
-	// GET students from csv
-	apiRouter.PathPrefix("/readcsv").HandlerFunc(controller.ReadStudentsHandler).Methods("GET")
-	//router.HandleFunc(
-	//	"/readcsv",
-	//	controller.ReadStudentsHandler,
-	//).Methods("GET")
+	r := mux.NewRouter()
+	apiRouter := r.PathPrefix("/api").Subrouter()
 
-	// Get csv from url
-	//router.HandleFunc(
-	//	"/storedata",
-	//	controller.StoreStudentURLHandler,
-	//).Methods("GET")
-	apiRouter.PathPrefix("/storedata").HandlerFunc(controller.StoreStudentURLHandler).Methods("GET")
-	// Run server
-	srv := server(apiRouter)
+	// endpoint to Get students from URL
+	apiRouter.PathPrefix("/storedata").
+		HandlerFunc(controller.StoreStudentURLHandler).
+		Methods("GET").
+		Name("storedata")
+
+	// endpoint to GET students from csv
+	apiRouter.PathPrefix("/readcsv").
+		HandlerFunc(controller.ReadStudentsHandler).
+		Methods("GET").
+		Name("readcsv")
+
+	// Run GetServer
+	server := GetServer(apiRouter)
 	fmt.Println("Server listen at " + config.C.GetServerAddr())
-	log.Fatal("Fail router", srv.ListenAndServe())
+	log.Fatal("Fail r", server.ListenAndServe())
 }
 
-// server obtain server setup
-func server(router *mux.Router) *http.Server {
+// GetServer obtain GetServer setup
+func GetServer(r *mux.Router) *http.Server {
 	srv := &http.Server{
-		Handler:      router,
+		Handler:      r,
 		Addr:         config.C.GetServerAddr(),
 		WriteTimeout: config.C.Server.Timeout * time.Second,
 		ReadTimeout:  config.C.Server.Timeout * time.Second,

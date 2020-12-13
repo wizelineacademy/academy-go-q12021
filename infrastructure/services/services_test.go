@@ -11,11 +11,10 @@ import (
 	"golang-bootcamp-2020/domain/model"
 )
 
-
 func TestReadStudentsService(t *testing.T) {
-	config.ReadConfig()
+	config.ReadConfig("config")
 	c := NewClient()
-	filePath:=config.C.CsvPath.Test
+	filePath := config.C.CsvPath.Test
 	students, err := c.ReadStudentsService(filePath)
 	if err != nil {
 		t.Error(err)
@@ -28,6 +27,8 @@ func TestReadStudentsService(t *testing.T) {
 	}
 }
 
+
+// Test fail read students
 func TestFailReadStudentsService(t *testing.T) {
 	c := NewClient()
 	_, err := c.ReadStudentsService("wrongpath/dataFile.csv")
@@ -36,21 +37,12 @@ func TestFailReadStudentsService(t *testing.T) {
 	}
 }
 
-func TestEmptyReadStudentsService(t *testing.T) {
-	config.ReadConfig()
-	c := NewClient()
-	pathFile:= config.C.CsvPath.Empty
-	_, err := c.ReadStudentsService(pathFile)
-	fmt.Printf("%T %v", err.Error(), err.Error())
-	t.Log(err.Error())
-	if err != nil {
-		t.Error(err)
-	}
-
-}
-
+// test store url service
 func TestStoreURLService(t *testing.T) {
-	config.ReadConfig()
+	err := config.ReadConfig("config")
+	if err != nil {
+		fmt.Println("read config fail")
+	}
 	c := NewClient()
 	ApiUrl := config.C.Api.Url
 
@@ -62,8 +54,12 @@ func TestStoreURLService(t *testing.T) {
 	t.Log(students)
 }
 
+// test save succesfully csv file
 func TestSaveToCsv(t *testing.T) {
-	config.ReadConfig()
+	err := config.ReadConfig("config")
+	if err != nil {
+		fmt.Println("read config fail")
+	}
 	c := NewClient()
 	s := model.Student{ID: 1, Name: "Ruben"}
 	students := []model.Student{s}
@@ -74,18 +70,19 @@ func TestSaveToCsv(t *testing.T) {
 		t.Error(err)
 	}
 }
+
+// test cant save csv file
 func TestNotSaveToCsv(t *testing.T) {
 	c := NewClient()
 	s := model.Student{}
 	students := []model.Student{s}
 	filePath := ""
-	want:= "could not create csv file"
+	want := "could not create csv file"
 	ok, err := c.SaveToCsv(students, filePath)
-	 if strings.Contains(err.Error(), want){
-	 	return
-	 }else{
+	if strings.Contains(err.Error(), want) {
+		return
+	} else {
 
-		 t.Errorf("unexpected error: %v   %v", err, ok)
-	 }
-
+		t.Errorf("unexpected error: %v   %v", err, ok)
+	}
 }

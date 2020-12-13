@@ -1,6 +1,4 @@
-/**
-Student Model
-*/
+// package model - Student Model
 package model
 
 import (

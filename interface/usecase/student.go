@@ -14,7 +14,7 @@ import (
 type StudentService interface {
 	ReadStudentsService(filePath string) ([]model.Student, error)
 	StoreURLService(apiURL string) ([]model.Student, error)
-	SaveToCsv(students []model.Student,  filePath string) (bool, error)
+	SaveToCsv(students []model.Student, filePath string) (bool, error)
 }
 
 // Usecase struct
@@ -40,7 +40,7 @@ func (u *Usecase) StoreURLService(apiURL string) ([]model.Student, error) {
 	if err != nil {
 		return students, fmt.Errorf("the URL could not be obtained")
 	}
-	filePath :=config.C.CsvPath.Prod
+	filePath := config.C.CsvPath.Prod
 	// Save students in csv file
 	res, err := u.service.SaveToCsv(students, filePath)
 	if err != nil || !res {

@@ -5,6 +5,5 @@ server:
 CsvPath:
   prod: "tmp/dataFile.csv"
   test: "../../tmp/dataFile.csv"
-  empty: "../../tmp/emptyFile.csv"
 Api:
   url: "https://login-app-crud.firebaseio.com/.json"

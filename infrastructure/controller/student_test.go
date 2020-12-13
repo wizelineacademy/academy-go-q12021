@@ -1,21 +1,17 @@
 package controller
 
-//import (
-//	"net/http"
-//	"net/http/httptest"
-//	"testing"
-//)
+//
 //type Controller interface {
 //	ReadStudentsHandler(w http.ResponseWriter, r *http.Request)
 //	StoreStudentURLHandler(w http.ResponseWriter, r *http.Request)
 //}
+//
 ////
 //func TestReadStudentsHandler(t *testing.T) {
 //	req, err := http.NewRequest("GET", "/readcsv", nil)
 //	if err != nil {
 //		t.Fatal(err)
 //	}
-//	http.HandleFunc()
 //
 //	rr := httptest.NewRecorder()
 //	handler := http.HandlerFunc("/readcsv", Controller.ReadStudentsHandler)
@@ -31,5 +27,10 @@ package controller
 //	if rr.Body.String() != expected {
 //		t.Errorf("handler returned unexpected body: got %v want %v",
 //			rr.Body.String(), expected)
+//	}
+//	w.status
+//	r
+//	if w.StatusCode != http.StatusOK {
+//		t.Errorf("expected %d, got: %d", http.StatusOK, res.StatusCode)
 //	}
 //}
