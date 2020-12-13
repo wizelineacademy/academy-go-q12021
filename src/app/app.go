@@ -2,15 +2,18 @@ package app
 
 import (
 	"fmt"
-	"github.com/spf13/viper"
+
 	"golang-bootcamp-2020/controllers"
 	"golang-bootcamp-2020/infrastructure/router"
 	"golang-bootcamp-2020/repository/db"
 	"golang-bootcamp-2020/repository/rest"
 	"golang-bootcamp-2020/services"
+
+	"github.com/go-resty/resty/v2"
+	"github.com/spf13/viper"
 )
 
-//Setting application
+//StartApp - Setting application
 func StartApp() {
 	viper.SetConfigName("config") // config file name without extension
 	viper.SetConfigType("yaml")
@@ -24,7 +27,13 @@ func StartApp() {
 		panic(err)
 	}
 
-	handler := controllers.NewAppController(services.NewService(rest.NewRickAndMortyApiRepository(), db.NewDbRepository()))
+	restClient := resty.New()
+	//Checking health of API
+	if response, err := restClient.R().Get(viper.GetString("rest.host")); err != nil || response.StatusCode() != 200 {
+		panic("external rest API not available")
+	}
+
+	handler := controllers.NewAppController(services.NewService(rest.NewRickAndMortyAPIRepository(restClient), db.NewDbRepository()))
 
 	if err := router.StartRouter(handler); err != nil {
 		panic(err)

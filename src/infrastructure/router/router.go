@@ -1,18 +1,18 @@
 package router
 
 import (
+	"golang-bootcamp-2020/controllers"
+
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/viper"
-	"golang-bootcamp-2020/controllers"
 )
 
 var (
 	router = gin.Default()
 )
 
-//Setting api router
+//StartRouter - Setting api router
 func StartRouter(c controllers.AppController) error {
-
 	router.GET("health", c.GetHealth)
 
 	router.GET("data/fetch", c.FetchData)

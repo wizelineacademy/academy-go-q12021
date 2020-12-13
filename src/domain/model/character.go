@@ -1,7 +1,8 @@
 package model
 
+//Character - character model
 type Character struct {
-	Id       int      `json:"id"`
+	ID       int      `json:"id"`
 	Name     string   `json:"name"`
 	Status   string   `json:"status"`
 	Species  string   `json:"species"`
@@ -13,7 +14,8 @@ type Character struct {
 	Episodes []string `json:"episode"`
 }
 
+//Nested - nested data of interest
 type Nested struct {
 	Name string `json:"name"`
-	Url  string `json:"url"`
+	URL  string `json:"url"`
 }

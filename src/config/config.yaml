@@ -1,7 +1,9 @@
+
 app:
-  port: ':8081'
+  port: ":8081"
 db:
-  charactersPath: 'src/resources/characters.csv'
-  mapPath: 'src/resources/map.csv'
+  charactersPath: "src/resources/characters.csv"
+  mapPath: "src/resources/map.csv"
 rest:
   maxPagesByDefault: 1
+  host: "https://rickandmortyapi.com/api/"

@@ -3,13 +3,15 @@ package db
 import (
 	"encoding/csv"
 	"fmt"
-	"github.com/spf13/viper"
-	"golang-bootcamp-2020/domain/model"
-	_errors "golang-bootcamp-2020/utils/error"
 	"io"
 	"os"
 	"strconv"
 	"strings"
+
+	"golang-bootcamp-2020/domain/model"
+	_errors "golang-bootcamp-2020/utils/error"
+
+	"github.com/spf13/viper"
 )
 
 var (
@@ -18,7 +20,7 @@ var (
 )
 
 const (
-	chId = iota
+	chID = iota
 	chName
 	chStatus
 	chSpecies
@@ -39,6 +41,7 @@ type dbRepository struct {
 	mapReader *io.Reader
 }
 
+//DataBaseRepository - database repository methods
 type DataBaseRepository interface {
 	CreateCharactersCSV(characters []model.Character) _errors.RestError
 	GetCharacterFromId(id string) (*model.Character, _errors.RestError)
@@ -46,20 +49,20 @@ type DataBaseRepository interface {
 	GetCharacterIdByName(name string) (string, _errors.RestError)
 }
 
-//Set the initial state of db repository
+//Init - Set the initial state of db repository
 func Init() {
 	isCsvFetched = readCharactersFromCSV()
 }
 
-//Return new db repository and init it
+//NewDbRepository - Return new db repository and init it
 func NewDbRepository() DataBaseRepository {
 	Init()
 	return &dbRepository{}
 }
 
-// Make csv file given array of characters
+// CreateCharactersCSV - Make csv file given array of characters
 func (db *dbRepository) CreateCharactersCSV(characters []model.Character) _errors.RestError {
-	file, err := os.Create("./resources/characters.csv")
+	file, err := os.Create(viper.GetString("db.charactersPath"))
 
 	// ignoring close error it's safe on this point: https://www.joeshaw.org/dont-defer-close-on-writable-files/
 	defer file.Close()
@@ -73,16 +76,16 @@ func (db *dbRepository) CreateCharactersCSV(characters []model.Character) _error
 
 	for _, ch := range characters {
 		var row []string
-		row = append(row, strconv.Itoa(ch.Id))
+		row = append(row, strconv.Itoa(ch.ID))
 		row = append(row, ch.Name)
 		row = append(row, ch.Status)
 		row = append(row, ch.Species)
 		row = append(row, ch.Type)
 		row = append(row, ch.Gender)
 		row = append(row, ch.Origin.Name)
-		row = append(row, ch.Origin.Url)
+		row = append(row, ch.Origin.URL)
 		row = append(row, ch.Location.Name)
-		row = append(row, ch.Location.Url)
+		row = append(row, ch.Location.URL)
 		row = append(row, ch.Image)
 
 		var episodesString string
@@ -98,7 +101,7 @@ func (db *dbRepository) CreateCharactersCSV(characters []model.Character) _error
 	return nil
 }
 
-//Get character from map (complex O(1) )
+//GetCharacterFromId - Get character from map (complex O(1) )
 func (db *dbRepository) GetCharacterFromId(id string) (*model.Character, _errors.RestError) {
 	if !isCsvFetched {
 		return nil, _errors.NewInternalServerError(errorDbEmpty)
@@ -112,7 +115,7 @@ func (db *dbRepository) GetCharacterFromId(id string) (*model.Character, _errors
 	return ch, nil
 }
 
-//Get all characters from map
+//GetCharacters - Get all characters from map
 func (db *dbRepository) GetCharacters() ([]model.Character, _errors.RestError) {
 	if !isCsvFetched {
 		return nil, _errors.NewInternalServerError(errorDbEmpty)
@@ -126,7 +129,7 @@ func (db *dbRepository) GetCharacters() ([]model.Character, _errors.RestError) {
 	return characters, nil
 }
 
-//Get character id from csv map (complex O(n) )
+//GetCharacterIdByName - Get character id from csv map (complex O(n) )
 func (db *dbRepository) GetCharacterIdByName(name string) (string, _errors.RestError) {
 	if !isCsvFetched {
 		return "", _errors.NewInternalServerError(errorDbEmpty)
@@ -155,7 +158,6 @@ func (db *dbRepository) GetCharacterIdByName(name string) (string, _errors.RestE
 	}
 
 	return "", _errors.NewNotFoundError(fmt.Sprintf("character with name %s not found", name))
-
 }
 
 func readCharactersFromCSV() bool {
@@ -167,7 +169,7 @@ func readCharactersFromCSV() bool {
 
 	if err != nil {
 		isCsvFetched = false
-		return false
+		return isCsvFetched
 	}
 
 	r := csv.NewReader(file)
@@ -186,11 +188,11 @@ func readCharactersFromCSV() bool {
 	err = createMapTable()
 	if err != nil {
 		isCsvFetched = false
-		return false
+		return isCsvFetched
 	}
 
 	isCsvFetched = true
-	return true
+	return isCsvFetched
 }
 
 func parseCharacter(record []string) {
@@ -199,10 +201,10 @@ func parseCharacter(record []string) {
 
 	for pos, value := range record {
 		switch pos {
-		case chId:
+		case chID:
 			var err error
 			id = value
-			ch.Id, err = strconv.Atoi(value)
+			ch.ID, err = strconv.Atoi(value)
 			if err != nil {
 				continue
 			}
@@ -219,18 +221,17 @@ func parseCharacter(record []string) {
 		case chOriginName:
 			ch.Origin.Name = value
 		case chOriginUrl:
-			ch.Origin.Url = value
+			ch.Origin.URL = value
 		case chLocationName:
 			ch.Location.Name = value
 		case chLocationUrl:
-			ch.Location.Url = value
+			ch.Location.URL = value
 		case chImage:
 			ch.Image = value
 		case chEpisodes:
 			episodes := strings.Split(value, "+")
 			ch.Episodes = episodes
 		}
-
 	}
 
 	charactersMap[id] = ch
@@ -249,7 +250,7 @@ func createMapTable() _errors.RestError {
 
 	for _, ch := range charactersMap {
 		var row []string
-		row = append(row, strconv.Itoa(ch.Id))
+		row = append(row, strconv.Itoa(ch.ID))
 		row = append(row, ch.Name)
 
 		if err := writer.Write(row); err != nil {

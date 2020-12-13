@@ -2,101 +2,68 @@ package rest
 
 import (
 	"fmt"
-	"github.com/stretchr/testify/assert"
-	"golang-bootcamp-2020/domain/model"
 	"net/http"
 	"net/http/httptest"
 	"testing"
+
+	"golang-bootcamp-2020/domain/model"
+	"golang-bootcamp-2020/repository/rest/testdata"
+
+	"github.com/go-resty/resty/v2"
+	"github.com/stretchr/testify/assert"
 )
 
-func TestRickAndMortyApi_FetchData_SinglePage(t *testing.T) {
-	restRepo := NewRickAndMortyApiRepository()
+const (
+	name1        = "Rick Sanchez"
+	image1       = "https://rickandmortyapi.com/api/character/avatar/1.jpeg"
+	name2        = "Morty Smith"
+	image2       = "https://rickandmortyapi.com/api/character/avatar/2.jpeg"
+	episode1     = "https://rickandmortyapi.com/api/episode/1"
+	episode2     = "https://rickandmortyapi.com/api/episode/2"
+	status       = "Alive"
+	species      = "Human"
+	cType        = ""
+	gender       = "Male"
+	originName   = "Earth (C-137)"
+	originURL    = "https://rickandmortyapi.com/api/location/1"
+	locationName = "Earth (Replacement Dimension)"
+	locationURL  = "https://rickandmortyapi.com/api/location/20"
+)
+
+func TestRickAndMortyAPI_FetchData_SinglePage(t *testing.T) {
+	restRepo := NewRickAndMortyAPIRepository(resty.New())
 
 	var mockServer = httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte(`{
-    "info": {
-        "count": 671,
-        "pages": 34,
-        "next": "https://rickandmortyapi.com/api/character/?page=2",
-        "prev": null
-    },
-    "results": [
-        {
-            "id": 1,
-            "name": "Rick Sanchez",
-            "status": "Alive",
-            "species": "Human",
-            "type": "",
-            "gender": "Male",
-            "origin": {
-                "name": "Earth (C-137)",
-                "url": "https://rickandmortyapi.com/api/location/1"
-            },
-            "location": {
-                "name": "Earth (Replacement Dimension)",
-                "url": "https://rickandmortyapi.com/api/location/20"
-            },
-            "image": "https://rickandmortyapi.com/api/character/avatar/1.jpeg",
-            "episode": [
-                "https://rickandmortyapi.com/api/episode/1",
-                "https://rickandmortyapi.com/api/episode/2"
-            ],
-            "url": "https://rickandmortyapi.com/api/character/1",
-            "created": "2017-11-04T18:48:46.250Z"
-        },
-        {
-            "id": 2,
-            "name": "Morty Smith",
-            "status": "Alive",
-            "species": "Human",
-            "type": "",
-            "gender": "Male",
-            "origin": {
-                "name": "Earth (C-137)",
-                "url": "https://rickandmortyapi.com/api/location/1"
-            },
-            "location": {
-                "name": "Earth (Replacement Dimension)",
-                "url": "https://rickandmortyapi.com/api/location/20"
-            },
-            "image": "https://rickandmortyapi.com/api/character/avatar/2.jpeg",
-            "episode": [
-                "https://rickandmortyapi.com/api/episode/1",
-                "https://rickandmortyapi.com/api/episode/2"
-            ],
-            "url": "https://rickandmortyapi.com/api/character/2",
-            "created": "2017-11-04T18:50:21.651Z"
-        }
-    ]}`))
+		w.Write([]byte(testdata.SinglePage))
 	}))
 	defer mockServer.Close()
 
 	expectedCharacters := []model.Character{
 		{
-			Id:       1,
-			Name:     "Rick Sanchez",
-			Status:   "Alive",
-			Species:  "Human",
-			Type:     "",
-			Gender:   "Male",
-			Origin:   model.Nested{Name: "Earth (C-137)", Url: "https://rickandmortyapi.com/api/location/1"},
-			Location: model.Nested{Name: "Earth (Replacement Dimension)", Url: "https://rickandmortyapi.com/api/location/20"},
-			Image:    "https://rickandmortyapi.com/api/character/avatar/1.jpeg",
-			Episodes: []string{"https://rickandmortyapi.com/api/episode/1", "https://rickandmortyapi.com/api/episode/2"},
+			ID:       1,
+			Name:     name1,
+			Status:   status,
+			Species:  species,
+			Type:     cType,
+			Gender:   gender,
+			Origin:   model.Nested{Name: originName, URL: originURL},
+			Location: model.Nested{Name: locationName, URL: locationURL},
+			Image:    image1,
+			Episodes: []string{episode1, episode2},
 		},
 		{
-			Id:       2,
-			Name:     "Morty Smith",
-			Status:   "Alive",
-			Species:  "Human",
-			Type:     "",
-			Gender:   "Male",
-			Origin:   model.Nested{Name: "Earth (C-137)", Url: "https://rickandmortyapi.com/api/location/1"},
-			Location: model.Nested{Name: "Earth (Replacement Dimension)", Url: "https://rickandmortyapi.com/api/location/20"},
-			Image:    "https://rickandmortyapi.com/api/character/avatar/2.jpeg",
-			Episodes: []string{"https://rickandmortyapi.com/api/episode/1", "https://rickandmortyapi.com/api/episode/2"},
+			ID:       2,
+			Name:     name2,
+			Status:   status,
+			Species:  species,
+			Type:     cType,
+			Gender:   gender,
+			Origin:   model.Nested{Name: originName, URL: originURL},
+			Location: model.Nested{Name: locationName, URL: locationURL},
+			Image:    image2,
+			Episodes: []string{episode1, episode2},
 		},
 	}
 
@@ -109,109 +76,47 @@ func TestRickAndMortyApi_FetchData_SinglePage(t *testing.T) {
 	assert.Equal(t, expectedCharacters, characters)
 }
 
-func TestRickAndMortyApi_FetchData_MultiplePage(t *testing.T) {
-	restRepo := NewRickAndMortyApiRepository()
+func TestRickAndMortyAPI_FetchData_MultiplePage(t *testing.T) {
+	restRepo := NewRickAndMortyAPIRepository(resty.New())
 
 	var mockServerPage2 = httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte(`{
-    "info": {
-        "count": 671,
-        "pages": 34,
-        "next": "https://rickandmortyapi.com/api/character/?page=2",
-        "prev": null
-    },
-    "results": [
-        {
-            "id": 2,
-            "name": "Morty Smith",
-            "status": "Alive",
-            "species": "Human",
-            "type": "",
-            "gender": "Male",
-            "origin": {
-                "name": "Earth (C-137)",
-                "url": "https://rickandmortyapi.com/api/location/1"
-            },
-            "location": {
-                "name": "Earth (Replacement Dimension)",
-                "url": "https://rickandmortyapi.com/api/location/20"
-            },
-            "image": "https://rickandmortyapi.com/api/character/avatar/2.jpeg",
-            "episode": [
-                "https://rickandmortyapi.com/api/episode/1",
-                "https://rickandmortyapi.com/api/episode/2"
-            ],
-            "url": "https://rickandmortyapi.com/api/character/2",
-            "created": "2017-11-04T18:50:21.651Z"
-        }
-    ]}`))
+		w.Write([]byte(testdata.Page2))
 	}))
 	defer mockServerPage2.Close()
 
 	var mockServer = httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte(fmt.Sprintf(`{
-    "info": {
-        "count": 671,
-        "pages": 34,
-        "next": "%s",
-        "prev": null
-    },
-    "results": [
-        {
-            "id": 1,
-            "name": "Rick Sanchez",
-            "status": "Alive",
-            "species": "Human",
-            "type": "",
-            "gender": "Male",
-            "origin": {
-                "name": "Earth (C-137)",
-                "url": "https://rickandmortyapi.com/api/location/1"
-            },
-            "location": {
-                "name": "Earth (Replacement Dimension)",
-                "url": "https://rickandmortyapi.com/api/location/20"
-            },
-            "image": "https://rickandmortyapi.com/api/character/avatar/1.jpeg",
-            "episode": [
-                "https://rickandmortyapi.com/api/episode/1",
-                "https://rickandmortyapi.com/api/episode/2"
-            ],
-            "url": "https://rickandmortyapi.com/api/character/1",
-            "created": "2017-11-04T18:48:46.250Z"
-        }
-    ]}`, mockServerPage2.URL)))
+		w.Write([]byte(fmt.Sprintf(testdata.Page1, mockServerPage2.URL)))
 	}))
 	defer mockServer.Close()
 
 	expectedCharacters := []model.Character{
 		{
-			Id:       1,
-			Name:     "Rick Sanchez",
-			Status:   "Alive",
-			Species:  "Human",
-			Type:     "",
-			Gender:   "Male",
-			Origin:   model.Nested{Name: "Earth (C-137)", Url: "https://rickandmortyapi.com/api/location/1"},
-			Location: model.Nested{Name: "Earth (Replacement Dimension)", Url: "https://rickandmortyapi.com/api/location/20"},
-			Image:    "https://rickandmortyapi.com/api/character/avatar/1.jpeg",
-			Episodes: []string{"https://rickandmortyapi.com/api/episode/1", "https://rickandmortyapi.com/api/episode/2"},
+			ID:       1,
+			Name:     name1,
+			Status:   status,
+			Species:  species,
+			Type:     cType,
+			Gender:   gender,
+			Origin:   model.Nested{Name: originName, URL: originURL},
+			Location: model.Nested{Name: locationName, URL: locationURL},
+			Image:    image1,
+			Episodes: []string{episode1, episode2},
 		},
 		{
-			Id:       2,
-			Name:     "Morty Smith",
-			Status:   "Alive",
-			Species:  "Human",
-			Type:     "",
-			Gender:   "Male",
-			Origin:   model.Nested{Name: "Earth (C-137)", Url: "https://rickandmortyapi.com/api/location/1"},
-			Location: model.Nested{Name: "Earth (Replacement Dimension)", Url: "https://rickandmortyapi.com/api/location/20"},
-			Image:    "https://rickandmortyapi.com/api/character/avatar/2.jpeg",
-			Episodes: []string{"https://rickandmortyapi.com/api/episode/1", "https://rickandmortyapi.com/api/episode/2"},
+			ID:       2,
+			Name:     name2,
+			Status:   status,
+			Species:  species,
+			Type:     cType,
+			Gender:   gender,
+			Origin:   model.Nested{Name: originName, URL: originURL},
+			Location: model.Nested{Name: locationName, URL: locationURL},
+			Image:    image2,
+			Episodes: []string{episode1, episode2},
 		},
 	}
 
@@ -224,8 +129,8 @@ func TestRickAndMortyApi_FetchData_MultiplePage(t *testing.T) {
 	assert.Equal(t, expectedCharacters, characters)
 }
 
-func TestRickAndMortyApi_FetchData_Error(t *testing.T) {
-	restRepo := NewRickAndMortyApiRepository()
+func TestRickAndMortyAPI_FetchData_Error(t *testing.T) {
+	restRepo := NewRickAndMortyAPIRepository(resty.New())
 
 	var mockServer = httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusNotFound)

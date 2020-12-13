@@ -1,14 +1,17 @@
 package controllers
 
 import (
-	"github.com/gin-gonic/gin"
-	"golang-bootcamp-2020/services"
-	_errors "golang-bootcamp-2020/utils/error"
 	"net/http"
 	"strconv"
 	"strings"
+
+	"golang-bootcamp-2020/services"
+	_errors "golang-bootcamp-2020/utils/error"
+
+	"github.com/gin-gonic/gin"
 )
 
+//AppController - app controller methods
 type AppController interface {
 	FetchData(c *gin.Context)
 	GetHealth(c *gin.Context)
@@ -22,20 +25,20 @@ type appController struct {
 }
 
 type idResponse struct {
-	Id string `json:"id"`
+	ID string `json:"id"`
 }
 
-//Return new pointer to application controller
+//NewAppController - Return new pointer to application controller
 func NewAppController(service services.Service) AppController {
 	return &appController{service}
 }
 
-//Return ok if api works correctly
+//GetHealth - Return ok if API works correctly
 func (ac *appController) GetHealth(c *gin.Context) {
 	c.String(http.StatusOK, "ok")
 }
 
-//Fetch data from rick and morty api
+//FetchData - Fetch data from rick and morty API
 func (ac *appController) FetchData(c *gin.Context) {
 
 	var maxPages int
@@ -62,7 +65,7 @@ func (ac *appController) FetchData(c *gin.Context) {
 	c.JSON(http.StatusOK, res)
 }
 
-//Get character by id
+//GetCharacterById - Get character by id
 func (ac *appController) GetCharacterById(c *gin.Context) {
 
 	characterId := c.Param("id")
@@ -81,7 +84,7 @@ func (ac *appController) GetCharacterById(c *gin.Context) {
 	c.JSON(http.StatusOK, ch)
 }
 
-//Get all characters from map
+//GetCharacters - Get all characters from map
 func (ac *appController) GetCharacters(c *gin.Context) {
 
 	characters, err := ac.service.GetAllCharacters()
@@ -93,7 +96,7 @@ func (ac *appController) GetCharacters(c *gin.Context) {
 	c.JSON(http.StatusOK, characters)
 }
 
-//Get character id by name from csv map
+//GetCharacterIdByName - Get character id by name from csv map
 func (ac *appController) GetCharacterIdByName(c *gin.Context) {
 
 	name := c.Param("name")

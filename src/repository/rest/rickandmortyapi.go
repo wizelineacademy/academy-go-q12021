@@ -2,14 +2,17 @@ package rest
 
 import (
 	"encoding/json"
-	"github.com/go-resty/resty/v2"
-	"github.com/spf13/viper"
+	"fmt"
+
 	"golang-bootcamp-2020/domain/model"
 	_errors "golang-bootcamp-2020/utils/error"
+
+	"github.com/go-resty/resty/v2"
+	"github.com/spf13/viper"
 )
 
 var (
-	apiCharacters = "https://rickandmortyapi.com/api/character/"
+	apiCharacters string
 )
 
 type restResponse struct {
@@ -21,23 +24,31 @@ type paginationInfo struct {
 	Next string `json:"next"`
 }
 
-type rickAndMortyApi struct {
+type rickAndMortyAPI struct {
+	restClient *resty.Client
 }
 
-type RickAndMortyApiRepository interface {
+//RickAndMortyAPIRepository - rickandmorty repository methods
+type RickAndMortyAPIRepository interface {
 	FetchData(maxPages int) ([]model.Character, _errors.RestError)
 }
 
-//Return new rest repository
-func NewRickAndMortyApiRepository() RickAndMortyApiRepository {
-	return &rickAndMortyApi{}
+//Init - init repo data
+func Init() {
+	apiCharacters = viper.GetString("rest.host") + "character/"
 }
 
-//Fetch data from rick and morty api
-func (api *rickAndMortyApi) FetchData(maxPages int) ([]model.Character, _errors.RestError) {
+//NewRickAndMortyAPIRepository - Return new rest repository
+func NewRickAndMortyAPIRepository(restClient *resty.Client) RickAndMortyAPIRepository {
+	Init()
+	return &rickAndMortyAPI{restClient}
+}
+
+//FetchData - Fetch data from rick and morty API
+func (api *rickAndMortyAPI) FetchData(maxPages int) ([]model.Character, _errors.RestError) {
 	// fetching characters
 	var characters []model.Character
-	resp, err := processRequest(apiCharacters, maxPages)
+	resp, err := api.processRequest(apiCharacters, maxPages)
 
 	if err != nil {
 		return nil, err
@@ -52,10 +63,9 @@ func (api *rickAndMortyApi) FetchData(maxPages int) ([]model.Character, _errors.
 	return characters, nil
 }
 
-func processRequest(url string, maxPages int) ([][]byte, _errors.RestError) {
+func (api *rickAndMortyAPI) processRequest(endpoint string, maxPages int) ([][]byte, _errors.RestError) {
 
 	var response [][]byte
-	endpoint := url
 	count := 1
 
 	if maxPages == 0 {
@@ -63,16 +73,18 @@ func processRequest(url string, maxPages int) ([][]byte, _errors.RestError) {
 	}
 
 	for {
-		client := resty.New()
-
-		resp, err := client.R().Get(endpoint)
+		fmt.Println(endpoint)
+		resp, err := api.restClient.R().Get(endpoint)
 		if err != nil || !resp.IsSuccess() {
 			return nil, _errors.NewInternalServerError("error in rest response")
 		}
 
 		restR := &restResponse{}
 		json.Unmarshal([]byte(resp.String()), restR)
-		jsonResult, _ := json.Marshal(restR.Results)
+		jsonResult, err := json.Marshal(restR.Results)
+		if err != nil {
+			return nil, _errors.NewInternalServerError("error when trying to marshal results")
+		}
 
 		response = append(response, jsonResult)
 

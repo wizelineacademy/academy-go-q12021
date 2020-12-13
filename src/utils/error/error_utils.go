@@ -10,28 +10,29 @@ type e struct {
 	ErrorMessage string `json:"message"`
 }
 
+//RestError - rest error methods
 type RestError interface {
 	Error() string
 	Code() int
 	Message() string
 }
 
-//Return custom error message
+//Error - Return custom error message
 func (e e) Error() string {
 	return fmt.Sprintf("message: %s - code: %d", e.ErrorMessage, e.ErrorCode)
 }
 
-//Return status code
+//Code - Return status code
 func (e e) Code() int {
 	return e.ErrorCode
 }
 
-//Return error messsage
+//Message - Return error messsage
 func (e e) Message() string {
 	return e.ErrorMessage
 }
 
-//Return internal server error given error message
+//NewInternalServerError - Return internal server error given error message
 func NewInternalServerError(message string) RestError {
 	return e{
 		ErrorCode:    http.StatusInternalServerError,
@@ -39,7 +40,7 @@ func NewInternalServerError(message string) RestError {
 	}
 }
 
-//Return bad request error given error message
+//NewBadRequestError - Return bad request error given error message
 func NewBadRequestError(message string) RestError {
 	return &e{
 		ErrorCode:    http.StatusBadRequest,
@@ -47,7 +48,7 @@ func NewBadRequestError(message string) RestError {
 	}
 }
 
-//Return not found error given error message
+//NewNotFoundError - Return not found error given error message
 func NewNotFoundError(message string) RestError {
 	return &e{
 		ErrorCode:    http.StatusNotFound,
