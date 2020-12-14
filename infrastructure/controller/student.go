@@ -21,7 +21,7 @@ type Students struct {
 	students Usecase
 }
 
-// NewController: student
+// NewController
 func NewController(u Usecase) *Students {
 	return &Students{students: u}
 }

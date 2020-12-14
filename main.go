@@ -4,6 +4,7 @@ package main
 
 import (
 	"log"
+
 	"github.com/ruvaz/golang-bootcamp-2020/config"
 	"github.com/ruvaz/golang-bootcamp-2020/infrastructure/controller"
 	"github.com/ruvaz/golang-bootcamp-2020/infrastructure/router"

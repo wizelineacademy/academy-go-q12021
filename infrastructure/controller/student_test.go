@@ -26,6 +26,7 @@ func TestStoreStudentURLHandler(t *testing.T) {
 	assert.Equal(t, 200, res.Code, "Ok response expected")
 }
 
+// TestReadStudentsHandler
 func TestReadStudentsHandler(t *testing.T) {
 	s := services.NewClient()
 	u := usecase.NewUsecase(s)
