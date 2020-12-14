@@ -1,24 +1,24 @@
-// usecase test
+// usecase uni test
 package usecase
 
 import (
-	"fmt"
 	"testing"
 
 	"golang-bootcamp-2020/infrastructure/services"
 )
 
-func TestUsecase_ReadStudentsService1(t *testing.T) {
+// TestUsecaseReadStudentsService: test usecase  for read students service
+func TestUsecaseReadStudentsService(t *testing.T) {
 	s := services.NewClient()
 	u := NewUsecase(s)
-	stu, err := u.ReadStudentsService("../../dataFile.csv")
+	_, err := u.ReadStudentsService("../../dataFile.csv")
 	if err != nil {
 		t.Logf("fail readstudents services")
 	}
-	fmt.Println(stu)
 }
 
-func TestUsecase_StoreURLService(t *testing.T) {
+// TestUsecaseStoreURLService: test usecase for StoreURLService
+func TestUsecaseStoreURLService(t *testing.T) {
 	s := services.NewClient()
 	u := NewUsecase(s)
 	apiURL := "https://login-app-crud.firebaseio.com/.json"
@@ -28,7 +28,8 @@ func TestUsecase_StoreURLService(t *testing.T) {
 	}
 }
 
-func TestUsecase_FailStoreURLService(t *testing.T) {
+// TestUsecaseFailStoreURLService: test usecase for fail StoreURLService
+func TestUsecaseFailStoreURLService(t *testing.T) {
 	s := services.NewClient()
 	u := NewUsecase(s)
 	apiURL := "https://login-app-crud.firebaseio.com"

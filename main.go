@@ -1,4 +1,5 @@
 // package main, core program
+// Author: Rubén Vázquez
 package main
 
 import (
