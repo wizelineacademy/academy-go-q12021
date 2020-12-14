@@ -1,6 +1,4 @@
-/**
-Router Mux
-*/
+// router package
 package router
 
 import (
@@ -14,13 +12,13 @@ import (
 	"github.com/gorilla/mux"
 )
 
-// Controller interfaces
+// Controller interface
 type Controller interface {
 	ReadStudentsHandler(w http.ResponseWriter, r *http.Request)
 	StoreStudentURLHandler(w http.ResponseWriter, r *http.Request)
 }
 
-// NewRouter new mux router
+// NewRouter mux router
 func NewRouter(controller Controller) {
 	r := mux.NewRouter()
 	apiRouter := r.PathPrefix("/api").Subrouter()
@@ -40,7 +38,10 @@ func NewRouter(controller Controller) {
 	// Run GetServer
 	server := GetServer(apiRouter)
 	fmt.Println("Server listen at " + config.C.GetServerAddr())
-	log.Fatal("Fail r", server.ListenAndServe())
+	err := server.ListenAndServe()
+	if err != nil {
+		log.Fatal("ListenAndServe: ", err)
+	}
 }
 
 // GetServer obtain GetServer setup

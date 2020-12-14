@@ -1,6 +1,4 @@
-/**
-Resty Client
-*/
+// Resty Client, service package
 package services
 
 import (
@@ -16,7 +14,7 @@ type Client struct {
 	client *resty.Client
 }
 
-// NewClient new client Resty
+// NewClient: Resty client, Return: *Client
 func NewClient() *Client {
 	host := config.C.GetServerAddr()
 	timeout := config.C.Server.Timeout * time.Second

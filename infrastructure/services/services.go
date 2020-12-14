@@ -1,6 +1,4 @@
-/**
-Student Services
-*/
+// Student Services
 package services
 
 import (
@@ -10,11 +8,12 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"strings"
 
 	"golang-bootcamp-2020/domain/model"
 )
 
-// ReadStudentsService read students from csv file return []Students
+// ReadStudentsService: Read from a csv file and return it inside a structure []Students
 func (c *Client) ReadStudentsService(filePath string) ([]model.Student, error) {
 	var students []model.Student
 
@@ -38,7 +37,7 @@ func (c *Client) ReadStudentsService(filePath string) ([]model.Student, error) {
 			return students, err
 		}
 
-		// fill struct with data
+		// fill the structure with the data
 		student, err := model.Student{}.ToStruct(dataRow)
 		if err != nil {
 			return students, err
@@ -46,11 +45,10 @@ func (c *Client) ReadStudentsService(filePath string) ([]model.Student, error) {
 		// add struct student to []Student
 		students = append(students, student)
 	}
-
 	return students, nil
 }
 
-// StoreURLService and return students Array from URL in structure
+// StoreURLService: Get a list of students from an API and save them inside a structure and return an array of these
 func (c *Client) StoreURLService(apiURL string) ([]model.Student, error) {
 	var students []model.Student
 
@@ -70,11 +68,17 @@ func (c *Client) StoreURLService(apiURL string) ([]model.Student, error) {
 	return students, err
 }
 
-// SaveToCsv take and []Student and save it in a csv file
+// SaveToCsv: Receive an array of []Student and save it inside a csv file
 func (c *Client) SaveToCsv(students []model.Student, filePath string) (bool, error) {
-	// create csv file
-	//file, err := os.Create(config.C.CsvPath.Path)
-	file, err := os.Create(filePath)
+	// create path for csv file
+	if _, err := os.Stat(filePath); os.IsNotExist(err) {
+		dir := strings.ReplaceAll(filePath, "dataFile.csv", "")
+		err := os.MkdirAll(dir, 0700)
+		if err != nil {
+			return false, fmt.Errorf("could not create tmp folder")
+		}
+	}
+	file, err := os.OpenFile(filePath, os.O_RDWR|os.O_CREATE, 0755)
 	if err != nil {
 		return false, fmt.Errorf("could not create csv file")
 	}
@@ -82,14 +86,14 @@ func (c *Client) SaveToCsv(students []model.Student, filePath string) (bool, err
 
 	w := csv.NewWriter(file)
 	defer w.Flush()
-	// add headers to the csv file
+	// add headers to csv file
 	header := []string{"#id", "name", "lastname", "gender", "city", "state", "zip", "email", "age"}
 	err = w.Write(header)
 	if err != nil {
 		return false, errors.New("fail create csv headers")
 	}
 
-	// save each struct as a row in csv
+	// add each structure as one more row in csv file
 	for _, s := range students {
 		err = w.Write(s.ToSlice())
 		if err := w.Error(); err != nil {

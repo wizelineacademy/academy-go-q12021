@@ -1,6 +1,4 @@
-/**
-Test Config
-*/
+// Test config imports
 package config
 
 import (
@@ -10,15 +8,15 @@ import (
 )
 
 // Test read config
-func TestConfig(t *testing.T) {
+func TestReadConfig(t *testing.T) {
 	err := ReadConfig("config")
 	if err != nil {
 		t.Errorf("config not valid: %v", err)
 	}
 }
 
-// Test read config fail
-func TestConfigFail(t *testing.T) {
+// Test read config failing
+func TestReadConfigFail(t *testing.T) {
 	err := ReadConfig("configFailx")
 	if err != nil {
 		fmt.Println("config invalid")
@@ -29,7 +27,7 @@ func TestConfigFail(t *testing.T) {
 }
 
 // Test get server address from config
-func TestConfig_GetServerAddr(t *testing.T) {
+func TestGetServerAddr(t *testing.T) {
 	err := ReadConfig("config")
 	if err != nil {
 		t.Log("server addrs fail")

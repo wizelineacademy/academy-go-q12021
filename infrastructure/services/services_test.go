@@ -1,3 +1,4 @@
+// uni test for services
 package services
 
 import (
@@ -11,24 +12,24 @@ import (
 	"golang-bootcamp-2020/domain/model"
 )
 
+// TestReadStudentsService: Successful student CSV reading test
 func TestReadStudentsService(t *testing.T) {
-	config.ReadConfig("config")
+	err := config.ReadConfig("config")
+	if err != nil {
+		t.Error(err)
+	}
 	c := NewClient()
 	filePath := config.C.CsvPath.Test
 	students, err := c.ReadStudentsService(filePath)
 	if err != nil {
 		t.Error(err)
-		return
 	}
-	fmt.Println(students)
-	t.Log(students)
 	if len(students) < 1 {
 		t.Error("want len >1 ")
 	}
 }
 
-
-// Test fail read students
+// TestFailReadStudentsService: Test failed when trying to read csv to get students
 func TestFailReadStudentsService(t *testing.T) {
 	c := NewClient()
 	_, err := c.ReadStudentsService("wrongpath/dataFile.csv")
@@ -37,15 +38,15 @@ func TestFailReadStudentsService(t *testing.T) {
 	}
 }
 
-// test store url service
+// TestStoreURLService: Service test to get students from an api
 func TestStoreURLService(t *testing.T) {
 	err := config.ReadConfig("config")
 	if err != nil {
-		fmt.Println("read config fail")
+		t.Error(err)
 	}
+
 	c := NewClient()
 	ApiUrl := config.C.Api.Url
-
 	students, err := c.StoreURLService(ApiUrl)
 	if err != nil {
 		t.Error(err)
@@ -54,7 +55,7 @@ func TestStoreURLService(t *testing.T) {
 	t.Log(students)
 }
 
-// test save succesfully csv file
+// TestSaveToCsv: Test on successfully saving csv file
 func TestSaveToCsv(t *testing.T) {
 	err := config.ReadConfig("config")
 	if err != nil {
@@ -64,25 +65,21 @@ func TestSaveToCsv(t *testing.T) {
 	s := model.Student{ID: 1, Name: "Ruben"}
 	students := []model.Student{s}
 	filePath := config.C.CsvPath.Test
-
 	ok, err := c.SaveToCsv(students, filePath)
 	if err != nil || ok == false {
 		t.Error(err)
 	}
 }
 
-// test cant save csv file
-func TestNotSaveToCsv(t *testing.T) {
+// TestNotSaveToFolder: test unsuccessfully saving csv file
+func TestNotSaveToFolder(t *testing.T) {
 	c := NewClient()
 	s := model.Student{}
 	students := []model.Student{s}
 	filePath := ""
-	want := "could not create csv file"
+	want := "could not create tmp folder"
 	ok, err := c.SaveToCsv(students, filePath)
-	if strings.Contains(err.Error(), want) {
-		return
-	} else {
-
+	if !strings.Contains(err.Error(), want) {
 		t.Errorf("unexpected error: %v   %v", err, ok)
 	}
 }
