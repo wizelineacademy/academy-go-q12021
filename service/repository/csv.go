@@ -11,18 +11,20 @@ import (
 	"github.com/etyberick/golang-bootcamp-2020/entity"
 )
 
+const ownerRWX = 755
+
 type quoteRepository struct {
 	file   os.File
 	quotes []entity.Quote
 }
 
-// EmptyDatabase message response
-const EmptyDatabase = "database is empty"
+// ErrEmptyDatabase message response
+const ErrEmptyDatabase = "database is empty"
 
 // QuoteRepository manages all persistency management operations
 type QuoteRepository interface {
-	ReadAll() ([]entity.Quote, error) // Fetches all items from data source
-	Write(entity.Quote) error         // Writes an item into data source
+	ReadAll() ([]entity.Quote, error)
+	Write(entity.Quote) error
 }
 
 // NewQuoteRepository will create an entity that represents the entity.QuoteStorage interface
@@ -40,7 +42,7 @@ func NewQuoteRepository(filename string) QuoteRepository {
 	}
 
 	// Open the file and it to the new object
-	f, err := os.OpenFile(filename, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 755)
+	f, err := os.OpenFile(filename, os.O_WRONLY|os.O_CREATE|os.O_APPEND, ownerRWX)
 	if err != nil {
 		log.Printf("error opening %s", filename)
 		log.Fatalf("%s", err)
@@ -52,7 +54,7 @@ func NewQuoteRepository(filename string) QuoteRepository {
 // ReadAll items from data source
 func (qr *quoteRepository) ReadAll() ([]entity.Quote, error) {
 	if len(qr.quotes) == 0 {
-		return nil, fmt.Errorf(EmptyDatabase)
+		return nil, fmt.Errorf(ErrEmptyDatabase)
 	}
 	return qr.quotes, nil
 }

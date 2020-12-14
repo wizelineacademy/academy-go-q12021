@@ -4,6 +4,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
+	"reflect"
 	"strings"
 	"testing"
 
@@ -85,5 +86,75 @@ func TestGetAll(t *testing.T) {
 	}
 	if rec.Result().StatusCode != http.StatusOK {
 		t.FailNow()
+	}
+}
+
+func TestNewQuote(t *testing.T) {
+	type args struct {
+		qi interactor.QuoteInteractor
+	}
+	tests := []struct {
+		name string
+		args args
+		want Quote
+	}{
+		// TODO: Add test cases.
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := NewQuote(tt.args.qi); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("NewQuote() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func Test_quote_Update(t *testing.T) {
+	type fields struct {
+		quoteInteractor interactor.QuoteInteractor
+	}
+	type args struct {
+		w http.ResponseWriter
+		r *http.Request
+	}
+	tests := []struct {
+		name   string
+		fields fields
+		args   args
+	}{
+		// TODO: Add test cases.
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			q := &quote{
+				quoteInteractor: tt.fields.quoteInteractor,
+			}
+			q.Update(tt.args.w, tt.args.r)
+		})
+	}
+}
+
+func Test_quote_GetAll(t *testing.T) {
+	type fields struct {
+		quoteInteractor interactor.QuoteInteractor
+	}
+	type args struct {
+		w http.ResponseWriter
+		r *http.Request
+	}
+	tests := []struct {
+		name   string
+		fields fields
+		args   args
+	}{
+		// TODO: Add test cases.
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			q := &quote{
+				quoteInteractor: tt.fields.quoteInteractor,
+			}
+			q.GetAll(tt.args.w, tt.args.r)
+		})
 	}
 }

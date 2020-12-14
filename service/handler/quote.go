@@ -31,7 +31,7 @@ func (q *quote) Update(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Success
-	w.WriteHeader(200)
+	w.WriteHeader(http.StatusOK)
 	w.Write(quote)
 	return
 }
@@ -47,6 +47,6 @@ func (q *quote) GetAll(w http.ResponseWriter, r *http.Request) {
 
 	// Success
 	w.Header().Add("Content-Type", "application/json")
-	w.WriteHeader(200)
+	w.WriteHeader(http.StatusOK)
 	w.Write(quotes)
 }

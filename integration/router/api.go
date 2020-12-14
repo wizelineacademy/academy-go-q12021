@@ -21,8 +21,8 @@ func Initialize(config entity.Config) {
 
 	// Initialize the router and its endpoints
 	r := mux.NewRouter()
-	r.HandleFunc(quoteRoute, quoteHandler.GetAll).Methods("GET")
-	r.HandleFunc(quoteRoute, quoteHandler.Update).Methods("POST")
+	r.HandleFunc(quoteRoute, quoteHandler.GetAll).Methods(http.MethodGet)
+	r.HandleFunc(quoteRoute, quoteHandler.Update).Methods(http.MethodPost)
 
 	//Serve
 	http.ListenAndServe(fmt.Sprintf(":%s", config.Port), r)
