@@ -2,10 +2,12 @@ package main
 
 import (
 	"context"
+	"os"
 	"time"
 
 	"github.com/javiertlopez/golang-bootcamp-2020/controller"
 	"github.com/javiertlopez/golang-bootcamp-2020/repository/axiom"
+	"github.com/javiertlopez/golang-bootcamp-2020/repository/local"
 	"github.com/javiertlopez/golang-bootcamp-2020/router"
 	"github.com/javiertlopez/golang-bootcamp-2020/usecase"
 
@@ -30,10 +32,17 @@ type App struct {
 type AppConfig struct {
 	MongoDB  string
 	MongoURI string
+	CSVFile  string
 }
 
 // New returns an App
 func New(config AppConfig, logger *logrus.Logger) App {
+	// Open CSV File
+	csvFile, err := os.OpenFile(config.CSVFile, os.O_RDWR|os.O_CREATE, 0644)
+	if err != nil {
+		logger.Fatal(err)
+	}
+
 	// Set client options
 	clientOptions := options.Client().ApplyURI(config.MongoURI)
 
@@ -53,8 +62,11 @@ func New(config AppConfig, logger *logrus.Logger) App {
 	// Init reservationsRepository
 	reservationsRepo := axiom.NewReservationRepo(config.MongoDB, client)
 
+	// Init reservationsCache
+	reservationsCache := local.NewReservationRepo(csvFile)
+
 	// Init usecase
-	events := usecase.NewEventUseCase(eventsRepo, reservationsRepo)
+	events := usecase.NewEventUseCase(eventsRepo, reservationsRepo, reservationsCache)
 
 	// Init controller
 	controller := controller.NewEventController(events)
