@@ -22,18 +22,21 @@ type Events interface {
 }
 
 type events struct {
-	eventRepo       repository.EventRepository
-	reservationRepo repository.ReservationRepository
+	eventRepo        repository.EventRepository
+	reservationRepo  repository.ReservationRepository
+	reservationCache repository.ReservationRepository
 }
 
 // NewEventUseCase returns the usecase implementation
 func NewEventUseCase(
 	eventRepo repository.EventRepository,
 	reservationRepo repository.ReservationRepository,
+	reservationCache repository.ReservationRepository,
 ) Events {
 	return &events{
 		eventRepo,
 		reservationRepo,
+		reservationCache,
 	}
 }
 
@@ -74,12 +77,10 @@ func (e *events) GetByID(id string) (model.Event, error) {
 	}
 
 	// Step 2. Get reservations
-	reservations, err := e.GetReservations(id)
+	event.Reservations, err = e.GetReservations(id)
 	if err != nil {
 		return model.Event{}, err
 	}
-
-	event.Reservations = reservations
 
 	// Step 3. Get TotalFee
 	event.CalculateTotalFee()
@@ -114,9 +115,30 @@ func (e *events) AddReservations(id string, reservations []model.Reservation) ([
 
 // GetReservations returns all reservations for a given event
 func (e *events) GetReservations(id string) ([]model.Reservation, error) {
-	reservations, err := e.reservationRepo.GetByEventID(id)
+	// Step 1. Get reservations from cache
+	reservations, err := e.reservationCache.GetByEventID(id)
 	if err != nil {
 		return nil, err
+	}
+
+	// return reservations from cache
+	if len(reservations) > 0 {
+		return reservations, nil
+	}
+
+	// Step 2. Get reservations from mongo
+	reservations, err = e.reservationRepo.GetByEventID(id)
+	if err != nil {
+		return nil, err
+	}
+
+	// Step 3. Update cache
+	for i := range reservations {
+		// Step 1. Cache the reservation
+		_, err := e.reservationCache.Create(id, reservations[i])
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	return reservations, nil

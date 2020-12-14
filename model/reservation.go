@@ -13,8 +13,6 @@ type Reservation struct {
 	MinorFee  float64    `json:"minor_fee"`
 	Arrival   *time.Time `json:"arrival"`
 	Departure *time.Time `json:"departure"`
-	CreatedAt *time.Time `json:"created_at"`
-	UpdatedAt *time.Time `json:"updated_at"`
 
 	// Customer information
 	Name  string `json:"name"`

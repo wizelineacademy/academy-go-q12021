@@ -18,6 +18,7 @@ func main() {
 	// Environment variables
 	mongoDB := os.Getenv("MONGO_DB")
 	mongoURI := os.Getenv("MONGO_STRING")
+	csvFile := os.Getenv("CSV_FILE")
 	addr := os.Getenv("ADDR")
 
 	// Setup logger
@@ -29,6 +30,7 @@ func main() {
 		AppConfig{
 			MongoDB:  mongoDB,
 			MongoURI: mongoURI,
+			CSVFile:  csvFile,
 		}, logger,
 	)
 

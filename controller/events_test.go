@@ -9,9 +9,11 @@ import (
 	"testing"
 	"time"
 
-	"github.com/gorilla/mux"
+	"github.com/javiertlopez/golang-bootcamp-2020/errorcodes"
 	mocks "github.com/javiertlopez/golang-bootcamp-2020/mocks/usecase"
 	"github.com/javiertlopez/golang-bootcamp-2020/model"
+
+	"github.com/gorilla/mux"
 )
 
 func Test_eventController_CreateEvent(t *testing.T) {
@@ -125,10 +127,8 @@ func Test_eventController_GetEventByID(t *testing.T) {
 	}
 
 	events.On("GetByID", "123").Return(expectedEvent, nil)
-	events.On("GetByID", "456").Return(model.Event{}, errors.New("failed"))
-	events.On("GetByID", "789").Return(model.Event{}, nil)
-	events.On("GetReservations", "123").Return(nil, nil)
-	events.On("GetReservations", "789").Return(nil, errors.New("failed"))
+	events.On("GetByID", "456").Return(model.Event{}, errorcodes.ErrEventNotFound)
+	events.On("GetByID", "789").Return(model.Event{}, errors.New("generic error"))
 
 	tests := []struct {
 		name         string
@@ -246,7 +246,7 @@ func Test_eventController_GetReservations(t *testing.T) {
 			"Success",
 			"123",
 			200,
-			`[{"id":"","status":"","plan":"","adults":2,"minors":0,"adult_fee":7,"minor_fee":0,"arrival":"2020-01-01T04:00:00Z","departure":"2020-01-03T18:00:00Z","created_at":null,"updated_at":null,"name":"","phone":"","email":""},{"id":"","status":"","plan":"","adults":2,"minors":2,"adult_fee":7,"minor_fee":1,"arrival":"2020-01-01T04:00:00Z","departure":"2020-01-03T18:00:00Z","created_at":null,"updated_at":null,"name":"","phone":"","email":""}]`,
+			`[{"id":"","status":"","plan":"","adults":2,"minors":0,"adult_fee":7,"minor_fee":0,"arrival":"2020-01-01T04:00:00Z","departure":"2020-01-03T18:00:00Z","name":"","phone":"","email":""},{"id":"","status":"","plan":"","adults":2,"minors":2,"adult_fee":7,"minor_fee":1,"arrival":"2020-01-01T04:00:00Z","departure":"2020-01-03T18:00:00Z","name":"","phone":"","email":""}]`,
 		},
 		{
 			"Error",
