@@ -1,11 +1,8 @@
-/**
-Get config environment settings
-*/
+// package Config get environment settings
 package config
 
 import (
 	"fmt"
-	"log"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -22,31 +19,37 @@ type config struct {
 		Timeout time.Duration
 	}
 	CsvPath struct {
-		Path string
+		Prod string
+		Test string
+	}
+	Api struct {
+		Url string
 	}
 }
 
-// C global var type config
+// C config global var type config
 var C config
 
-// ReadConfig read  yml file
-func ReadConfig() {
+// ReadConfig read YML file convert to config struct
+func ReadConfig(configFile string) error {
 	Config := &C
 
-	viper.SetConfigName("config")
+	viper.SetConfigName(configFile)
 	viper.SetConfigType("yml")
 	viper.AddConfigPath(filepath.Join("$GOPATH", "src", "golang-bootcamp-2020", "config"))
 	viper.AutomaticEnv()
 
 	if err := viper.ReadInConfig(); err != nil {
 		fmt.Println(err)
-		log.Fatalln(err)
+		return err
 	}
 
 	if err := viper.Unmarshal(&Config); err != nil {
 		fmt.Println(err)
 		os.Exit(1)
+		return err
 	}
+	return nil
 }
 
 // GetServerAddr obtain the full server address in a string

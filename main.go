@@ -1,16 +1,23 @@
+// package main, core program
+// Author: Rubén Vázquez
 package main
 
 import (
-	"golang-bootcamp-2020/config"
-	"golang-bootcamp-2020/infrastructure/controller"
-	"golang-bootcamp-2020/infrastructure/router"
-	"golang-bootcamp-2020/infrastructure/services"
-	"golang-bootcamp-2020/interface/usecase"
+	"log"
+	"github.com/ruvaz/golang-bootcamp-2020/config"
+	"github.com/ruvaz/golang-bootcamp-2020/infrastructure/controller"
+	"github.com/ruvaz/golang-bootcamp-2020/infrastructure/router"
+	"github.com/ruvaz/golang-bootcamp-2020/infrastructure/services"
+	"github.com/ruvaz/golang-bootcamp-2020/interface/usecase"
 )
 
+// main function inject dependencies
 func main() {
-	// load environment settings
-	config.ReadConfig()
+	// load environment settings for environment
+	err := config.ReadConfig("config")
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	// Load client *service.Client
 	s := services.NewClient()

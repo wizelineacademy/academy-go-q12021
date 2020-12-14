@@ -1,6 +1,4 @@
-/**
-Student Model
-*/
+// Student Model struct
 package model
 
 import (
@@ -8,7 +6,7 @@ import (
 	"strconv"
 )
 
-// Student  struct for a student
+// Student struct for a student
 type Student struct {
 	ID       int    `json:"id"`
 	Name     string `json:"name"`

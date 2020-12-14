@@ -1,6 +1,6 @@
 # Golang Bootcamp
 
-First Deliverable (due November 22 th 23:59PM)
+###First Deliverable (due November 22 th 23:59PM)
 Based on the self-study material and mentorship covered until this deliverable, I have performed the following:
 
  - Select architecture
@@ -8,6 +8,13 @@ Based on the self-study material and mentorship covered until this deliverable, 
  - Handle Errors for CSV  (not valid, missing)
  - Use best practices
  - Use lint, error check
+
+###Final Deliverable (due December 13th 23:59PM)
+- Store read CSV in a structure
+- Loop structure and print data
+- Send to own API data read
+- Add unit testing
+- Refactor
 
 ## Run
 
@@ -22,17 +29,23 @@ go build .
 
 ## Usage
 
-####Create csv from URL and get status in response json
+###Create csv from URL and response status
 
 ``` bash
-curl --location --request GET 'localhost:8080/storedata'
+curl --location --request GET 'localhost:8080/api/storedata'
 ``` 
 
-####Read Csv file and get response in json
+###Read Csv file  and response json with the info
 
 ``` bash
-curl --location --request GET 'localhost:8080/readcsv'
-``` 
+curl --location --request GET 'localhost:8080/api/readcsv'
+```
+
+## Run Tests
+
+``` bash
+go test ./...
+```
 
 ## Selected architecture
 
@@ -42,21 +55,21 @@ Since the applications made in Go must be applications that are characterized by
     .
     ├── config
     │ └── config.go
-    │ └── config.yml    
-    ├── domain  
-    │ └── model  
-    │ │ └── student.go  
-    ├── infrastructure  
-    │ ├──  controller  
+    │ └── config.yml
+    ├── domain
+    │ └── model
+    │ │ └── student.go
+    ├── infrastructure
+    │ ├──  controller
     │ │ └── student.go
     │ ├──  router
     │ │ └── router.go
     │ ├──  services
-    │ │ └── restclient.go  
-    │ │ └── services.go  
-    ├── interface  
-    │ ├── usecase  
-    │ │ ├── student.go   
+    │ │ └── restclient.go
+    │ │ └── services.go
+    ├── interface
+    │ ├── usecase
+    │ │ ├── student.go
     ├── tmp
     │ └── dataFile.csv
     ├── main.go  
