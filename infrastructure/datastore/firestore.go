@@ -14,7 +14,8 @@ type firestoreDB struct{}
 
 //Define the path to the json file required for firestore
 const (
-	credentialsPath string = "GOOGLE_APPLICATION_CREDENTIALS_PATH"
+	//credentialsPath string = "GOOGLE_APPLICATION_CREDENTIALS_PATH"
+	credentialsPath string = "/Users/jguerra/Downloads/firebaseCreds.json"
 )
 
 //NewFirestoreDB will return the db object
@@ -133,7 +134,6 @@ func (db *firestoreDB) DeleteItem(tableName string, id string) error {
 
 }
 
-//TODO: function to update items
 func (db *firestoreDB) UpdateItem(tableName string, id string, item map[string]interface{}) (map[string]interface{}, error) {
 	//Create the client and closing it after we are done with it.
 	ctx := context.Background()

@@ -25,6 +25,10 @@ This API can read, add, edit or remove items from a Database. The items are leag
 | ------------- |:-------------:|
 | api_base      | http://localhost:8081     |
 
+# API Documentation
+
+https://documenter.getpostman.com/view/8047017/TVmQdw9y
+
 ## Get Leagues
 A **GET** request to the endpoint **api_base/leagues** will return you all the leagues in the database.
 

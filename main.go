@@ -8,12 +8,14 @@ import (
 	"github.com/jguerra6/API/controller"
 	"github.com/jguerra6/API/infrastructure/datastore"
 	"github.com/jguerra6/API/infrastructure/router"
+	"github.com/jguerra6/API/service"
 )
 
 var (
-	httpRouter       = router.NewMuxRouter()
-	db               = datastore.NewFirestoreDB()
-	leagueController = controller.NewLeagueController(db, httpRouter)
+	database         datastore.Database          = datastore.NewFirestoreDB()
+	httpRouter       router.Router               = router.NewMuxRouter()
+	leagueService    service.LeagueService       = service.NewLeagueService(database, httpRouter)
+	leagueController controller.LeagueController = controller.NewLeagueController(leagueService)
 )
 
 func homePage(writer http.ResponseWriter, request *http.Request) {

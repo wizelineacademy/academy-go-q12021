@@ -8,14 +8,14 @@ import (
 	"reflect"
 
 	"github.com/jguerra6/API/errorsHandler"
+	"github.com/jguerra6/API/service"
+)
 
-	"github.com/jguerra6/API/infrastructure/datastore"
-	"github.com/jguerra6/API/infrastructure/router"
+var (
+	leagueService service.LeagueService
 )
 
 type leagueController struct {
-	router.Router
-	datastore.Database
 }
 
 //LeagueController will create an interface to control all the League Operations
@@ -28,14 +28,15 @@ type LeagueController interface {
 }
 
 //NewLeagueController returns a League Controller to handle the League Operations
-func NewLeagueController(db datastore.Database, router router.Router) LeagueController {
-	return &leagueController{router, db}
+func NewLeagueController(service service.LeagueService) LeagueController {
+	leagueService = service
+	return &leagueController{}
 }
 
 //GetAllLeagues returns all the items in the "leagues" table
 func (lc *leagueController) GetAllLeagues(writer http.ResponseWriter, request *http.Request) {
 	writer.Header().Set("Content-Type", "application/json")
-	leagues, err := lc.GetAll("leagues")
+	leagues, err := leagueService.GetAllLeagues()
 
 	if err != nil {
 		writer.WriteHeader(http.StatusInternalServerError)
@@ -91,19 +92,20 @@ func (lc *leagueController) Addleague(writer http.ResponseWriter, request *http.
 	}
 
 	//Validate that the user input has the correct fields and types, otherwise handle the error and return a response to the user
-	err1 := validateLeague(league)
-	if err1 != nil {
+	err = leagueService.ValidateLeague(league)
+	if err != nil {
 		writer.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(writer).Encode(errorsHandler.ServiceError{Message: err1.Error()})
+		json.NewEncoder(writer).Encode(errorsHandler.ServiceError{Message: err.Error()})
 		return
 	}
 
 	//Add the item to the database and handle the errors if any
-	result, err2 := lc.AddItem("leagues", league)
+	var result map[string]interface{}
+	result, err = leagueService.Addleague(league)
 
-	if err2 != nil {
+	if err != nil {
 		writer.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(writer).Encode(errorsHandler.ServiceError{Message: "Error saving the league"})
+		json.NewEncoder(writer).Encode(errorsHandler.ServiceError{Message: err.Error()})
 		return
 	}
 
@@ -117,11 +119,10 @@ func (lc *leagueController) GetLeague(writer http.ResponseWriter, request *http.
 	writer.Header().Set("Content-Type", "application/json")
 
 	//Get the id from the request url
-	vars := lc.GetVarsFromRequest(request)
-	id := vars["id"]
+	id := leagueService.GetID(request)
 
 	//Get the item from the DB and handle errors if any.
-	league, err := lc.GetItemByID("leagues", id)
+	league, err := leagueService.GetLeague(id)
 	if err != nil {
 		writer.WriteHeader(http.StatusInternalServerError)
 		json.NewEncoder(writer).Encode(errorsHandler.ServiceError{Message: "League not found"})
@@ -138,11 +139,10 @@ func (lc *leagueController) DeleteLeague(writer http.ResponseWriter, request *ht
 	writer.Header().Set("Content-Type", "application/json")
 
 	//Get the id from the request url
-	vars := lc.GetVarsFromRequest(request)
-	id := vars["id"]
+	id := leagueService.GetID(request)
 
 	//Perform the delete request and handle the error if any
-	err := lc.DeleteItem("leagues", id)
+	err := leagueService.DeleteLeague(id)
 	if err != nil {
 		writer.WriteHeader(http.StatusInternalServerError)
 		json.NewEncoder(writer).Encode(errorsHandler.ServiceError{Message: err.Error()})
@@ -159,8 +159,7 @@ func (lc *leagueController) Updateleague(writer http.ResponseWriter, request *ht
 	writer.Header().Set("Content-Type", "application/json")
 
 	//Get the id from the request url
-	vars := lc.GetVarsFromRequest(request)
-	id := vars["id"]
+	id := leagueService.GetID(request)
 
 	//Save the json body of the request in a map and handle the errors if any.
 	tmpLeague := make(map[string]interface{})
@@ -175,7 +174,8 @@ func (lc *leagueController) Updateleague(writer http.ResponseWriter, request *ht
 
 	//Update the league, handle errors if any and get the new updated item
 	var result map[string]interface{}
-	result, err = lc.UpdateItem("leagues", id, tmpLeague)
+	result, err = leagueService.Updateleague(id, tmpLeague)
+
 	if err != nil {
 		writer.WriteHeader(http.StatusInternalServerError)
 		json.NewEncoder(writer).Encode(errorsHandler.ServiceError{Message: err.Error()})
