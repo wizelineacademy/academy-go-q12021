@@ -411,14 +411,19 @@ func Test_events_GetReservations(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			reservationRepo := &mocks.ReservationRepository{}
+			reservationCache := &mocks.ReservationRepository{}
 			if tt.wantErr {
+				reservationCache.On("GetByEventID", tt.id).Return(nil, errors.New("failed"))
 				reservationRepo.On("GetByEventID", tt.id).Return(nil, errors.New("failed"))
 			} else {
+				reservationCache.On("GetByEventID", tt.id).Return([]model.Reservation{}, nil)
 				reservationRepo.On("GetByEventID", tt.id).Return(allReservations, nil)
+				reservationCache.On("Create", tt.id, mock.Anything).Return(model.Reservation{}, nil)
 			}
 
 			e := &events{
-				reservationRepo: reservationRepo,
+				reservationRepo:  reservationRepo,
+				reservationCache: reservationCache,
 			}
 			got, err := e.GetReservations(tt.id)
 			if (err != nil) != tt.wantErr {
