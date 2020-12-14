@@ -17,3 +17,4 @@
 .DS_Store
 golang-bootcamp-2020
 .env
+logfile.csv

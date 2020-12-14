@@ -1,9 +1,6 @@
 package registry
 
 import (
-	"log"
-
-	"github.com/alexis-aguirre/golang-bootcamp-2020/infraestructure/datastore"
 	"github.com/alexis-aguirre/golang-bootcamp-2020/infraestructure/services"
 	"github.com/alexis-aguirre/golang-bootcamp-2020/interface/presenter"
 	ir "github.com/alexis-aguirre/golang-bootcamp-2020/interface/repository"
@@ -19,11 +16,9 @@ func NewAdminInteractor() interactor.AdminInteractor {
 //NewAdminRepository creates a new instance of AdminRepository
 func NewAdminRepository() repository.AdminRepository {
 	registry := services.ServicesRegistry
-	logger := &datastore.Logger{}
-	err := registry.FetchService(logger)
-	if err != nil {
-		log.Println("Error fetching: ", err)
-	}
+	var service interface{}
+	service = registry.FetchService(services.LOGGER)
+	logger, _ := service.(services.Logger)
 	return ir.NewAdminRepository(logger)
 }
 

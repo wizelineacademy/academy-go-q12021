@@ -5,13 +5,12 @@ package services
 import (
 	"fmt"
 	"log"
-	"reflect"
 )
 
 //ServiceRegistry is the structure of the ServicesRegistry
 type ServiceRegistry struct {
-	services     map[reflect.Type]Service
-	serviceTypes []reflect.Type
+	services     map[string]Service
+	serviceTypes []string
 }
 
 //ServicesRegistry is the global variable for store and fetch services
@@ -20,7 +19,7 @@ var ServicesRegistry *ServiceRegistry
 //NewServiceRegistry returns the instance of the ServiceRegistry structure.
 func NewServiceRegistry() *ServiceRegistry {
 	ServicesRegistry = &ServiceRegistry{
-		services: make(map[reflect.Type]Service),
+		services: make(map[string]Service),
 	}
 	return ServicesRegistry
 }
@@ -38,28 +37,27 @@ type Service interface {
 }
 
 //RegisterService registers a new service in the  ServiceRegistry
-func (s *ServiceRegistry) RegisterService(service Service) error {
-	kind := reflect.TypeOf(service)
-	if _, exists := s.services[kind]; exists {
-		return fmt.Errorf("Service already exists: %v", kind)
+func (s *ServiceRegistry) RegisterService(serviceName string, service Service) error {
+	if _, exists := s.services[serviceName]; exists {
+		return fmt.Errorf("Service already exists: %v", serviceName)
 	}
-	s.services[kind] = service
-	s.serviceTypes = append(s.serviceTypes, kind)
+	s.services[serviceName] = service
+	s.serviceTypes = append(s.serviceTypes, serviceName)
 	return nil
 }
 
 //StartAll starts all the services contained in the ServiceRegistry
-func (s *ServiceRegistry) StartAll() {
+/*func (s *ServiceRegistry) StartAll() {
 	log.Printf("Starting %d services: %v\n", len(s.serviceTypes), s.serviceTypes)
 	for _, kind := range s.serviceTypes {
 		log.Printf("Starting service type %v\n", kind)
 		go s.services[kind].Start()
 	}
-}
+}*/
 
 // StopAll ends every service in reverse order of registration, logging a
 // panic if any of them fail to stop.
-func (s *ServiceRegistry) StopAll() {
+/*func (s *ServiceRegistry) StopAll() {
 	for i := len(s.serviceTypes) - 1; i >= 0; i-- {
 		kind := s.serviceTypes[i]
 		service := s.services[kind]
@@ -67,19 +65,15 @@ func (s *ServiceRegistry) StopAll() {
 			log.Panicf("Could not stop the following service: %v, %v", kind, err)
 		}
 	}
-}
+}*/
 
 // FetchService takes in a struct pointer and sets the value of that pointer
 // to a service currently stored in the service registry. This ensures the input argument is
 // set to the right pointer that refers to the originally registered service.
-func (s *ServiceRegistry) FetchService(service interface{}) error {
-	if reflect.TypeOf(service).Kind() != reflect.Ptr { //TODO: Fix this fetch service
-		return fmt.Errorf("input must be of pointer type, received value type instead: %T", service)
+func (s *ServiceRegistry) FetchService(serviceType string) Service {
+	if service, ok := s.services[serviceType]; ok {
+		return service
 	}
-	element := reflect.ValueOf(service).Elem()
-	if running, ok := s.services[element.Type()]; ok {
-		element.Set(reflect.ValueOf(running))
-		return nil
-	}
-	return fmt.Errorf("unknown service: %T", service)
+	log.Println("Requested service type no exists: " + serviceType)
+	return nil
 }

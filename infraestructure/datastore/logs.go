@@ -15,7 +15,9 @@ type Logger struct { //Implements interface Logger and Service
 }
 
 func InitializeLogger(filePath string) *Logger {
-	return &Logger{FilePath: filePath}
+	logger := &Logger{FilePath: filePath}
+	logger.Start()
+	return logger
 }
 
 func (lo *Logger) Start() error {
@@ -55,13 +57,16 @@ func (lo *Logger) Append(record string) error {
 
 func (lo *Logger) Get() ([]string, error) {
 	var lines []string
+	log.Println(lo.File == nil)
 	scanner := bufio.NewScanner(lo.File)
 	for scanner.Scan() {
 		if scanner.Err() != nil {
 			return nil, scanner.Err()
 		}
-		lines = append(lines, scanner.Text())
-	}
 
+		text := scanner.Text()
+		log.Println("Read: ", text)
+		lines = append(lines, text)
+	}
 	return lines, nil
 }

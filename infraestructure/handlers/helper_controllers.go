@@ -25,3 +25,8 @@ func jsonWritter(w http.ResponseWriter, r *http.Request, httpStatusCode int, sen
 		return
 	}
 }
+
+func bytesWritter(w http.ResponseWriter, r *http.Request, httpStatusCode int, sendableData []byte) {
+	w.WriteHeader(httpStatusCode)
+	w.Write(sendableData)
+}

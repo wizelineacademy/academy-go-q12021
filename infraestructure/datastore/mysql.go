@@ -9,16 +9,6 @@ type MySQL struct { //Implements Service, Database
 	status int
 }
 
-var users = []*model.User{ //TODO: Remove this when connected to real DB
-	{ID: "1",
-		Password: "dpaoidjkpaosijda",
-	},
-	{
-		ID:       "2",
-		Password: "dpaoidjkpaosijda",
-	},
-}
-
 func InitializeDB() *MySQL {
 	//TODO: Implement connecting to DB
 	return &MySQL{}
@@ -36,14 +26,13 @@ func (mysql *MySQL) Status() int {
 }
 
 func (mysql *MySQL) Get(*model.User) (*model.User, error) {
-	return users[0], nil
+	return nil, nil
 }
 func (mysql *MySQL) Create(*model.User) (*model.User, error) {
 	user := &model.User{
 		ID:       "3",
 		Password: "453ea",
 	}
-	users = append(users, user)
 	return user, nil
 }
 func (mysql *MySQL) Update(*model.User) (*model.User, error) {

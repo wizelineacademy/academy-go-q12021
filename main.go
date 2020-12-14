@@ -40,14 +40,13 @@ func startServices() {
 	registry := services.NewServiceRegistry()
 
 	db := datastore.InitializeDB()
-	registry.RegisterService(db)
+	registry.RegisterService(services.DATABASE, db)
 
 	currentDir, err := os.Getwd()
 	if err != nil {
 		log.Fatal("Cannot get current directory")
 	}
 	logger := datastore.InitializeLogger(path.Join(currentDir, "logfile.csv"))
-	registry.RegisterService(logger)
+	registry.RegisterService(services.LOGGER, logger)
 
-	registry.StartAll()
 }
