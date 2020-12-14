@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
+	"os"
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/spf13/viper"
@@ -15,10 +16,11 @@ type Config struct {
 	ErrorLog *log.Logger
 	DB       *sql.DB
 	Addr     *string
+	CSVFile  *os.File
 }
 
 // Init the application's configuration
-func Init(infoLog, errorLog *log.Logger) (*Config, error) {
+func Init(infoLog, errorLog *log.Logger, csvFile *os.File) (*Config, error) {
 
 	//Read config file
 	viper.SetConfigName("config")
@@ -52,7 +54,7 @@ func Init(infoLog, errorLog *log.Logger) (*Config, error) {
 	}
 
 	// Retrun the config
-	return &Config{dsn, infoLog, errorLog, db, &addr}, nil
+	return &Config{dsn, infoLog, errorLog, db, &addr, csvFile}, nil
 }
 
 func openDB(dsn string) (*sql.DB, error) {

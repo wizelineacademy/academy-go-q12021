@@ -25,8 +25,15 @@ func main() {
 	infoLog := log.New(os.Stdout, "INFO\t", log.Ldate|log.Ltime)
 	errorLog := log.New(os.Stderr, "ERROR\t", log.Ldate|log.Ltime|log.Lmicroseconds|log.Lshortfile)
 
+	// CSV
+	csvFile, err := os.OpenFile("./rickandmortydata.csv", os.O_APPEND|os.O_CREATE|os.O_RDWR, 0644)
+	if err != nil {
+		errorLog.Fatalf("message: fatal error config file not found: %s", err)
+	}
+	defer csvFile.Close()
+
 	//Init Config
-	config, err := config.Init(infoLog, errorLog)
+	config, err := config.Init(infoLog, errorLog, csvFile)
 	if err != nil {
 		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
 			// Config file not found
