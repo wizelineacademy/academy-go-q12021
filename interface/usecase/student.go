@@ -34,7 +34,7 @@ func (u *Usecase) ReadStudentsService(filePath string) ([]model.Student, error) 
 
 // StoreURLService usecase to store students from api to csv
 func (u *Usecase) StoreURLService(apiURL string) ([]model.Student, error) {
-	var _ = config.ReadConfig("config")
+	config.ReadConfig()
 
 	// get data from api into []students
 	students, err := u.service.StoreURLService(apiURL)
@@ -45,6 +45,7 @@ func (u *Usecase) StoreURLService(apiURL string) ([]model.Student, error) {
 	if err != nil {
 		return students, fmt.Errorf("failed to get the file")
 	}
+
 	// Save students in csv file
 	res, err := u.service.SaveToCsv(students, filePath)
 	if err != nil || !res {

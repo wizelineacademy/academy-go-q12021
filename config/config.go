@@ -30,25 +30,23 @@ type config struct {
 var C config
 
 // ReadConfig read YML file convert to config struct
-func ReadConfig(configFile string) error {
+func ReadConfig() {
 	Config := &C
-
-	viper.SetConfigName(configFile)
+	viper.SetConfigFile("config/config.yml")
 	viper.SetConfigType("yml")
-	viper.AddConfigPath("./config")
 	viper.AutomaticEnv()
 
 	if err := viper.ReadInConfig(); err != nil {
 		fmt.Println(err)
-		return err
+		return
 	}
 
 	if err := viper.Unmarshal(&Config); err != nil {
 		fmt.Println(err)
 		os.Exit(1)
-		return err
+		return
 	}
-	return nil
+	return
 }
 
 // GetServerAddr obtain the full server address in a string

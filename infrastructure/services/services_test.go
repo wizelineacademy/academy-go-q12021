@@ -3,7 +3,6 @@ package services
 
 import (
 	"errors"
-	"fmt"
 	"os"
 	"strings"
 	"testing"
@@ -14,10 +13,7 @@ import (
 
 // TestReadStudentsService: Successful student CSV reading test
 func TestReadStudentsService(t *testing.T) {
-	err := config.ReadConfig("config")
-	if err != nil {
-		t.Error(err)
-	}
+	config.ReadConfig()
 	c := NewClient()
 	filePath := config.C.CsvPath.Test
 	students, err := c.ReadStudentsService(filePath)
@@ -40,11 +36,7 @@ func TestFailReadStudentsService(t *testing.T) {
 
 // TestStoreURLService: Service test to get students from an api
 func TestStoreURLService(t *testing.T) {
-	err := config.ReadConfig("config")
-	if err != nil {
-		t.Error(err)
-	}
-
+	config.ReadConfig()
 	c := NewClient()
 	ApiUrl := config.C.Api.Url
 	students, err := c.StoreURLService(ApiUrl)
@@ -57,10 +49,7 @@ func TestStoreURLService(t *testing.T) {
 
 // TestSaveToCsv: Test on successfully saving csv file
 func TestSaveToCsv(t *testing.T) {
-	err := config.ReadConfig("config")
-	if err != nil {
-		fmt.Println("read config fail")
-	}
+	config.ReadConfig()
 	c := NewClient()
 	s := model.Student{ID: 1, Name: "Ruben"}
 	students := []model.Student{s}
