@@ -14,8 +14,7 @@ type firestoreDB struct{}
 
 //Define the path to the json file required for firestore
 const (
-	//credentialsPath string = "GOOGLE_APPLICATION_CREDENTIALS_PATH"
-	credentialsPath string = "/Users/jguerra/Downloads/firebaseCreds.json"
+	credentialsPath string = "GOOGLE_APPLICATION_CREDENTIALS_PATH"
 )
 
 //NewFirestoreDB will return the db object
