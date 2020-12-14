@@ -51,7 +51,6 @@ func TestGet(t *testing.T) {
 		request          *http.Request
 		responseRecorder *httptest.ResponseRecorder
 	}{
-		// Empty database case
 		{
 			args: args{
 				qi: interactor.NewQuoteInteractor(entity.Config{
@@ -64,7 +63,6 @@ func TestGet(t *testing.T) {
 			request:          req,
 			responseRecorder: httptest.NewRecorder(),
 		},
-		// Populated database case
 		{
 			args: args{
 				qi: interactor.NewQuoteInteractor(entity.Config{
