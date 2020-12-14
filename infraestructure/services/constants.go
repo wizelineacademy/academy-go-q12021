@@ -1,6 +1,7 @@
 package services
 
 const (
-	DATABASE = "database"
-	LOGGER   = "logger"
+	DATABASE  = "database"
+	LOGGER    = "logger"
+	MUSIC_API = "music_api"
 )

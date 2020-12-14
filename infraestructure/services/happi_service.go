@@ -14,7 +14,6 @@ import (
 const baseAPIURL = "https://api.happi.dev/v1/music"
 
 type happiService struct {
-	c chan model.Song
 }
 
 //HappiLyricResponse maps the response from the HAPPI API
@@ -58,15 +57,6 @@ type searchResult struct {
 	Album     string `json:"album"`
 	IDAlbum   int    `json:"id_album"`
 	HasLyrics bool   `json:"haslyrics"`
-	/*APIArtist       string `json:"api_artist"`
-	APIAlbums       string `json:"api_albums"`
-	APIAlbum        string `json:"api_album"`
-	APITracks       string `json:"api_tracks"`
-	APITrack        string `json:"api_track"`
-	APILyrics       string `json:"api_lyrics"`
-	CopyrightLabel  string `json:"copyright_label"`
-	CopyrightNotice string `json:"copyright_notice"`
-	CopyrightString string `json:"copyright_text"`*/
 }
 
 //HappiService is the interface for the HappiService
@@ -77,8 +67,7 @@ type HappiService interface {
 
 //NewHappiService creates a new instance of HappiService
 func NewHappiService() HappiService {
-	c := make(chan model.Song)
-	return &happiService{c}
+	return &happiService{}
 }
 
 func (hs *happiService) SearchSongsByQuery(queryParams map[string]string) ([]*model.Song, error) {
@@ -151,6 +140,6 @@ func (hs *happiService) Start() error {
 func (hs *happiService) Stop() error {
 	return nil
 }
-func (hs *happiService) Status() error {
-	return nil
+func (hs *happiService) Status() int {
+	return 0
 }

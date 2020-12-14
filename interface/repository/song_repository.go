@@ -14,13 +14,12 @@ type songRepository struct {
 }
 
 //NewSongRepository creates a new Song Repository
-func NewSongRepository(logger services.Logger) repository.SongRepository {
-	happiService := services.NewHappiService()
-	return &songRepository{happiService, logger}
+func NewSongRepository(songAPI services.HappiService, logger services.Logger) repository.SongRepository {
+	return &songRepository{songAPI, logger}
 }
 
 func (sr *songRepository) Find(song *model.Song) (*model.Song, error) {
-	song, err := sr.db.SearchSongLyrics(song.InterpreterID, song.AlbumID, song.ID) //TODO: Make this dynamic
+	song, err := sr.db.SearchSongLyrics(song.InterpreterID, song.AlbumID, song.ID)
 	if err != nil {
 		log.Println(err)
 		return nil, err

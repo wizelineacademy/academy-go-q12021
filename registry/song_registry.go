@@ -14,12 +14,14 @@ func NewSongInteractor() interactor.SongInteractor {
 	var service interface{}
 	service = registry.FetchService(services.LOGGER)
 	logger, _ := service.(services.Logger)
-	return interactor.NewSongInteractor(NewSongRepository(logger), NewSongPresenter())
+	service = registry.FetchService(services.MUSIC_API)
+	songAPI, _ := service.(services.HappiService)
+	return interactor.NewSongInteractor(NewSongRepository(songAPI, logger), NewSongPresenter())
 }
 
 //NewSongRepository creates a new instance of SongRepository
-func NewSongRepository(logger services.Logger) repository.SongRepository {
-	return ir.NewSongRepository(logger)
+func NewSongRepository(songAPI services.HappiService, logger services.Logger) repository.SongRepository {
+	return ir.NewSongRepository(songAPI, logger)
 }
 
 //NewSongPresenter creates a new instance of SongPresenter

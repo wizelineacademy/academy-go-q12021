@@ -9,7 +9,3 @@ type User struct {
 	CreatedAt time.Time
 	IsAdmin   bool
 }
-
-func (user *User) HashPassword() {
-
-}

@@ -49,4 +49,7 @@ func startServices() {
 	logger := datastore.InitializeLogger(path.Join(currentDir, "logfile.csv"))
 	registry.RegisterService(services.LOGGER, logger)
 
+	happiService := services.NewHappiService()
+	hs := happiService.(services.Service)
+	registry.RegisterService(services.MUSIC_API, hs)
 }

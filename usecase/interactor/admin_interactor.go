@@ -24,6 +24,7 @@ func NewAdminInteractor(r repository.AdminRepository, p presenter.AdminPresenter
 
 func (ai *adminInteractor) GetLogs(searchPattern string, startDate time.Time, endDate time.Time) ([]string, error) {
 	log.Println("GetLogs interactor")
+	//TODO: Implement checking the start/end date filtering
 	logs, err := ai.AdminRepository.FindBy(searchPattern, startDate, endDate)
 	if err != nil {
 		return nil, err
