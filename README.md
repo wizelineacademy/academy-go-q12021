@@ -8,13 +8,15 @@ The app handles events such as weddings, family trips and school excursions; it 
 
 ## What's the deal?
 
-The app is based on Clean Architecture. The first deliverable contains:
+The app is based on Clean Architecture. 
 
 - Domain (under the `model` folder)
 - Usecase (under the `usecase` folder)
 - Controller (under the `controller` folder)
-- Database (under the `repository` folder)
+- Database/Cache (under the `repository` folder)
 - Interface (under the `router` folder)
+
+Events and Reservations are stored in Mongo Atlas. Reservations are cached in a CSV file.
 
 ## Development
 
@@ -27,11 +29,28 @@ go get ./...
 
 ## Run app
 
+### Docker
+
+Create a docker image
+
+```bash
+docker build -t javiertlopez/convoy .
+```
+
+Run the docker container
+
+```bash
+docker run --env-file=dev.env -d -p 8080:8080 javiertlopez/convoy
+```
+
+**Note.** It is required to fill the `dev.env` file.
+
 ### From terminal
 Export environment environment variable with **Mongo Atlas Connection String**:
 
 ```bash
 export ADDR="0.0.0.0:8080"
+export CSV_FILE="cache.csv"
 export MONGO_STRING="connectionString"
 export MONGO_DB="databaseName"
 ```
