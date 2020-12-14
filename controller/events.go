@@ -63,19 +63,6 @@ func (e *eventController) GetEventByID(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Step 1. Get reservations
-	response.Reservations, err = e.events.GetReservations(id)
-	if err != nil {
-		JSONResponse(
-			w, http.StatusInternalServerError,
-			Response{
-				Message: "Internal server error",
-				Status:  http.StatusInternalServerError,
-			},
-		)
-		return
-	}
-
 	JSONResponse(
 		w,
 		http.StatusOK,
