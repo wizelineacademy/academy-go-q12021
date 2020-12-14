@@ -16,6 +16,7 @@ type Client struct {
 
 // NewClient: Resty client, Return: *Client
 func NewClient() *Client {
+	config.ReadConfig()
 	host := config.C.GetServerAddr()
 	timeout := config.C.Server.Timeout * time.Second
 

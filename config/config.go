@@ -19,10 +19,6 @@ type config struct {
 	}
 	CsvPath struct {
 		Prod string
-		Test string
-	}
-	Api struct {
-		Url string
 	}
 }
 

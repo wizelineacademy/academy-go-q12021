@@ -7,15 +7,13 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/ruvaz/golang-bootcamp-2020/config"
 	"github.com/ruvaz/golang-bootcamp-2020/domain/model"
 )
 
 // TestReadStudentsService: Successful student CSV reading test
 func TestReadStudentsService(t *testing.T) {
-	config.ReadConfig()
 	c := NewClient()
-	filePath := config.C.CsvPath.Test
+	filePath := "../../tmp/dataFile.csv"
 	students, err := c.ReadStudentsService(filePath)
 	if err != nil {
 		t.Error(err)
@@ -36,9 +34,8 @@ func TestFailReadStudentsService(t *testing.T) {
 
 // TestStoreURLService: Service test to get students from an api
 func TestStoreURLService(t *testing.T) {
-	config.ReadConfig()
 	c := NewClient()
-	ApiUrl := config.C.Api.Url
+	ApiUrl := "https://login-app-crud.firebaseio.com/.json"
 	students, err := c.StoreURLService(ApiUrl)
 	if err != nil {
 		t.Error(err)
@@ -49,11 +46,10 @@ func TestStoreURLService(t *testing.T) {
 
 // TestSaveToCsv: Test on successfully saving csv file
 func TestSaveToCsv(t *testing.T) {
-	config.ReadConfig()
 	c := NewClient()
 	s := model.Student{ID: 1, Name: "Ruben"}
 	students := []model.Student{s}
-	filePath := config.C.CsvPath.Test
+	filePath := "../../tmp/dataFile.csv"
 	ok, err := c.SaveToCsv(students, filePath)
 	if err != nil || ok == false {
 		t.Error(err)
