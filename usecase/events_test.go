@@ -8,6 +8,8 @@ import (
 
 	mocks "github.com/javiertlopez/golang-bootcamp-2020/mocks/repository"
 	"github.com/javiertlopez/golang-bootcamp-2020/model"
+
+	"github.com/stretchr/testify/mock"
 )
 
 func Test_events_Create(t *testing.T) {
@@ -120,6 +122,16 @@ func Test_events_GetByID(t *testing.T) {
 			false,
 		},
 		{
+			"Success (with reservations cache)",
+			"789",
+			model.Event{
+				ID:           "789",
+				Reservations: reservations,
+				TotalFee:     2 * 7 * 2,
+			},
+			false,
+		},
+		{
 			"Success",
 			"456",
 			model.Event{
@@ -140,17 +152,26 @@ func Test_events_GetByID(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			eventRepo := &mocks.EventRepository{}
 			reservationRepo := &mocks.ReservationRepository{}
+			reservationCache := &mocks.ReservationRepository{}
 			if tt.wantErr {
 				eventRepo.On("GetByID", tt.id).Return(tt.want, errors.New("failed"))
 			} else {
 				eventRepo.On("GetByID", tt.id).Return(tt.want, nil)
+
 				reservationRepo.On("GetByEventID", "123").Return(reservations, nil)
 				reservationRepo.On("GetByEventID", "456").Return([]model.Reservation{}, nil)
+
+				reservationCache.On("GetByEventID", "123").Return([]model.Reservation{}, nil)
+				reservationCache.On("GetByEventID", "456").Return([]model.Reservation{}, nil)
+				reservationCache.On("GetByEventID", "789").Return(reservations, nil)
+
+				reservationCache.On("Create", mock.Anything, mock.Anything).Return(model.Reservation{}, nil)
 			}
 
 			e := &events{
-				eventRepo:       eventRepo,
-				reservationRepo: reservationRepo,
+				eventRepo:        eventRepo,
+				reservationRepo:  reservationRepo,
+				reservationCache: reservationCache,
 			}
 			got, err := e.GetByID(tt.id)
 			if (err != nil) != tt.wantErr {
