@@ -6,6 +6,7 @@ import (
 	"log"
 	"time"
 
+	"github.com/javiertlopez/golang-bootcamp-2020/errorcodes"
 	"github.com/javiertlopez/golang-bootcamp-2020/model"
 	"github.com/javiertlopez/golang-bootcamp-2020/repository"
 
@@ -90,6 +91,9 @@ func (e *events) GetByID(id string) (model.Event, error) {
 	err := collection.FindOne(context.Background(), filter).Decode(&response)
 
 	if err != nil {
+		if err == mongo.ErrNoDocuments {
+			return model.Event{}, errorcodes.ErrEventNotFound
+		}
 		return model.Event{}, err
 	}
 
