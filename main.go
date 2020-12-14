@@ -4,12 +4,11 @@ package main
 
 import (
 	"log"
-
-	"golang-bootcamp-2020/config"
-	"golang-bootcamp-2020/infrastructure/controller"
-	"golang-bootcamp-2020/infrastructure/router"
-	"golang-bootcamp-2020/infrastructure/services"
-	"golang-bootcamp-2020/interface/usecase"
+	"github.com/ruvaz/golang-bootcamp-2020/config"
+	"github.com/ruvaz/golang-bootcamp-2020/infrastructure/controller"
+	"github.com/ruvaz/golang-bootcamp-2020/infrastructure/router"
+	"github.com/ruvaz/golang-bootcamp-2020/infrastructure/services"
+	"github.com/ruvaz/golang-bootcamp-2020/interface/usecase"
 )
 
 // main function inject dependencies

@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"path/filepath"
 
-	"golang-bootcamp-2020/config"
-	"golang-bootcamp-2020/domain/model"
+	"github.com/ruvaz/golang-bootcamp-2020/config"
+	"github.com/ruvaz/golang-bootcamp-2020/domain/model"
 )
 
 // StudentService interface

@@ -4,7 +4,7 @@ package usecase
 import (
 	"testing"
 
-	"golang-bootcamp-2020/infrastructure/services"
+	"github.com/ruvaz/golang-bootcamp-2020/infrastructure/services"
 )
 
 // TestUsecaseReadStudentsService: test usecase  for read students service

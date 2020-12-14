@@ -6,8 +6,8 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"golang-bootcamp-2020/infrastructure/services"
-	"golang-bootcamp-2020/interface/usecase"
+	"github.com/ruvaz/golang-bootcamp-2020/infrastructure/services"
+	"github.com/ruvaz/golang-bootcamp-2020/interface/usecase"
 
 	"github.com/gorilla/mux"
 	"github.com/stretchr/testify/assert"

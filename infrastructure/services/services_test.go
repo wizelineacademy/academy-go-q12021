@@ -8,8 +8,8 @@ import (
 	"strings"
 	"testing"
 
-	"golang-bootcamp-2020/config"
-	"golang-bootcamp-2020/domain/model"
+	"github.com/ruvaz/golang-bootcamp-2020/config"
+	"github.com/ruvaz/golang-bootcamp-2020/domain/model"
 )
 
 // TestReadStudentsService: Successful student CSV reading test

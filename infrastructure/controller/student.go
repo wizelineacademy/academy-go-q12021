@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 	"strconv"
 
-	"golang-bootcamp-2020/domain/model"
+	"github.com/ruvaz/golang-bootcamp-2020/domain/model"
 )
 
 // Usecase interface

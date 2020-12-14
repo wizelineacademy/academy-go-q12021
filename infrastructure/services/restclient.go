@@ -4,7 +4,7 @@ package services
 import (
 	"time"
 
-	"golang-bootcamp-2020/config"
+	"github.com/ruvaz/golang-bootcamp-2020/config"
 
 	"github.com/go-resty/resty/v2"
 )

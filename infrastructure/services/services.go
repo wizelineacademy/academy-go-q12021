@@ -10,7 +10,7 @@ import (
 	"os"
 	"strings"
 
-	"golang-bootcamp-2020/domain/model"
+	"github.com/ruvaz/golang-bootcamp-2020/domain/model"
 )
 
 // ReadStudentsService: Read from a csv file and return it inside a structure []Students

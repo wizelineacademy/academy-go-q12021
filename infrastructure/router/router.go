@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"time"
 
-	"golang-bootcamp-2020/config"
+	"github.com/ruvaz/golang-bootcamp-2020/config"
 
 	"github.com/gorilla/mux"
 )
