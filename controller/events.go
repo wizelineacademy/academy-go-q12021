@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"github.com/javiertlopez/golang-bootcamp-2020/errorcodes"
 	"github.com/javiertlopez/golang-bootcamp-2020/model"
 
 	"github.com/gorilla/mux"
@@ -53,11 +54,22 @@ func (e *eventController) GetEventByID(w http.ResponseWriter, r *http.Request) {
 
 	response, err := e.events.GetByID(id)
 	if err != nil {
+		if err == errorcodes.ErrEventNotFound {
+			JSONResponse(
+				w, http.StatusNotFound,
+				Response{
+					Message: "Not found",
+					Status:  http.StatusNotFound,
+				},
+			)
+			return
+		}
+
 		JSONResponse(
-			w, http.StatusNotFound,
+			w, http.StatusInternalServerError,
 			Response{
-				Message: "Not found",
-				Status:  http.StatusNotFound,
+				Message: "Internal server error",
+				Status:  http.StatusInternalServerError,
 			},
 		)
 		return

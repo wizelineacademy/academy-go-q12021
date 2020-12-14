@@ -9,9 +9,11 @@ import (
 	"testing"
 	"time"
 
-	"github.com/gorilla/mux"
+	"github.com/javiertlopez/golang-bootcamp-2020/errorcodes"
 	mocks "github.com/javiertlopez/golang-bootcamp-2020/mocks/usecase"
 	"github.com/javiertlopez/golang-bootcamp-2020/model"
+
+	"github.com/gorilla/mux"
 )
 
 func Test_eventController_CreateEvent(t *testing.T) {
@@ -125,10 +127,8 @@ func Test_eventController_GetEventByID(t *testing.T) {
 	}
 
 	events.On("GetByID", "123").Return(expectedEvent, nil)
-	events.On("GetByID", "456").Return(model.Event{}, errors.New("failed"))
-	events.On("GetByID", "789").Return(model.Event{}, nil)
-	events.On("GetReservations", "123").Return(nil, nil)
-	events.On("GetReservations", "789").Return(nil, errors.New("failed"))
+	events.On("GetByID", "456").Return(model.Event{}, errorcodes.ErrEventNotFound)
+	events.On("GetByID", "789").Return(model.Event{}, errors.New("generic error"))
 
 	tests := []struct {
 		name         string
