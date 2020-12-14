@@ -9,22 +9,23 @@ import (
 )
 
 type songRepository struct {
-	db services.HappiService
+	db     services.HappiService
+	logger services.Logger
 }
 
 //NewSongRepository creates a new Song Repository
-func NewSongRepository() repository.SongRepository {
+func NewSongRepository(logger services.Logger) repository.SongRepository {
 	happiService := services.NewHappiService()
-	return &songRepository{happiService}
+	return &songRepository{happiService, logger}
 }
 
 func (sr *songRepository) Find(song *model.Song) (*model.Song, error) {
-	log.Println("Here in song_repository.Find")
 	song, err := sr.db.SearchSongLyrics(song.InterpreterID, song.AlbumID, song.ID) //TODO: Make this dynamic
 	if err != nil {
 		log.Println(err)
 		return nil, err
 	}
+	sr.logger.Append(song.ToString())
 	return song, nil
 }
 

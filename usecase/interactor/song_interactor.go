@@ -24,7 +24,6 @@ func NewSongInteractor(r repository.SongRepository, p presenter.SongPresenter) S
 }
 
 func (si *songInteractor) Get(s *model.Song) (*model.Song, error) {
-	log.Println("Here in Song_interactor.Get")
 	s, err := si.SongRepository.Find(s)
 	if err != nil {
 		return nil, err

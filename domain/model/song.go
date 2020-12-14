@@ -1,6 +1,9 @@
 package model
 
-import "time"
+import (
+	"fmt"
+	"time"
+)
 
 type Song struct {
 	ID            int       `json:"id"`
@@ -11,4 +14,8 @@ type Song struct {
 	Album         string    `json:"album"`
 	Length        time.Time `json:"length,omitempty"`
 	Lyric         string    `json:"lyric"`
+}
+
+func (song *Song) ToString() string {
+	return fmt.Sprintf("%d,%s,%d,%s,%d,%s", song.ID, song.Name, song.InterpreterID, song.Interpreter, song.AlbumID, song.Album)
 }

@@ -2,8 +2,11 @@ package datastore
 
 import (
 	"bufio"
+	"fmt"
 	"log"
 	"os"
+	"strings"
+	"time"
 
 	"github.com/alexis-aguirre/golang-bootcamp-2020/infraestructure/services"
 )
@@ -43,7 +46,7 @@ func (lo *Logger) Status() int {
 
 func (lo *Logger) Append(record string) error {
 	writter := bufio.NewWriter(lo.File)
-	_, err := writter.WriteString(record + "\n")
+	_, err := writter.WriteString(time.Now().String() + "," + record + "\n")
 	if err != nil {
 		log.Println("Cannot add the record to the log", err)
 		return err
@@ -57,7 +60,6 @@ func (lo *Logger) Append(record string) error {
 
 func (lo *Logger) Get() ([]string, error) {
 	var lines []string
-	log.Println(lo.File == nil)
 	scanner := bufio.NewScanner(lo.File)
 	for scanner.Scan() {
 		if scanner.Err() != nil {
@@ -65,8 +67,20 @@ func (lo *Logger) Get() ([]string, error) {
 		}
 
 		text := scanner.Text()
-		log.Println("Read: ", text)
 		lines = append(lines, text)
 	}
 	return lines, nil
+}
+
+func UserLogToJson(records []string) string {
+	for i := 0; i < len(records); i++ {
+		records[i] = fmt.Sprintf("{%s},", records[i])
+	}
+	jointRecords := strings.Join(records, "\n")
+	return fmt.Sprintf(`{
+		"records": [
+%s
+		]
+		}`, jointRecords)
+
 }

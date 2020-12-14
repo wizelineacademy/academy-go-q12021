@@ -1,11 +1,11 @@
 package handlers
 
 import (
-	"encoding/json"
 	"log"
 	"net/http"
 	"time"
 
+	"github.com/alexis-aguirre/golang-bootcamp-2020/infraestructure/datastore"
 	"github.com/alexis-aguirre/golang-bootcamp-2020/registry"
 )
 
@@ -19,11 +19,12 @@ func GetLogs(w http.ResponseWriter, r *http.Request) {
 		writeError(w, r, http.StatusInternalServerError, "")
 		return
 	}
-	body, err := json.Marshal(logs)
-	log.Println("Writing: ", logs)
+
+	log.Println(datastore.UserLogToJson(logs))
+	//body, err := json.Marshal(logs)
 	if err != nil {
 		writeError(w, r, http.StatusInternalServerError, "")
 		return
 	}
-	jsonWritter(w, r, http.StatusOK, body)
+	bytesWritter(w, r, http.StatusOK, []byte(datastore.UserLogToJson(logs)))
 }
