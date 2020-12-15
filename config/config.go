@@ -4,7 +4,6 @@ package config
 import (
 	"fmt"
 	"os"
-	"strconv"
 	"time"
 
 	"github.com/spf13/viper"
@@ -19,6 +18,10 @@ type config struct {
 	}
 	CsvPath struct {
 		Prod string
+		Test string
+	}
+	Api struct {
+		Url string
 	}
 }
 
@@ -26,26 +29,21 @@ type config struct {
 var C config
 
 // ReadConfig read YML file convert to config struct
-func ReadConfig() {
+func ReadConfig(configFile string) error {
 	Config := &C
-	viper.SetConfigFile("config/config.yml")
+	viper.SetConfigFile(configFile)
 	viper.SetConfigType("yml")
 	viper.AutomaticEnv()
 
 	if err := viper.ReadInConfig(); err != nil {
 		fmt.Println(err)
-		return
+		return err
 	}
 
 	if err := viper.Unmarshal(&Config); err != nil {
 		fmt.Println(err)
 		os.Exit(1)
-		return
+		return err
 	}
-	return
-}
-
-// GetServerAddr obtain the full server address in a string
-func (c config) GetServerAddr() string {
-	return C.Server.Address + ":" + strconv.Itoa(C.Server.Port)
+	return nil
 }

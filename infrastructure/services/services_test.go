@@ -13,13 +13,13 @@ import (
 // TestReadStudentsService: Successful student CSV reading test
 func TestReadStudentsService(t *testing.T) {
 	c := NewClient()
-	filePath := "../../tmp/dataFile.csv"
+	filePath := "../../dataFile.csv"
 	students, err := c.ReadStudentsService(filePath)
 	if err != nil {
 		t.Error(err)
 	}
 	if len(students) < 1 {
-		t.Error("want len >1 ")
+		t.Error("want stutents >1 ")
 	}
 }
 
@@ -34,8 +34,8 @@ func TestFailReadStudentsService(t *testing.T) {
 
 // TestStoreURLService: Service test to get students from an api
 func TestStoreURLService(t *testing.T) {
+	ApiUrl:="https://login-app-crud.firebaseio.com/.json"
 	c := NewClient()
-	ApiUrl := "https://login-app-crud.firebaseio.com/.json"
 	students, err := c.StoreURLService(ApiUrl)
 	if err != nil {
 		t.Error(err)

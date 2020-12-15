@@ -3,6 +3,8 @@
 package main
 
 import (
+	"log"
+
 	"github.com/ruvaz/golang-bootcamp-2020/config"
 	"github.com/ruvaz/golang-bootcamp-2020/infrastructure/controller"
 	"github.com/ruvaz/golang-bootcamp-2020/infrastructure/router"
@@ -13,7 +15,10 @@ import (
 // main function inject dependencies
 func main() {
 	// load environment settings for environment
-	config.ReadConfig()
+	err := config.ReadConfig("config/config.yml")
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	// Load client *service.Client
 	s := services.NewClient()

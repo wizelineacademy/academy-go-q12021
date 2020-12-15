@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/ruvaz/golang-bootcamp-2020/config"
@@ -37,7 +38,7 @@ func NewRouter(controller Controller) {
 
 	// Run GetServer
 	server := GetServer(apiRouter)
-	fmt.Println("Server listen at " + config.C.GetServerAddr())
+	fmt.Println("Server listen at " + config.C.Server.Address + ":" + strconv.Itoa(config.C.Server.Port))
 	err := server.ListenAndServe()
 	if err != nil {
 		log.Fatal("ListenAndServe: ", err)
@@ -48,7 +49,7 @@ func NewRouter(controller Controller) {
 func GetServer(r *mux.Router) *http.Server {
 	srv := &http.Server{
 		Handler:      r,
-		Addr:         config.C.GetServerAddr(),
+		Addr:         config.C.Server.Address + ":" + strconv.Itoa(config.C.Server.Port),
 		WriteTimeout: config.C.Server.Timeout * time.Second,
 		ReadTimeout:  config.C.Server.Timeout * time.Second,
 	}

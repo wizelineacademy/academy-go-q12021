@@ -1,7 +1,9 @@
 // Resty Client, service package
 package services
 
+import "C"
 import (
+	"strconv"
 	"time"
 
 	"github.com/ruvaz/golang-bootcamp-2020/config"
@@ -16,8 +18,11 @@ type Client struct {
 
 // NewClient: Resty client, Return: *Client
 func NewClient() *Client {
-	config.ReadConfig()
-	host := config.C.GetServerAddr()
+	//err := config.ReadConfig("config")
+	//if err != nil {
+	//	log.Fatal(err)
+	//}
+	host := config.C.Server.Address + ":" + strconv.Itoa(config.C.Server.Port)
 	timeout := config.C.Server.Timeout * time.Second
 
 	client := resty.New().

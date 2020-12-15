@@ -4,3 +4,6 @@ server:
   timeout: 30
 CsvPath:
   prod: "tmp/dataFile.csv"
+  test: "../../tmp/dataFile.csv"
+Api:
+  url: "https://login-app-crud.firebaseio.com/.json"
