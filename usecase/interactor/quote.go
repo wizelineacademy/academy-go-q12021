@@ -50,7 +50,7 @@ func (qi *quoteInteractor) Update() ([]byte, error) {
 	}
 
 	// Write quote into database
-	qi.Repository.Write(q.Quote)
+	qi.Repository.Write(q.Data[0])
 	jm, err := json.Marshal(q)
 	if err != nil {
 		return nil, err

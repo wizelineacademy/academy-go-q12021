@@ -9,7 +9,7 @@ import (
 	"github.com/etyberick/golang-bootcamp-2020/entity"
 )
 
-const randomQuoteURL = "https://quote-garden.herokuapp.com/api/v2/quotes/random"
+const randomQuoteURL = "https://quote-garden.herokuapp.com/api/v3/quotes/random"
 
 type client struct {
 }
@@ -24,7 +24,7 @@ func NewClient() Client {
 	return &client{}
 }
 
-// GetQuote makes a request to https://quote-garden.herokuapp.com/api/v2/quotes/random
+// GetQuote makes a request to https://quote-garden.herokuapp.com/api/v3/quotes/random
 // and returns the response as a QuoteGarden structure.
 func (c *client) GetQuote() (qg entity.QuoteGarden, err error) {
 	resp, err := http.Get(randomQuoteURL)
