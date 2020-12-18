@@ -18,6 +18,7 @@ setup-local:
 	go get -u github.com/lib/pq
 	go get -u github.com/stretchr/testify/assert
 	go get -u github.com/go-sql-driver/mysql
+	go get -u github.com/joho/godotenv
 	@echo '(+) Modules set'
 	@echo '(+) Build MySQL container golang-bootcamp-db'
 	@if [ "`docker ps -a | grep golang-bootcamp-db | cut -f1 -d\ `" ]; then \

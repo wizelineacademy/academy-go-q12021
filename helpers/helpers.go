@@ -8,14 +8,14 @@ import (
 	"../db/models"
 )
 
-func DecodeBody(req *http.Request) (models.Bitcoin, bool) {
+func DecodeBody(req *http.Request) (models.Bitcoin, error) {
 	var btc models.Bitcoin
 	err := json.NewDecoder(req.Body).Decode(&btc)
 	if err != nil {
-		return models.Bitcoin{}, false
+		return models.Bitcoin{}, err
 	}
 
-	return btc, true
+	return btc, nil
 }
 
 func IsValidBase(base string) bool {
