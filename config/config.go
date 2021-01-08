@@ -53,7 +53,7 @@ func Init(infoLog, errorLog *log.Logger, csvFile *os.File) (*Config, error) {
 		return nil, err
 	}
 
-	// Retrun the config
+	// Return the config
 	return &Config{dsn, infoLog, errorLog, db, &addr, csvFile}, nil
 }
 

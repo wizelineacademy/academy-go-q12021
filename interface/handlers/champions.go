@@ -35,7 +35,7 @@ func (ch *ChampionHandler) GetChamp(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Query the database to get a single Champions
+	// Query the database to get a single Champion
 	c, err := ch.champRepo.GetSingle(id)
 	if err != nil {
 		if errors.Is(err, repositories.ErrNoRecord) {
