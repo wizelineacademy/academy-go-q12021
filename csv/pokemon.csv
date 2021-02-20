@@ -1,6 +1,11 @@
-# ID,NAME,WEIGHT,HEIGHT
-1,greninja,400,15
-2,ursaring,1258,18
-3,arcanine,1550,19
-4,gengar,405,15
-5,porygon,365,8
+# ID,NAME,URL
+1,greninja,https://pokeapi.co/api/v2/pokemon/658/
+2,ursaring,https://pokeapi.co/api/v2/pokemon/217/
+3,arcanine,https://pokeapi.co/api/v2/pokemon/59/
+4,gengar,https://pokeapi.co/api/v2/pokemon/94/
+5,porygon,https://pokeapi.co/api/v2/pokemon/137/delcatty,https://pokeapi.co/api/v2/pokemon/301/6,delcatty,https://pokeapi.co/api/v2/pokemon/301/6,delcatty,https://pokeapi.co/api/v2/pokemon/301/
+6,delcatty,https://pokeapi.co/api/v2/pokemon/301/
+7,sableye,https://pokeapi.co/api/v2/pokemon/302/
+8,mawile,https://pokeapi.co/api/v2/pokemon/303/
+9,aron,https://pokeapi.co/api/v2/pokemon/304/
+10,lairon,https://pokeapi.co/api/v2/pokemon/305/

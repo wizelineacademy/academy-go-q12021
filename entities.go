@@ -2,11 +2,23 @@ package main
 
 // Pokemon Type
 type Pokemon struct {
-	ID     int    `json:ID`
-	Name   string `json:Name`
-	Weight string `json:Weight`
-	Height string `json:Height`
+	ID   int    `json:ID`
+	Name string `json:Name`
+	URL  string `json:Url`
+}
+
+type SinglePokeExternal struct {
+	Name string `json:name`
+	URL  string `json:url`
+}
+type PokemonExternal struct {
+	Count    int                  `json:count`
+	Next     string               `json:next`
+	Previous string               `json:previous`
+	Results  []SinglePokeExternal `json:results`
 }
 
 // AllPokemons Type
 type AllPokemons []Pokemon
+
+var pokemons AllPokemons
