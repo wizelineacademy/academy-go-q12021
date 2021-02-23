@@ -44,11 +44,11 @@ func ReadCSV() models.PokemonList {
 		return pokeList
 	}
 
-	for index, pokemon := range records {
+	for _, pokemon := range records {
 		id, err := strconv.Atoi(pokemon[0])
 
 		if err != nil {
-			 fmt.Println("Cannot get id from row whit index:" + index)
+			 fmt.Println("Cannot get id from row")
 		}
 
 		poke := models.Pokemon{Id:id, Name:pokemon[1], Types:pokemon[2], Region:pokemon[3]}

@@ -1,6 +1,7 @@
-package main
+package routes
 
 import (
+	"modules"
 	"github.com/gorilla/mux"
 	"net/http"
 )
@@ -26,29 +27,32 @@ func NewRouter() *mux.Router {
 	return router
 }
 
+var get = "GET"
+var post = "POST"
+
 var routes = Routes{
 	Route{
 		"HelloWorld",
-		"GET",
+		get,
 		"/",
-		HelloWorld,
+		modules.HelloWorld,
 	},
 	Route{
 		"GetPokemonList",
-		"GET",
+		get,
 		"/pokemon",
-		GetPokemonList,
+		modules.GetPokemonList,
 	},
 	Route{
 		"GetPokemon",
-		"GET",
+		get,
 		"/pokemon/{id}",
-		GetPokemon,
+		modules.GetPokemon,
 	},
 	Route{
 		"AddPokemon",
-		"POST",
+		post,
 		"/pokemon",
-		AddPokemon,
+		modules.AddPokemon,
 	},
 }
