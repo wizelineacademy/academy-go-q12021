@@ -7,22 +7,33 @@ import (
 	"net/http"
 	"encoding/json"
 	"github.com/gorilla/mux"
+	"strconv"
 )
 
 func HelloWorld(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Hello world")
 }
 
-func GetPokemon(w http.ResponseWriter, r *http.Request) {
+func GetPokemonCsv(w http.ResponseWriter, r *http.Request) {
+	pokeList := utils.ReadCSV()
 	params := mux.Vars(r)
-	fmt.Println(params)
-	pokemonId := params["id"]
-	fmt.Fprintf(w, "Getting pokemon: %s", pokemonId)
+	id, err := strconv.Atoi(params["id"])
+
+	if err != nil {
+		fmt.Println("Cannot get id from params")
+	}
+
+	pokemonId := id - 1
+
+	if pokemonId <= len(pokeList) - 1 {
+		json.NewEncoder(w).Encode(pokeList[pokemonId])
+	} else {
+		fmt.Fprintf(w, "There is no information for given id")
+	}
 }
 
-func GetPokemonList(w http.ResponseWriter, r *http.Request) {
+func GetPokemonListCsv(w http.ResponseWriter, r *http.Request) {
 	pokeList := utils.ReadCSV()
-	fmt.Println(pokeList)
 	w.Header().Set("Content-Type", "application/json")
   w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(pokeList)

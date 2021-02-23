@@ -29,6 +29,8 @@ func NewRouter() *mux.Router {
 
 var get = "GET"
 var post = "POST"
+var pokemonPath = "/pokemon"
+var csv = "/csv"
 
 var routes = Routes{
 	Route{
@@ -38,21 +40,21 @@ var routes = Routes{
 		modules.HelloWorld,
 	},
 	Route{
-		"GetPokemonList",
+		"GetPokemonListCsv",
 		get,
-		"/pokemon",
-		modules.GetPokemonList,
+		csv + pokemonPath,
+		modules.GetPokemonListCsv,
 	},
 	Route{
-		"GetPokemon",
+		"GetPokemonCsv",
 		get,
-		"/pokemon/{id}",
-		modules.GetPokemon,
+		csv + pokemonPath + "/{id}",
+		modules.GetPokemonCsv,
 	},
 	Route{
 		"AddPokemon",
 		post,
-		"/pokemon",
+		pokemonPath,
 		modules.AddPokemon,
 	},
 }
