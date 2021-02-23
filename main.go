@@ -3,17 +3,19 @@ package main
 import (
 	"log"
 	"net/http"
-
-	"github.com/gorilla/mux"
+	"pokeapi/controllers"
+	"pokeapi/services"
+	"pokeapi/usecases"
 )
 
 func main() {
-	router := mux.NewRouter().StrictSlash(true)
-	router.HandleFunc("/", index)
-	router.HandleFunc("/pokemons", getPokemons).Methods("GET")
-	router.HandleFunc("/pokemons/{id}", getPokemon).Methods("GET")
-	router.HandleFunc("/external/pokemons", getPokemonFromAPI).Methods("GET")
 
-	log.Fatal(http.ListenAndServe(":3000", router))
+	service := services.NewService()
+	httpService := services.NewHttpService()
+	usecase := usecases.NewUseCase(service, httpService)
+	controller := controllers.NewPokemonController(usecase)
 
+	router := NewRouter(controller)
+	r := router.InitRouter()
+	log.Fatal(http.ListenAndServe(":3000", r))
 }

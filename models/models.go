@@ -1,4 +1,4 @@
-package main
+package models
 
 // Pokemon Type
 type Pokemon struct {
@@ -11,14 +11,10 @@ type SinglePokeExternal struct {
 	Name string `json:name`
 	URL  string `json:url`
 }
+
 type PokemonExternal struct {
 	Count    int                  `json:count`
 	Next     string               `json:next`
 	Previous string               `json:previous`
 	Results  []SinglePokeExternal `json:results`
 }
-
-// AllPokemons Type
-type AllPokemons []Pokemon
-
-var pokemons AllPokemons
