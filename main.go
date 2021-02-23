@@ -8,12 +8,34 @@ import (
 	"encoding/csv"
 	"os"
 	"strconv"
+	"github.com/spf13/viper"
 )
+
+func viperEnvVariable(key string) string {
+  viper.SetConfigFile(".env")
+  err := viper.ReadInConfig()
+
+  if err != nil {
+    log.Fatalf("Error while reading config file %s", err)
+  }
+
+  value, ok := viper.Get(key).(string)
+
+  if !ok {
+    log.Fatalf("Invalid type assertion")
+  }
+
+  return value
+}
 
 func main() {
 	router := NewRouter()
 
 	server := http.ListenAndServe(":8080", router)
+
+	viperenv := viperEnvVariable("MONGO_URL")
+
+  fmt.Printf("viper : %s = %s \n", "MONGO_URL", viperenv)
 
 	log.Fatal(server)
 }
