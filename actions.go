@@ -1,6 +1,7 @@
 package main
 
 import (
+	"models"
 	"fmt"
 	"net/http"
 	"encoding/json"
@@ -28,7 +29,7 @@ func GetPokemonList(w http.ResponseWriter, r *http.Request) {
 
 func AddPokemon(w http.ResponseWriter, r *http.Request) {
 	decoder := json.NewDecoder(r.Body)
-	var data Pokemon
+	var data models.Pokemon
 	err := decoder.Decode(&data)
 
 	if err != nil {

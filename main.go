@@ -1,6 +1,7 @@
 package main
 
 import (
+	"models"
 	"fmt"
 	"log"
 	"net/http"
@@ -17,8 +18,8 @@ func main() {
 	log.Fatal(server)
 }
 
-func ReadCSV() PokemonList {
-	var pokeList PokemonList
+func ReadCSV() models.PokemonList {
+	var pokeList models.PokemonList
 
 	recordFile, err := os.Open("pokemon.csv")
 	if err != nil {
@@ -39,7 +40,7 @@ func ReadCSV() PokemonList {
 		if err != nil {
 			 // handle error
 		}
-		poke := Pokemon{Id:id, Name:pokemon[1], Types:pokemon[2], Region:pokemon[3]}
+		poke := models.Pokemon{Id:id, Name:pokemon[1], Types:pokemon[2], Region:pokemon[3]}
 		pokeList = append(pokeList, poke)
 	}
 
