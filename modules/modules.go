@@ -10,6 +10,12 @@ import (
 	"strconv"
 )
 
+func setHeaders(w http.ResponseWriter) http.ResponseWriter {
+	w.Header().Set("Content-Type", "application/json")
+  w.WriteHeader(http.StatusCreated)
+	return w
+}
+
 func HelloWorld(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Hello world")
 }
@@ -26,6 +32,7 @@ func GetPokemonCsv(w http.ResponseWriter, r *http.Request) {
 	pokemonId := id - 1
 
 	if pokemonId <= len(pokeList) - 1 {
+		w = setHeaders(w)
 		json.NewEncoder(w).Encode(pokeList[pokemonId])
 	} else {
 		fmt.Fprintf(w, "There is no information for given id")
@@ -34,14 +41,13 @@ func GetPokemonCsv(w http.ResponseWriter, r *http.Request) {
 
 func GetPokemonListCsv(w http.ResponseWriter, r *http.Request) {
 	pokeList := utils.ReadCSV()
-	w.Header().Set("Content-Type", "application/json")
-  w.WriteHeader(http.StatusCreated)
+	w = setHeaders(w)
 	json.NewEncoder(w).Encode(pokeList)
 }
 
 func AddPokemon(w http.ResponseWriter, r *http.Request) {
-	decoder := json.NewDecoder(r.Body)
 	var data models.Pokemon
+	decoder := json.NewDecoder(r.Body)
 	err := decoder.Decode(&data)
 
 	if err != nil {
@@ -49,12 +55,10 @@ func AddPokemon(w http.ResponseWriter, r *http.Request) {
 	}
 
 	defer r.Body.Close()
-	fmt.Println(data)
 
 	pokeList := utils.ReadCSV()
 	pokeList = append(pokeList, data)
-	fmt.Println(pokeList)
-	w.Header().Set("Content-Type", "application/json")
-  w.WriteHeader(http.StatusCreated)
+
+	w = setHeaders(w)
 	json.NewEncoder(w).Encode(pokeList)
 }

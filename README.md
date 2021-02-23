@@ -77,6 +77,11 @@ Based on the self-study material and mentorship covered until this deliverable, 
 
 > Note: what’s listed in this deliverable is just for guidance and to help you distribute your workload; you can deliver more or fewer items if necessary. However, if you deliver fewer items at this point, you have to cover the remaining tasks in the next deliverable.
 
+### Endpoints
+GET /csv/pokemon <- Return a list of read Pokemon from a CSV file
+GET /csv/pokemon/id <- Return a specific row number of read Pokemon from a CSV file
+POST /pokemon <- Add new Pokemon to the DB
+
 ## Second Deliverable (due March 18th 23:59PM)
 
 Based on the self-study material and mentorship covered until this deliverable, we suggest you perform the following:
