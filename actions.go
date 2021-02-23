@@ -2,6 +2,7 @@ package main
 
 import (
 	"models"
+	"utils"
 	"fmt"
 	"net/http"
 	"encoding/json"
@@ -20,7 +21,7 @@ func GetPokemon(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetPokemonList(w http.ResponseWriter, r *http.Request) {
-	pokeList := ReadCSV()
+	pokeList := utils.ReadCSV()
 	fmt.Println(pokeList)
 	w.Header().Set("Content-Type", "application/json")
   w.WriteHeader(http.StatusCreated)
@@ -39,7 +40,7 @@ func AddPokemon(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 	fmt.Println(data)
 
-	pokeList := ReadCSV()
+	pokeList := utils.ReadCSV()
 	pokeList = append(pokeList, data)
 	fmt.Println(pokeList)
 	w.Header().Set("Content-Type", "application/json")
