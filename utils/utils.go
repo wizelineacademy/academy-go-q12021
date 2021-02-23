@@ -30,7 +30,7 @@ func GetEnvVar(key string) string {
 func ReadCSV() models.PokemonList {
 	var pokeList models.PokemonList
 
-	recordFile, err := os.Open("pokemon.csv")
+	recordFile, err := os.Open("assets/pokemon.csv")
 	if err != nil {
 		fmt.Println("Error while openning file:", err)
 		return pokeList
@@ -50,8 +50,14 @@ func ReadCSV() models.PokemonList {
 		if err != nil {
 			 fmt.Println("Cannot get id from row")
 		}
+		
+		pkNumber, err2 := strconv.Atoi(pokemon[1])
 
-		poke := models.Pokemon{Id:id, Name:pokemon[1], Types:pokemon[2], Region:pokemon[3]}
+		if err2 != nil {
+			 fmt.Println("Cannot get pokedex number from row")
+		}
+
+		poke := models.Pokemon{Id:id, PokedexNumber: pkNumber, Name:pokemon[2], Types:pokemon[3], Region:pokemon[4]}
 		pokeList = append(pokeList, poke)
 	}
 
