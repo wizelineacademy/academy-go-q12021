@@ -4,6 +4,7 @@ import (
 	"encoding/csv"
 	"fmt"
 	"io"
+	"net/http"
 	"os"
 	"pokeapi/model"
 	"strconv"
@@ -17,8 +18,8 @@ var csvFile *os.File
 type CsvService struct{}
 
 type NewCsvService interface {
-	GetPokemons() []model.Pokemon
-	GetPokemon(pokemonId int) model.Pokemon
+	GetPokemons() ([]model.Pokemon, *model.Error)
+	GetPokemon(pokemonId int) (model.Pokemon, *model.Error)
 }
 
 func NewCsv() *CsvService {
@@ -33,7 +34,7 @@ func openCsv() {
 	}
 }
 
-func readCsv() []model.Pokemon {
+func readCsv() ([]model.Pokemon, *model.Error) {
 	openCsv()
 	reader := csv.NewReader(csvFile)
 	reader.Comma = ','
@@ -49,6 +50,12 @@ func readCsv() []model.Pokemon {
 
 		if err != nil {
 			fmt.Printf("There was an error reading something in line: %v\n", err)
+
+			err := model.Error{
+				Code:    http.StatusInternalServerError,
+				Message: err.Error(),
+			}
+			return nil, &err
 		}
 		tempPokemon := model.Pokemon{
 			Name: line[1],
@@ -59,6 +66,12 @@ func readCsv() []model.Pokemon {
 			id, err := strconv.Atoi(line[0])
 			if err != nil {
 				fmt.Printf("There was an error trying to process the ID: %v\n", err)
+
+				err := model.Error{
+					Code:    http.StatusInternalServerError,
+					Message: err.Error(),
+				}
+				return nil, &err
 			}
 			tempPokemon.ID = id
 		}
@@ -66,7 +79,8 @@ func readCsv() []model.Pokemon {
 		pokemons = append(pokemons, tempPokemon)
 	}
 	defer csvFile.Close()
-	return pokemons
+
+	return pokemons, nil
 }
 
 func addLineCsv(newPokes *[]model.SinglePokeExternal) {
@@ -95,8 +109,17 @@ func addLineCsv(newPokes *[]model.SinglePokeExternal) {
 	w.Flush()
 }
 
-func (s *CsvService) GetPokemon(pokemonId int) model.Pokemon {
-	pokes := readCsv()
+func (s *CsvService) GetPokemon(pokemonId int) (model.Pokemon, *model.Error) {
+	pokes, err := readCsv()
+
+	if err != nil {
+		err := model.Error{
+			Code:    http.StatusInternalServerError,
+			Message: err,
+		}
+		return model.Pokemon{}, &err
+	}
+
 	var tempPokemon model.Pokemon
 
 	for _, pokemon := range pokes {
@@ -105,10 +128,19 @@ func (s *CsvService) GetPokemon(pokemonId int) model.Pokemon {
 		}
 	}
 
-	return tempPokemon
+	return tempPokemon, nil
 }
 
-func (s *CsvService) GetPokemons() []model.Pokemon {
-	pokes := readCsv()
-	return pokes
+func (s *CsvService) GetPokemons() ([]model.Pokemon, *model.Error) {
+	pokes, err := readCsv()
+
+	if err != nil {
+		err := model.Error{
+			Code:    http.StatusInternalServerError,
+			Message: err,
+		}
+		return nil, &err
+	}
+
+	return pokes, nil
 }

@@ -11,23 +11,23 @@ type Usecase struct {
 }
 
 type IUsecase interface {
-	GetPokemons() []model.Pokemon
-	GetPokemon(pokemonId int) model.Pokemon
-	GetPokemonsFromExternalAPI()
+	GetPokemons() ([]model.Pokemon, *model.Error)
+	GetPokemon(pokemonId int) (model.Pokemon, *model.Error)
+	GetPokemonsFromExternalAPI() *model.Error
 }
 
 func New(s service.NewCsvService, hs service.NewHttpService) *Usecase {
 	return &Usecase{s, hs}
 }
 
-func (us *Usecase) GetPokemons() []model.Pokemon {
+func (us *Usecase) GetPokemons() ([]model.Pokemon, *model.Error) {
 	return us.csvService.GetPokemons()
 }
 
-func (us *Usecase) GetPokemon(pokemonId int) model.Pokemon {
+func (us *Usecase) GetPokemon(pokemonId int) (model.Pokemon, *model.Error) {
 	return us.csvService.GetPokemon(pokemonId)
 }
 
-func (us *Usecase) GetPokemonsFromExternalAPI() {
-	us.httpService.GetPokemonsFromExternalAPI()
+func (us *Usecase) GetPokemonsFromExternalAPI() *model.Error {
+	return us.httpService.GetPokemonsFromExternalAPI()
 }
