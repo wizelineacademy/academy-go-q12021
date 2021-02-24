@@ -1,4 +1,4 @@
-package models
+package model
 
 // Pokemon Type
 type Pokemon struct {

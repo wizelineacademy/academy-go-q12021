@@ -1,10 +1,10 @@
-package controllers
+package controller
 
 import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"pokeapi/usecases"
+	usecases "pokeapi/usecase"
 	"strconv"
 
 	"github.com/gorilla/mux"
@@ -21,7 +21,7 @@ type IPokemonController interface {
 	GetPokemonsFromExternalAPI(w http.ResponseWriter, r *http.Request)
 }
 
-func NewPokemonController(pc usecases.IUsecase) *PokemonController {
+func New(pc usecases.IUsecase) *PokemonController {
 	return &PokemonController{pc}
 }
 

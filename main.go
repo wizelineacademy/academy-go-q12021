@@ -3,19 +3,20 @@ package main
 import (
 	"log"
 	"net/http"
-	"pokeapi/controllers"
-	"pokeapi/services"
-	"pokeapi/usecases"
+	"pokeapi/controller"
+	"pokeapi/router"
+	"pokeapi/service"
+	"pokeapi/usecase"
 )
 
 func main() {
 
-	service := services.NewService()
-	httpService := services.NewHttpService()
-	usecase := usecases.NewUseCase(service, httpService)
-	controller := controllers.NewPokemonController(usecase)
+	httpService := service.NewHttp()
+	service := service.NewCsv()
+	usecase := usecase.New(service, httpService)
+	controller := controller.New(usecase)
 
-	router := NewRouter(controller)
+	router := router.New(controller)
 	r := router.InitRouter()
 	log.Fatal(http.ListenAndServe(":3000", r))
 }

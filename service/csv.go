@@ -1,28 +1,28 @@
-package services
+package service
 
 import (
 	"encoding/csv"
 	"fmt"
 	"io"
 	"os"
-	"pokeapi/models"
+	"pokeapi/model"
 	"strconv"
 )
 
 const pathFile = "./csv/pokemon.csv"
 
-var pokemons []models.Pokemon = nil
+var pokemons []model.Pokemon = nil
 var csvFile *os.File
 
-type Service struct{}
+type CsvService struct{}
 
-type IService interface {
-	GetPokemons() []models.Pokemon
-	GetPokemon(pokemonId int) models.Pokemon
+type NewCsvService interface {
+	GetPokemons() []model.Pokemon
+	GetPokemon(pokemonId int) model.Pokemon
 }
 
-func NewService() *Service {
-	return &Service{}
+func NewCsv() *CsvService {
+	return &CsvService{}
 }
 
 func openCsv() {
@@ -33,7 +33,7 @@ func openCsv() {
 	}
 }
 
-func readCsv() []models.Pokemon {
+func readCsv() []model.Pokemon {
 	openCsv()
 	reader := csv.NewReader(csvFile)
 	reader.Comma = ','
@@ -50,7 +50,7 @@ func readCsv() []models.Pokemon {
 		if err != nil {
 			fmt.Printf("There was an error reading something in line: %v\n", err)
 		}
-		tempPokemon := models.Pokemon{
+		tempPokemon := model.Pokemon{
 			Name: line[1],
 			URL:  line[2],
 		}
@@ -69,7 +69,7 @@ func readCsv() []models.Pokemon {
 	return pokemons
 }
 
-func addLineCsv(newPokes *[]models.SinglePokeExternal) {
+func addLineCsv(newPokes *[]model.SinglePokeExternal) {
 	openCsv()
 	reader := csv.NewReader(csvFile)
 	reader.Comma = ','
@@ -95,9 +95,9 @@ func addLineCsv(newPokes *[]models.SinglePokeExternal) {
 	w.Flush()
 }
 
-func (s *Service) GetPokemon(pokemonId int) models.Pokemon {
+func (s *CsvService) GetPokemon(pokemonId int) model.Pokemon {
 	pokes := readCsv()
-	var tempPokemon models.Pokemon
+	var tempPokemon model.Pokemon
 
 	for _, pokemon := range pokes {
 		if pokemon.ID == pokemonId {
@@ -108,7 +108,7 @@ func (s *Service) GetPokemon(pokemonId int) models.Pokemon {
 	return tempPokemon
 }
 
-func (s *Service) GetPokemons() []models.Pokemon {
+func (s *CsvService) GetPokemons() []model.Pokemon {
 	pokes := readCsv()
 	return pokes
 }

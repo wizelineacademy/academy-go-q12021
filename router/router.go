@@ -1,20 +1,20 @@
-package main
+package router
 
 import (
-	"pokeapi/controllers"
+	"pokeapi/controller"
 
 	"github.com/gorilla/mux"
 )
 
 type Router struct {
-	controller controllers.IPokemonController
+	controller controller.IPokemonController
 }
 
 type IRouter interface {
 	InitRouter() *mux.Router
 }
 
-func NewRouter(c controllers.IPokemonController) *Router {
+func New(c controller.IPokemonController) *Router {
 	return &Router{c}
 }
 

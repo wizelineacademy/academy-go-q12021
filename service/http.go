@@ -1,26 +1,26 @@
-package services
+package service
 
 import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"net/http"
-	"pokeapi/models"
+	"pokeapi/model"
 )
 
 const uri string = "https://pokeapi.co/api/v2/pokemon?limit=5&offset=300"
 
-type Http struct{}
+type HttpService struct{}
 
-type IHttp interface {
+type NewHttpService interface {
 	GetPokemonsFromExternalAPI()
 }
 
-func NewHttpService() *Http {
-	return &Http{}
+func NewHttp() *HttpService {
+	return &HttpService{}
 }
 
-func (h *Http) GetPokemonsFromExternalAPI() {
+func (h *HttpService) GetPokemonsFromExternalAPI() {
 	client := &http.Client{}
 
 	req, err := http.NewRequest("GET", uri, nil)
@@ -41,7 +41,7 @@ func (h *Http) GetPokemonsFromExternalAPI() {
 		fmt.Print(err.Error())
 	}
 
-	var response models.PokemonExternal
+	var response model.PokemonExternal
 	json.Unmarshal(bodyBytes, &response)
 
 	fmt.Printf("API Response as struct %+v\n", response)
