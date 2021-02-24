@@ -25,6 +25,11 @@ func responseSome(w http.ResponseWriter, pokes []models.Pokemon) {
 	json.NewEncoder(w).Encode(pokes)
 }
 
+func responseWithError(w http.ResponseWriter, errorCode int) {
+	w.WriteHeader(errorCode)
+	return
+}
+
 func setHeaders(w http.ResponseWriter) http.ResponseWriter {
 	w.Header().Set("Content-Type", "application/json")
   w.WriteHeader(http.StatusOK)
@@ -41,7 +46,7 @@ func GetPokemonCsv(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.Atoi(params["id"])
 
 	if err != nil {
-		fmt.Println("Cannot get id from params")
+		responseWithError(w, http.StatusBadRequest)
 	}
 
 	pokemonId := id - 1
@@ -49,7 +54,7 @@ func GetPokemonCsv(w http.ResponseWriter, r *http.Request) {
 	if pokemonId <= len(pokeList) - 1 {
 		responseOne(w, pokeList[pokemonId])
 	} else {
-		fmt.Fprintf(w, "There is no information for given id")
+		responseWithError(w, http.StatusNotFound)
 	}
 }
 
@@ -64,7 +69,7 @@ func AddPokemon(w http.ResponseWriter, r *http.Request) {
 	err := decoder.Decode(&data)
 
 	if err != nil {
-		panic(err)
+		responseWithError(w, http.StatusNotFound)
 	}
 
 	defer r.Body.Close()
@@ -72,8 +77,7 @@ func AddPokemon(w http.ResponseWriter, r *http.Request) {
 	err = collection.Insert(data)
 
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		return
+		responseWithError(w, http.StatusInternalServerError)
 	} else {
 		responseOne(w, data)
 	}
@@ -82,11 +86,10 @@ func AddPokemon(w http.ResponseWriter, r *http.Request) {
 func GetPokemonList(w http.ResponseWriter, r *http.Request) {
 	var pokeList models.PokemonList
 
-	err := collection.Find(nil).Sort("-id").All(&pokeList)
+	err := collection.Find(nil).Sort("_id").All(&pokeList)
 
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		return
+		responseWithError(w, http.StatusInternalServerError)
 	} else {
 		responseSome(w, pokeList)
 	}
@@ -97,8 +100,7 @@ func GetPokemon(w http.ResponseWriter, r *http.Request) {
 	id := params["id"]
 
 	if !bson.IsObjectIdHex(id) {
-		w.WriteHeader(http.StatusBadRequest)
-		return
+		responseWithError(w, http.StatusBadRequest)
 	}
 
 	var poke models.Pokemon
@@ -107,8 +109,65 @@ func GetPokemon(w http.ResponseWriter, r *http.Request) {
 	err := collection.FindId(objectId).One(&poke)
 
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		return
+		responseWithError(w, http.StatusInternalServerError)
+	} else {
+		responseOne(w, poke)
+	}
+}
+
+func UpdatePokemon(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+	id := params["id"]
+
+	if !bson.IsObjectIdHex(id) {
+		responseWithError(w, http.StatusBadRequest)
+	}
+
+	var poke models.Pokemon
+	decoder := json.NewDecoder(r.Body)
+	objectId := bson.ObjectIdHex(id)
+
+	err := decoder.Decode(&poke)
+
+	if err != nil {
+		responseWithError(w, http.StatusInternalServerError)
+	}
+	
+	defer r.Body.Close()
+
+	document := bson.M{"_id": objectId}
+	change := bson.M{"$set":poke}
+
+	err = collection.Update(document, change)
+
+	if err != nil {
+		responseWithError(w, http.StatusInternalServerError)
+	} else {
+		responseOne(w, poke)
+	}
+}
+
+func DeletePokemon(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+	id := params["id"]
+
+	if !bson.IsObjectIdHex(id) {
+		responseWithError(w, http.StatusBadRequest)
+	}
+
+	var poke models.Pokemon
+	objectId := bson.ObjectIdHex(id)
+
+	err := collection.FindId(objectId).One(&poke)
+
+	if err != nil {
+		responseWithError(w, http.StatusInternalServerError)
+	}
+
+	err = collection.RemoveId(objectId)
+
+	if err != nil {
+		responseWithError(w, http.StatusInternalServerError)
 	} else {
 		responseOne(w, poke)
 	}
