@@ -3,16 +3,31 @@ package modules
 import (
 	"models"
 	"utils"
+	"db"
 	"fmt"
 	"net/http"
 	"encoding/json"
 	"github.com/gorilla/mux"
 	"strconv"
+	"gopkg.in/mgo.v2/bson"
 )
+
+var pokemon = "pokemon";
+var collection = db.GetSession().DB(pokemon).C(pokemon)
+
+func responseOne(w http.ResponseWriter, poke models.Pokemon) {
+	w = setHeaders(w)
+	json.NewEncoder(w).Encode(poke)
+}
+
+func responseSome(w http.ResponseWriter, pokes []models.Pokemon) {
+	w = setHeaders(w)
+	json.NewEncoder(w).Encode(pokes)
+}
 
 func setHeaders(w http.ResponseWriter) http.ResponseWriter {
 	w.Header().Set("Content-Type", "application/json")
-  w.WriteHeader(http.StatusCreated)
+  w.WriteHeader(http.StatusOK)
 	return w
 }
 
@@ -32,8 +47,7 @@ func GetPokemonCsv(w http.ResponseWriter, r *http.Request) {
 	pokemonId := id - 1
 
 	if pokemonId <= len(pokeList) - 1 {
-		w = setHeaders(w)
-		json.NewEncoder(w).Encode(pokeList[pokemonId])
+		responseOne(w, pokeList[pokemonId])
 	} else {
 		fmt.Fprintf(w, "There is no information for given id")
 	}
@@ -41,8 +55,7 @@ func GetPokemonCsv(w http.ResponseWriter, r *http.Request) {
 
 func GetPokemonListCsv(w http.ResponseWriter, r *http.Request) {
 	pokeList := utils.ReadCSV()
-	w = setHeaders(w)
-	json.NewEncoder(w).Encode(pokeList)
+	responseSome(w, pokeList)
 }
 
 func AddPokemon(w http.ResponseWriter, r *http.Request) {
@@ -56,9 +69,47 @@ func AddPokemon(w http.ResponseWriter, r *http.Request) {
 
 	defer r.Body.Close()
 
-	pokeList := utils.ReadCSV()
-	pokeList = append(pokeList, data)
+	err = collection.Insert(data)
 
-	w = setHeaders(w)
-	json.NewEncoder(w).Encode(pokeList)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	} else {
+		responseOne(w, data)
+	}
+}
+
+func GetPokemonList(w http.ResponseWriter, r *http.Request) {
+	var pokeList models.PokemonList
+
+	err := collection.Find(nil).Sort("-id").All(&pokeList)
+
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	} else {
+		responseSome(w, pokeList)
+	}
+}
+
+func GetPokemon(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+	id := params["id"]
+
+	if !bson.IsObjectIdHex(id) {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	var poke models.Pokemon
+	objectId := bson.ObjectIdHex(id)
+
+	err := collection.FindId(objectId).One(&poke)
+
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	} else {
+		responseOne(w, poke)
+	}
 }
