@@ -1,8 +1,8 @@
 package main
 
 import (
-	"router"
-	"utils"
+	"bootcamp/router"
+	"bootcamp/utils"
 	"fmt"
 	"log"
 	"net/http"

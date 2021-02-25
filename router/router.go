@@ -1,9 +1,10 @@
 package router
 
 import (
-	"model"
+	"bootcamp/domain/model"
 	"bootcamp/controller/hello"
-	"modules"
+	"bootcamp/controller/csv"
+	// "modules"
 	"github.com/gorilla/mux"
 	"net/http"
 )
@@ -21,9 +22,9 @@ func NewRouter() *mux.Router {
 }
 
 var pokemonPath = "/pokemon"
-var id = "{id}"
-var pokemonPathWithId = pokemonPath + id
-var csvPokemonPath = pokemonPath + "/csv"
+var id = "/{id}"
+// var pokemonPathWithId = pokemonPath + id
+var csvPokemonPath = "/csv" + pokemonPath
 
 var routes = model.Routes{
 	model.Route{
@@ -36,42 +37,42 @@ var routes = model.Routes{
 		"GetPokemonListCsv",
 		http.MethodGet,
 		csvPokemonPath,
-		modules.GetPokemonListCsv,
+		csv.GetPokemon,
 	},
 	model.Route{
 		"GetPokemonCsv",
 		http.MethodGet,
 		csvPokemonPath + id,
-		modules.GetPokemonCsv,
+		csv.GetPokemon,
 	},
-	model.Route{
-		"AddPokemon",
-		http.MethodPost,
-		pokemonPath,
-		modules.AddPokemon,
-	},
-	model.Route{
-		"GetPokemonList",
-		http.MethodGet,
-		pokemonPath,
-		modules.GetPokemonList,
-	},
-	model.Route{
-		"GetPokemon",
-		http.MethodGet,
-		pokemonPathWithId,
-		modules.GetPokemon,
-	},
-	model.Route{
-		"UpdatePokemon",
-		http.MethodPut,
-		pokemonPathWithId,
-		modules.UpdatePokemon,
-	},
-	model.Route{
-		"DeletePokemon",
-		http.MethodDelete,
-		pokemonPathWithId,
-		modules.DeletePokemon,
-	},
+	// model.Route{
+	// 	"AddPokemon",
+	// 	http.MethodPost,
+	// 	pokemonPath,
+	// 	modules.AddPokemon,
+	// },
+	// model.Route{
+	// 	"GetPokemonList",
+	// 	http.MethodGet,
+	// 	pokemonPath,
+	// 	modules.GetPokemonList,
+	// },
+	// model.Route{
+	// 	"GetPokemon",
+	// 	http.MethodGet,
+	// 	pokemonPathWithId,
+	// 	modules.GetPokemon,
+	// },
+	// model.Route{
+	// 	"UpdatePokemon",
+	// 	http.MethodPut,
+	// 	pokemonPathWithId,
+	// 	modules.UpdatePokemon,
+	// },
+	// model.Route{
+	// 	"DeletePokemon",
+	// 	http.MethodDelete,
+	// 	pokemonPathWithId,
+	// 	modules.DeletePokemon,
+	// },
 }

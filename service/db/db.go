@@ -1,7 +1,7 @@
 package db
 
 import (
-	"utils"
+	"bootcamp/utils"
 	"gopkg.in/mgo.v2"
 )
 

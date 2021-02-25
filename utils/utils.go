@@ -1,7 +1,7 @@
 package utils
 
 import (
-	"model"
+	"bootcamp/domain/model"
 	"fmt"
 	"log"
 	"os"
@@ -27,13 +27,13 @@ func GetEnvVar(key string) string {
   return value
 }
 
-func ReadCSV() model.PokemonList {
+func ReadCSV() (model.PokemonList, error) {
 	var pokeList model.PokemonList
 
 	recordFile, err := os.Open("assets/pokemon.csv")
 	if err != nil {
 		fmt.Println("Error while openning file:", err)
-		return pokeList
+		return nil, err
 	}
 
 	reader := csv.NewReader(recordFile)
@@ -41,7 +41,7 @@ func ReadCSV() model.PokemonList {
 
 	if err != nil {
 		fmt.Println("Error retriving all rows:", err)
-		return pokeList
+		return nil, err
 	}
 
 	for _, pokemon := range records {
@@ -65,8 +65,8 @@ func ReadCSV() model.PokemonList {
 
 	if err != nil {
 		fmt.Println("Error while closing file:", err)
-		return pokeList
+		return nil, err
 	}
 
-	return pokeList
+	return pokeList, nil
 }
