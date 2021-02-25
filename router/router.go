@@ -4,6 +4,7 @@ import (
 	"bootcamp/domain/model"
 	"bootcamp/controller/hello"
 	"bootcamp/controller/csv"
+	"bootcamp/controller/pokemon"
 	// "modules"
 	"github.com/gorilla/mux"
 	"net/http"
@@ -23,7 +24,7 @@ func NewRouter() *mux.Router {
 
 var pokemonPath = "/pokemon"
 var id = "/{id}"
-// var pokemonPathWithId = pokemonPath + id
+var pokemonPathWithId = pokemonPath + id
 var csvPokemonPath = "/csv" + pokemonPath
 
 var routes = model.Routes{
@@ -51,18 +52,18 @@ var routes = model.Routes{
 	// 	pokemonPath,
 	// 	modules.AddPokemon,
 	// },
-	// model.Route{
-	// 	"GetPokemonList",
-	// 	http.MethodGet,
-	// 	pokemonPath,
-	// 	modules.GetPokemonList,
-	// },
-	// model.Route{
-	// 	"GetPokemon",
-	// 	http.MethodGet,
-	// 	pokemonPathWithId,
-	// 	modules.GetPokemon,
-	// },
+	model.Route{
+		"GetPokemon",
+		http.MethodGet,
+		pokemonPath,
+		pokemon.GetPokemon,
+	},
+	model.Route{
+		"GetPokemonById",
+		http.MethodGet,
+		pokemonPathWithId,
+		pokemon.GetPokemon,
+	},
 	// model.Route{
 	// 	"UpdatePokemon",
 	// 	http.MethodPut,
