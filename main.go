@@ -1,7 +1,7 @@
 package main
 
 import (
-	"routes"
+	"router"
 	"utils"
 	"fmt"
 	"log"
@@ -9,11 +9,12 @@ import (
 )
 
 func main() {
-	router := routes.NewRouter()
-
+	rt := router.NewRouter()
 	port := utils.GetEnvVar("PORT")
+
 	fmt.Println("Server listening in port" + port)
-	server := http.ListenAndServe(port, router)
+
+	server := http.ListenAndServe(port, rt)
 
 	log.Fatal(server)
 }

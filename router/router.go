@@ -1,19 +1,11 @@
-package routes
+package router
 
 import (
+	"model"
 	"modules"
 	"github.com/gorilla/mux"
 	"net/http"
 )
-
-type Route struct{
-	Name string
-	Method string
-	Pattern string
-	HandleFunc http.HandlerFunc
-}
-
-type Routes []Route
 
 func NewRouter() *mux.Router {
 	router := mux.NewRouter().StrictSlash(true)
@@ -27,61 +19,58 @@ func NewRouter() *mux.Router {
 	return router
 }
 
-var get = "GET"
-var post = "POST"
-var put = "PUT"
-var delete = "DELETE"
 var pokemonPath = "/pokemon"
-var id = "/{id}"
-var csv = "/csv"
+var id = "{id}"
+var pokemonPathWithId = pokemonPath + id
+var csvPokemonPath = pokemonPath + "/csv"
 
-var routes = Routes{
-	Route{
+var routes = model.Routes{
+	model.Route{
 		"HelloWorld",
-		get,
+		http.MethodGet,
 		"/",
 		modules.HelloWorld,
 	},
-	Route{
+	model.Route{
 		"GetPokemonListCsv",
-		get,
-		csv + pokemonPath,
+		http.MethodGet,
+		csvPokemonPath,
 		modules.GetPokemonListCsv,
 	},
-	Route{
+	model.Route{
 		"GetPokemonCsv",
-		get,
-		csv + pokemonPath + id,
+		http.MethodGet,
+		csvPokemonPath + id,
 		modules.GetPokemonCsv,
 	},
-	Route{
+	model.Route{
 		"AddPokemon",
-		post,
+		http.MethodPost,
 		pokemonPath,
 		modules.AddPokemon,
 	},
-	Route{
+	model.Route{
 		"GetPokemonList",
-		get,
+		http.MethodGet,
 		pokemonPath,
 		modules.GetPokemonList,
 	},
-	Route{
+	model.Route{
 		"GetPokemon",
-		get,
-		pokemonPath + id,
+		http.MethodGet,
+		pokemonPathWithId,
 		modules.GetPokemon,
 	},
-	Route{
+	model.Route{
 		"UpdatePokemon",
-		put,
-		pokemonPath + id,
+		http.MethodPut,
+		pokemonPathWithId,
 		modules.UpdatePokemon,
 	},
-	Route{
+	model.Route{
 		"DeletePokemon",
-		delete,
-		pokemonPath + id,
+		http.MethodDelete,
+		pokemonPathWithId,
 		modules.DeletePokemon,
 	},
 }
