@@ -3,7 +3,7 @@ package modules
 import (
 	"model"
 	"utils"
-	"db"
+	"service/db"
 	"fmt"
 	"net/http"
 	"encoding/json"
@@ -12,8 +12,7 @@ import (
 	"gopkg.in/mgo.v2/bson"
 )
 
-var pokemon = "pokemon";
-var collection = db.GetSession().DB(pokemon).C(pokemon)
+var collection = db.GetSession()
 
 func responseOne(w http.ResponseWriter, poke model.Pokemon) {
 	w = setHeaders(w)
