@@ -1,7 +1,7 @@
 package modules
 
 import (
-	"models"
+	"model"
 	"utils"
 	"db"
 	"fmt"
@@ -15,12 +15,12 @@ import (
 var pokemon = "pokemon";
 var collection = db.GetSession().DB(pokemon).C(pokemon)
 
-func responseOne(w http.ResponseWriter, poke models.Pokemon) {
+func responseOne(w http.ResponseWriter, poke model.Pokemon) {
 	w = setHeaders(w)
 	json.NewEncoder(w).Encode(poke)
 }
 
-func responseSome(w http.ResponseWriter, pokes []models.Pokemon) {
+func responseSome(w http.ResponseWriter, pokes []model.Pokemon) {
 	w = setHeaders(w)
 	json.NewEncoder(w).Encode(pokes)
 }
@@ -64,7 +64,7 @@ func GetPokemonListCsv(w http.ResponseWriter, r *http.Request) {
 }
 
 func AddPokemon(w http.ResponseWriter, r *http.Request) {
-	var data models.Pokemon
+	var data model.Pokemon
 	decoder := json.NewDecoder(r.Body)
 	err := decoder.Decode(&data)
 
@@ -84,7 +84,7 @@ func AddPokemon(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetPokemonList(w http.ResponseWriter, r *http.Request) {
-	var pokeList models.PokemonList
+	var pokeList model.PokemonList
 
 	err := collection.Find(nil).Sort("_id").All(&pokeList)
 
@@ -103,7 +103,7 @@ func GetPokemon(w http.ResponseWriter, r *http.Request) {
 		responseWithError(w, http.StatusBadRequest)
 	}
 
-	var poke models.Pokemon
+	var poke model.Pokemon
 	objectId := bson.ObjectIdHex(id)
 
 	err := collection.FindId(objectId).One(&poke)
@@ -123,7 +123,7 @@ func UpdatePokemon(w http.ResponseWriter, r *http.Request) {
 		responseWithError(w, http.StatusBadRequest)
 	}
 
-	var poke models.Pokemon
+	var poke model.Pokemon
 	decoder := json.NewDecoder(r.Body)
 	objectId := bson.ObjectIdHex(id)
 
@@ -155,7 +155,7 @@ func DeletePokemon(w http.ResponseWriter, r *http.Request) {
 		responseWithError(w, http.StatusBadRequest)
 	}
 
-	var poke models.Pokemon
+	var poke model.Pokemon
 	objectId := bson.ObjectIdHex(id)
 
 	err := collection.FindId(objectId).One(&poke)

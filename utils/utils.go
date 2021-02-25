@@ -1,7 +1,7 @@
 package utils
 
 import (
-	"models"
+	"model"
 	"fmt"
 	"log"
 	"os"
@@ -27,8 +27,8 @@ func GetEnvVar(key string) string {
   return value
 }
 
-func ReadCSV() models.PokemonList {
-	var pokeList models.PokemonList
+func ReadCSV() model.PokemonList {
+	var pokeList model.PokemonList
 
 	recordFile, err := os.Open("assets/pokemon.csv")
 	if err != nil {
@@ -57,7 +57,7 @@ func ReadCSV() models.PokemonList {
 			 fmt.Println("Cannot get pokedex number from row")
 		}
 
-		poke := models.Pokemon{Id:id, PokedexNumber: pkNumber, Name:pokemon[2], Types:pokemon[3], Region:pokemon[4]}
+		poke := model.Pokemon{Id:id, PokedexNumber: pkNumber, Name:pokemon[2], Types:pokemon[3], Region:pokemon[4]}
 		pokeList = append(pokeList, poke)
 	}
 
