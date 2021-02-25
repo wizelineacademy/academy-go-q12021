@@ -4,7 +4,6 @@ import (
 	"model"
 	"utils"
 	"service/db"
-	"fmt"
 	"net/http"
 	"encoding/json"
 	"github.com/gorilla/mux"
@@ -33,10 +32,6 @@ func setHeaders(w http.ResponseWriter) http.ResponseWriter {
 	w.Header().Set("Content-Type", "application/json")
   w.WriteHeader(http.StatusOK)
 	return w
-}
-
-func HelloWorld(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "Hello world")
 }
 
 func GetPokemonCsv(w http.ResponseWriter, r *http.Request) {

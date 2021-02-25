@@ -2,6 +2,7 @@ package router
 
 import (
 	"model"
+	"bootcamp/controller/hello"
 	"modules"
 	"github.com/gorilla/mux"
 	"net/http"
@@ -29,7 +30,7 @@ var routes = model.Routes{
 		"HelloWorld",
 		http.MethodGet,
 		"/",
-		modules.HelloWorld,
+		hello.HelloWorld,
 	},
 	model.Route{
 		"GetPokemonListCsv",
