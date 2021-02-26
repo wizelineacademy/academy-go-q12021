@@ -5,7 +5,6 @@ import (
 	"net/http"
 	"encoding/json"
 	"fmt"
-	"errors"
 )
 
 func SuccessfulListResponse (w http.ResponseWriter, pokemonList model.PokemonList) {

@@ -22,29 +22,44 @@ func GetPokemon(w http.ResponseWriter, r *http.Request) {
 		pokemon, err := pokemon.GetPokemonById(objectId)
 
 		if err != nil {
-			network.UnsuccessfulResponse(w, "Could not get information from Pokedex for requested id")
+			network.UnsuccessfulResponse(w, err.Error())
 			return
-		} else {
-			network.SuccessfulResponse(w, pokemon)
 		}
+		network.SuccessfulResponse(w, pokemon)
 	} else {
 		pokemonList, err := pokemon.GetPokemon()
 
 		if err != nil {
-			network.UnsuccessfulResponse(w, "Could not get information from Pokedex")
+			network.UnsuccessfulResponse(w, err.Error())
 			return
-		} else {
-			network.SuccessfulListResponse(w, pokemonList)
 		}
+		network.SuccessfulListResponse(w, pokemonList)
 	}
 }
 
 func AddPokemon(w http.ResponseWriter, r *http.Request) {
 	pokemon, err := pokemon.AddPokemon(r.Body)
 	if err != nil {
-		network.UnsuccessfulResponse(w, "Could not add Pokemon to Pokedex")
+		network.UnsuccessfulResponse(w,  err.Error())
 		return
-	} else {
-		network.SuccessfulResponse(w, pokemon)
 	}
+	network.SuccessfulResponse(w, pokemon)
+}
+
+func UpdatePokemon(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+	objectId, err := utils.GetObjectIdFromParams(params["id"])
+
+	if err != nil {
+		network.UnsuccessfulResponse(w, err.Error())
+		return
+	}
+
+	pokemon, err := pokemon.UpdatePokemon(objectId, r.Body)
+
+	if err != nil {
+		network.UnsuccessfulResponse(w, err.Error())
+		return
+	}
+	network.SuccessfulResponse(w, pokemon)
 }

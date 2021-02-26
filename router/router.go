@@ -63,12 +63,12 @@ var routes = model.Routes{
 		pokemonPathWithId,
 		pokemon.GetPokemon,
 	},
-	// model.Route{
-	// 	"UpdatePokemon",
-	// 	http.MethodPut,
-	// 	pokemonPathWithId,
-	// 	modules.UpdatePokemon,
-	// },
+	model.Route{
+		"UpdatePokemon",
+		http.MethodPut,
+		pokemonPathWithId,
+		pokemon.UpdatePokemon,
+	},
 	// model.Route{
 	// 	"DeletePokemon",
 	// 	http.MethodDelete,

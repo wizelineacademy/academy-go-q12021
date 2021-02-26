@@ -37,3 +37,10 @@ func AddPokemon(pokemon model.Pokemon) (model.Pokemon, error) {
 	err := getSession().Insert(pokemon)
 	return pokemon, err
 }
+
+func UpdatePokemon(objectId bson.ObjectId, pokemon model.Pokemon) (model.Pokemon, error) {
+	document := bson.M{"_id": objectId}
+	change := bson.M{"$set":pokemon}
+	err := getSession().Update(document, change)
+	return pokemon, err
+}
