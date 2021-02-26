@@ -22,7 +22,7 @@ func GetPokemon(w http.ResponseWriter, r *http.Request) {
 		pokemon, err := pokemon.GetPokemonById(objectId)
 
 		if err != nil {
-			network.UnsuccessfulResponse(w, "Could not get information from database for requested id")
+			network.UnsuccessfulResponse(w, "Could not get information from Pokedex for requested id")
 			return
 		} else {
 			network.SuccessfulResponse(w, pokemon)
@@ -31,10 +31,20 @@ func GetPokemon(w http.ResponseWriter, r *http.Request) {
 		pokemonList, err := pokemon.GetPokemon()
 
 		if err != nil {
-			network.UnsuccessfulResponse(w, "Could not get information from database")
+			network.UnsuccessfulResponse(w, "Could not get information from Pokedex")
 			return
 		} else {
 			network.SuccessfulListResponse(w, pokemonList)
 		}
+	}
+}
+
+func AddPokemon(w http.ResponseWriter, r *http.Request) {
+	pokemon, err := pokemon.AddPokemon(r.Body)
+	if err != nil {
+		network.UnsuccessfulResponse(w, "Could not add Pokemon to Pokedex")
+		return
+	} else {
+		network.SuccessfulResponse(w, pokemon)
 	}
 }

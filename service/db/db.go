@@ -32,3 +32,8 @@ func GetPokemonById(objectId bson.ObjectId) (model.Pokemon, error) {
 	err := getSession().FindId(objectId).One(&pokemon)
 	return pokemon, err
 }
+
+func AddPokemon(pokemon model.Pokemon) (model.Pokemon, error) {
+	err := getSession().Insert(pokemon)
+	return pokemon, err
+}

@@ -1,38 +1,3 @@
-// package modules
-
-// import (
-// 	// "model"
-// 	"bootcamp/utils"
-// 	"service/db"
-// 	"net/http"
-// 	"encoding/json"
-// 	"github.com/gorilla/mux"
-// 	"strconv"
-// 	"gopkg.in/mgo.v2/bson"
-// )
-
-// var collection = db.GetSession()
-
-// func AddPokemon(w http.ResponseWriter, r *http.Request) {
-// 	var data model.Pokemon
-// 	decoder := json.NewDecoder(r.Body)
-// 	err := decoder.Decode(&data)
-
-// 	if err != nil {
-// 		responseWithError(w, http.StatusNotFound)
-// 	}
-
-// 	defer r.Body.Close()
-
-// 	err = collection.Insert(data)
-
-// 	if err != nil {
-// 		responseWithError(w, http.StatusInternalServerError)
-// 	} else {
-// 		responseOne(w, data)
-// 	}
-// }
-
 // func UpdatePokemon(w http.ResponseWriter, r *http.Request) {
 // 	params := mux.Vars(r)
 // 	id := params["id"]

@@ -5,7 +5,6 @@ import (
 	"bootcamp/controller/hello"
 	"bootcamp/controller/csv"
 	"bootcamp/controller/pokemon"
-	// "modules"
 	"github.com/gorilla/mux"
 	"net/http"
 )
@@ -46,12 +45,12 @@ var routes = model.Routes{
 		csvPokemonPath + id,
 		csv.GetPokemon,
 	},
-	// model.Route{
-	// 	"AddPokemon",
-	// 	http.MethodPost,
-	// 	pokemonPath,
-	// 	modules.AddPokemon,
-	// },
+	model.Route{
+		"AddPokemon",
+		http.MethodPost,
+		pokemonPath,
+		pokemon.AddPokemon,
+	},
 	model.Route{
 		"GetPokemon",
 		http.MethodGet,
