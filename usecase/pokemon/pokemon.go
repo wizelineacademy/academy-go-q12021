@@ -8,6 +8,18 @@ import (
 	"encoding/json"
 )
 
+func getPokemonFromReader(reader io.ReadCloser) (model.Pokemon, error) {
+	var tempPokemon model.Pokemon
+	decoder := json.NewDecoder(reader)
+	err := decoder.Decode(&tempPokemon)
+
+	if err == nil {
+		defer reader.Close()		
+	}
+
+	return tempPokemon, err
+}
+
 func GetPokemon() (model.PokemonList, error) {
 	pokemonList, err := db.GetPokemon()
 	return pokemonList, err
@@ -19,30 +31,22 @@ func GetPokemonById(objectId bson.ObjectId) (model.Pokemon, error) {
 }
 
 func AddPokemon(reader io.ReadCloser) (model.Pokemon, error) {
-	var tempPokemon model.Pokemon
-	decoder := json.NewDecoder(reader)
-	err := decoder.Decode(&tempPokemon)
-
-	if err != nil {
-		return tempPokemon, err
+	pokemon, err := getPokemonFromReader(reader)
+	
+	if err == nil {
+		pokemon, err = db.AddPokemon(pokemon)
 	}
 
-	defer reader.Close()
-	pokemon, err := db.AddPokemon(tempPokemon)
 	return pokemon, err
 }
 
 func UpdatePokemon(objectId bson.ObjectId, reader io.ReadCloser) (model.Pokemon, error) {
-	var tempPokemon model.Pokemon
-	decoder := json.NewDecoder(reader)
-	err := decoder.Decode(&tempPokemon)
+	pokemon, err := getPokemonFromReader(reader)
 
-	if err != nil {
-		return tempPokemon, err
+	if err == nil {
+		pokemon, err = db.UpdatePokemon(objectId, pokemon)
 	}
 
-	defer reader.Close()
-	pokemon, err := db.UpdatePokemon(objectId, tempPokemon)
 	return pokemon, err
 }
 
