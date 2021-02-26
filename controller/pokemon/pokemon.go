@@ -25,6 +25,7 @@ func GetPokemon(w http.ResponseWriter, r *http.Request) {
 			network.UnsuccessfulResponse(w, err.Error())
 			return
 		}
+
 		network.SuccessfulResponse(w, pokemon)
 	} else {
 		pokemonList, err := pokemon.GetPokemon()
@@ -33,16 +34,19 @@ func GetPokemon(w http.ResponseWriter, r *http.Request) {
 			network.UnsuccessfulResponse(w, err.Error())
 			return
 		}
+
 		network.SuccessfulListResponse(w, pokemonList)
 	}
 }
 
 func AddPokemon(w http.ResponseWriter, r *http.Request) {
 	pokemon, err := pokemon.AddPokemon(r.Body)
+
 	if err != nil {
 		network.UnsuccessfulResponse(w,  err.Error())
 		return
 	}
+
 	network.SuccessfulResponse(w, pokemon)
 }
 
@@ -61,5 +65,25 @@ func UpdatePokemon(w http.ResponseWriter, r *http.Request) {
 		network.UnsuccessfulResponse(w, err.Error())
 		return
 	}
+
+	network.SuccessfulResponse(w, pokemon)
+}
+
+func DeletePokemon(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+	objectId, err := utils.GetObjectIdFromParams(params["id"])
+
+	if err != nil {
+		network.UnsuccessfulResponse(w, err.Error())
+		return
+	}
+
+	pokemon, err := pokemon.DeletePokemon(objectId)
+
+	if err != nil {
+		network.UnsuccessfulResponse(w, err.Error())
+		return
+	}
+
 	network.SuccessfulResponse(w, pokemon)
 }

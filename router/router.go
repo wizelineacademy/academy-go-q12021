@@ -69,10 +69,10 @@ var routes = model.Routes{
 		pokemonPathWithId,
 		pokemon.UpdatePokemon,
 	},
-	// model.Route{
-	// 	"DeletePokemon",
-	// 	http.MethodDelete,
-	// 	pokemonPathWithId,
-	// 	modules.DeletePokemon,
-	// },
+	model.Route{
+		"DeletePokemon",
+		http.MethodDelete,
+		pokemonPathWithId,
+		pokemon.DeletePokemon,
+	},
 }

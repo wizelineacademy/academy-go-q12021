@@ -45,3 +45,8 @@ func UpdatePokemon(objectId bson.ObjectId, reader io.ReadCloser) (model.Pokemon,
 	pokemon, err := db.UpdatePokemon(objectId, tempPokemon)
 	return pokemon, err
 }
+
+func DeletePokemon(objectId bson.ObjectId) (model.Pokemon, error) {
+	pokemon, err := db.DeletePokemon(objectId)
+	return pokemon, err
+}
