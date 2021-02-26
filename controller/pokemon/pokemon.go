@@ -12,7 +12,7 @@ func GetPokemon(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 
 	if id := params["id"]; id != "" {
-		objectId, err := utils.GetObjectIdFromParams(params["id"])
+		objectId, err := utils.GetObjectIdFromParams(params)
 
 		if err != nil {
 			network.UnsuccessfulResponse(w, err.Error())
@@ -51,8 +51,7 @@ func AddPokemon(w http.ResponseWriter, r *http.Request) {
 }
 
 func UpdatePokemon(w http.ResponseWriter, r *http.Request) {
-	params := mux.Vars(r)
-	objectId, err := utils.GetObjectIdFromParams(params["id"])
+	objectId, err := utils.GetObjectIdFromParams(mux.Vars(r))
 
 	if err != nil {
 		network.UnsuccessfulResponse(w, err.Error())
@@ -70,8 +69,7 @@ func UpdatePokemon(w http.ResponseWriter, r *http.Request) {
 }
 
 func DeletePokemon(w http.ResponseWriter, r *http.Request) {
-	params := mux.Vars(r)
-	objectId, err := utils.GetObjectIdFromParams(params["id"])
+	objectId, err := utils.GetObjectIdFromParams(mux.Vars(r))
 
 	if err != nil {
 		network.UnsuccessfulResponse(w, err.Error())

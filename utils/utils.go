@@ -2,9 +2,10 @@ package utils
 
 import (
 	"bootcamp/domain/model"
-	"fmt"
 	"log"
+	"io"
 	"os"
+	"encoding/json"
 	"strconv"
 	"encoding/csv"
 	"github.com/spf13/viper"
@@ -29,61 +30,65 @@ func GetEnvVar(key string) string {
   return value
 }
 
-func GetObjectIdFromParams(id string) (bson.ObjectId, error) {
+func GetObjectIdFromParams(params map[string]string) (bson.ObjectId, error) {
 	var objectId bson.ObjectId
+	id := params["id"]
 
-	if id == "" {
-		return objectId,	errors.New("No id provided")
-	}
-
-	if !bson.IsObjectIdHex(id) {
-		return objectId,	errors.New("Invalid type id")
+	if id == "" || !bson.IsObjectIdHex(id) {
+		return objectId,	errors.New("Invalid id provided")
 	}
 
 	objectId = bson.ObjectIdHex(id)
 	return objectId, nil
 }
 
+func GetPokemonFromReader(reader io.ReadCloser) (model.Pokemon, error) {
+	var tempPokemon model.Pokemon
+	decoder := json.NewDecoder(reader)
+	err := decoder.Decode(&tempPokemon)
+
+	if err == nil {
+		defer reader.Close()		
+	}
+
+	return tempPokemon, err
+}
+
 func ReadCSV() (model.PokemonList, error) {
-	var pokeList model.PokemonList
-
+	var pokemonList model.PokemonList
 	recordFile, err := os.Open("assets/pokemon.csv")
-	if err != nil {
-		fmt.Println("Error while openning file:", err)
-		return nil, err
-	}
 
-	reader := csv.NewReader(recordFile)
-	records, err := reader.ReadAll()
+	if err == nil {
+		reader := csv.NewReader(recordFile)
+		records, err := reader.ReadAll()
 
-	if err != nil {
-		fmt.Println("Error retriving all rows:", err)
-		return nil, err
-	}
-
-	for _, pokemon := range records {
-		id, err := strconv.Atoi(pokemon[0])
-
-		if err != nil {
-			 fmt.Println("Cannot get id from row")
-		}
+		if err == nil {
+			for _, pokemon := range records {
+				id, err := strconv.Atoi(pokemon[0])
 		
-		pkNumber, err2 := strconv.Atoi(pokemon[1])
-
-		if err2 != nil {
-			 fmt.Println("Cannot get pokedex number from row")
+				if err != nil {
+					 return pokemonList, errors.New("Cannot get id from row")
+				}
+				
+				pkNumber, err := strconv.Atoi(pokemon[1])
+		
+				if err != nil {
+					return pokemonList, errors.New("Cannot get pokedex number from row")
+				}
+		
+				pk := model.Pokemon{Id:id, PokedexNumber: pkNumber, Name:pokemon[2], Types:pokemon[3], Region:pokemon[4]}
+				pokemonList = append(pokemonList, pk)
+			}
+		
+			err = recordFile.Close()
+		
+			if err != nil {
+				return pokemonList, errors.New("Error while closing file")
+			}
+		
+			return pokemonList, nil
 		}
-
-		poke := model.Pokemon{Id:id, PokedexNumber: pkNumber, Name:pokemon[2], Types:pokemon[3], Region:pokemon[4]}
-		pokeList = append(pokeList, poke)
-	}
-
-	err = recordFile.Close()
-
-	if err != nil {
-		fmt.Println("Error while closing file:", err)
 		return nil, err
 	}
-
-	return pokeList, nil
+	return nil, err
 }

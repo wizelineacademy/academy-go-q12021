@@ -1,24 +1,12 @@
 package pokemon
 
 import (
-	"io"
+	"bootcamp/utils"
 	"bootcamp/domain/model"
 	"bootcamp/service/db"
 	"gopkg.in/mgo.v2/bson"
-	"encoding/json"
+	"io"
 )
-
-func getPokemonFromReader(reader io.ReadCloser) (model.Pokemon, error) {
-	var tempPokemon model.Pokemon
-	decoder := json.NewDecoder(reader)
-	err := decoder.Decode(&tempPokemon)
-
-	if err == nil {
-		defer reader.Close()		
-	}
-
-	return tempPokemon, err
-}
 
 func GetPokemon() (model.PokemonList, error) {
 	pokemonList, err := db.GetPokemon()
@@ -31,7 +19,7 @@ func GetPokemonById(objectId bson.ObjectId) (model.Pokemon, error) {
 }
 
 func AddPokemon(reader io.ReadCloser) (model.Pokemon, error) {
-	pokemon, err := getPokemonFromReader(reader)
+	pokemon, err := utils.GetPokemonFromReader(reader)
 	
 	if err == nil {
 		pokemon, err = db.AddPokemon(pokemon)
@@ -41,7 +29,7 @@ func AddPokemon(reader io.ReadCloser) (model.Pokemon, error) {
 }
 
 func UpdatePokemon(objectId bson.ObjectId, reader io.ReadCloser) (model.Pokemon, error) {
-	pokemon, err := getPokemonFromReader(reader)
+	pokemon, err := utils.GetPokemonFromReader(reader)
 
 	if err == nil {
 		pokemon, err = db.UpdatePokemon(objectId, pokemon)
