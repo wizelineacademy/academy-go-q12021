@@ -1,0 +1,8 @@
+#+TITLE: Progress
+
+* First Deliverable
+** [ ] Create an API
+** [ ] Add an endpoint to read from a CSV file
+** [ ] Gather info from CSV filtering by a field, result as response
+** [ ] Clean arquitecture proposal - best practices
+** [ ] Handle errors
