@@ -1,7 +1,6 @@
 package pokemon
 
 import (
-	"bootcamp/utils"
 	"bootcamp/usecase/pokemon"
 	"bootcamp/service/network"
 	"net/http"
@@ -12,76 +11,25 @@ func GetPokemon(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 
 	if id := params["id"]; id != "" {
-		objectId, err := utils.GetObjectIdFromParams(params)
-
-		if err != nil {
-			network.UnsuccessfulResponse(w, err.Error())
-			return
-		}
-
-		pokemon, err := pokemon.GetPokemonById(objectId)
-
-		if err != nil {
-			network.UnsuccessfulResponse(w, err.Error())
-			return
-		}
-
-		network.SuccessfulResponse(w, pokemon)
+		pokemon, err := pokemon.GetPokemonById(params)
+		network.Response(w, pokemon, err)
 	} else {
 		pokemonList, err := pokemon.GetPokemon()
-
-		if err != nil {
-			network.UnsuccessfulResponse(w, err.Error())
-			return
-		}
-
-		network.SuccessfulListResponse(w, pokemonList)
+		network.ResponseList(w, pokemonList, err)
 	}
 }
 
 func AddPokemon(w http.ResponseWriter, r *http.Request) {
 	pokemon, err := pokemon.AddPokemon(r.Body)
-
-	if err != nil {
-		network.UnsuccessfulResponse(w,  err.Error())
-		return
-	}
-
-	network.SuccessfulResponse(w, pokemon)
+	network.Response(w, pokemon, err)
 }
 
 func UpdatePokemon(w http.ResponseWriter, r *http.Request) {
-	objectId, err := utils.GetObjectIdFromParams(mux.Vars(r))
-
-	if err != nil {
-		network.UnsuccessfulResponse(w, err.Error())
-		return
-	}
-
-	pokemon, err := pokemon.UpdatePokemon(objectId, r.Body)
-
-	if err != nil {
-		network.UnsuccessfulResponse(w, err.Error())
-		return
-	}
-
-	network.SuccessfulResponse(w, pokemon)
+	pokemon, err := pokemon.UpdatePokemon(mux.Vars(r), r.Body)
+	network.Response(w, pokemon, err)
 }
 
 func DeletePokemon(w http.ResponseWriter, r *http.Request) {
-	objectId, err := utils.GetObjectIdFromParams(mux.Vars(r))
-
-	if err != nil {
-		network.UnsuccessfulResponse(w, err.Error())
-		return
-	}
-
-	pokemon, err := pokemon.DeletePokemon(objectId)
-
-	if err != nil {
-		network.UnsuccessfulResponse(w, err.Error())
-		return
-	}
-
-	network.SuccessfulResponse(w, pokemon)
+	pokemon, err := pokemon.DeletePokemon(mux.Vars(r))
+	network.Response(w, pokemon, err)
 }

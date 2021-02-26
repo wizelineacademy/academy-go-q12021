@@ -6,28 +6,27 @@ import (
 	"net/http"
 	"github.com/gorilla/mux"
 	"strconv"
+	"errors"
 )
 
 func GetPokemon(w http.ResponseWriter, r *http.Request) {
-	pokeList, err := csv.GetPokemon()
+	pokemonList, err := csv.GetPokemon()
 
-	if err != nil {
-		network.UnsuccessfulResponse(w, "Could not load information")
-		return
-	}
+	if err == nil {
+		params := mux.Vars(r)
 
-	params := mux.Vars(r)
+		if params["id"] != "" {
+			id, _ := strconv.Atoi(params["id"])
+			pokemonId := id - 1
+	
+			if pokemonId <= len(pokemonList) - 1 {
+				network.Response(w, pokemonList[pokemonId], err)
+				return
+			}
 
-	if params["id"] != "" {
-		id, _ := strconv.Atoi(params["id"])
-		pokemonId := id - 1
-
-		if pokemonId <= len(pokeList) - 1 {
-			network.SuccessfulResponse(w, pokeList[pokemonId])
-		} else {
-			network.UnsuccessfulResponse(w, "Invalid index")
+			err = errors.New("Invalid index")
 		}
-	} else {
-		network.SuccessfulListResponse(w, pokeList)
 	}
+
+	network.ResponseList(w, pokemonList, err)
 }
