@@ -25,7 +25,6 @@ func SuccessfulResponse (w http.ResponseWriter, pokemon model.Pokemon) {
 func UnsuccessfulResponse (w http.ResponseWriter, err string) {
 	w.Header().Set("Content-Type", "application/json")
   w.WriteHeader(http.StatusBadRequest)
-	fmt.Println(errors.New(err))
 	fmt.Fprintf(w, err)
 	return
 }

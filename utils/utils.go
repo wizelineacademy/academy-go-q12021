@@ -8,6 +8,8 @@ import (
 	"strconv"
 	"encoding/csv"
 	"github.com/spf13/viper"
+	"gopkg.in/mgo.v2/bson"
+	"errors"
 )
 
 func GetEnvVar(key string) string {
@@ -25,6 +27,21 @@ func GetEnvVar(key string) string {
   }
 
   return value
+}
+
+func GetObjectIdFromParams(id string) (bson.ObjectId, error) {
+	var objectId bson.ObjectId
+
+	if id == "" {
+		return objectId,	errors.New("No id provided")
+	}
+
+	if !bson.IsObjectIdHex(id) {
+		return objectId,	errors.New("Invalid type id")
+	}
+
+	objectId = bson.ObjectIdHex(id)
+	return objectId, nil
 }
 
 func ReadCSV() (model.PokemonList, error) {
