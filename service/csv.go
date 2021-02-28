@@ -2,6 +2,7 @@ package service
 
 import (
 	"encoding/csv"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -27,16 +28,24 @@ func New() *CsvService {
 	return &CsvService{}
 }
 
-func openCsv() {
+func openCsv() error {
 	f, err := os.Open(pathFile)
 	csvFile = f
 	if err != nil {
 		fmt.Printf("There was an error opening the file: %v\n", err)
+		return errors.New(err.Error())
 	}
+	return nil
 }
 
 func readCsv() ([]model.Pokemon, *model.Error) {
-	openCsv()
+	openError := openCsv()
+	if openError != nil {
+		return nil, &model.Error{
+			Message: openError.Error(),
+			Code:    http.StatusInternalServerError,
+		}
+	}
 	reader := csv.NewReader(csvFile)
 	reader.Comma = ','
 	reader.Comment = '#'
@@ -85,7 +94,13 @@ func readCsv() ([]model.Pokemon, *model.Error) {
 }
 
 func (s *CsvService) AddLineCsv(newPokes *[]model.SinglePokeExternal) *model.Error {
-	openCsv()
+	openError := openCsv()
+	if openError != nil {
+		return &model.Error{
+			Message: openError.Error(),
+			Code:    http.StatusInternalServerError,
+		}
+	}
 	reader := csv.NewReader(csvFile)
 	reader.Comma = ','
 	reader.Comment = '#'
@@ -101,7 +116,6 @@ func (s *CsvService) AddLineCsv(newPokes *[]model.SinglePokeExternal) *model.Err
 		return &e
 	}
 	linesNumber := len(lines) + 1
-	fmt.Println("Number of lines", linesNumber)
 	defer csvFile.Close()
 
 	f, err := os.OpenFile(pathFile, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0644)
@@ -116,7 +130,6 @@ func (s *CsvService) AddLineCsv(newPokes *[]model.SinglePokeExternal) *model.Err
 	}
 	w := csv.NewWriter(f)
 	for _, pokemon := range *newPokes {
-		fmt.Println("Pokemon: ", pokemon.Name)
 		w.Write([]string{strconv.Itoa(linesNumber), pokemon.Name, pokemon.URL})
 		linesNumber = linesNumber + 1
 	}
