@@ -20,7 +20,7 @@ type CsvService struct{}
 type NewCsvService interface {
 	GetPokemons() ([]model.Pokemon, *model.Error)
 	GetPokemon(pokemonId int) (model.Pokemon, *model.Error)
-	AddLineCsv(newPokes *[]model.SinglePokeExternal)
+	AddLineCsv(newPokes *[]model.SinglePokeExternal) *model.Error
 }
 
 func New() *CsvService {
@@ -84,7 +84,7 @@ func readCsv() ([]model.Pokemon, *model.Error) {
 	return pokemons, nil
 }
 
-func (s *CsvService) AddLineCsv(newPokes *[]model.SinglePokeExternal) {
+func (s *CsvService) AddLineCsv(newPokes *[]model.SinglePokeExternal) *model.Error {
 	openCsv()
 	reader := csv.NewReader(csvFile)
 	reader.Comma = ','
@@ -93,21 +93,36 @@ func (s *CsvService) AddLineCsv(newPokes *[]model.SinglePokeExternal) {
 	lines, err := reader.ReadAll()
 	if err != nil {
 		fmt.Println(err)
+
+		e := model.Error{
+			Code:    http.StatusInternalServerError,
+			Message: err.Error(),
+		}
+		return &e
 	}
 	linesNumber := len(lines) + 1
+	fmt.Println("Number of lines", linesNumber)
 	defer csvFile.Close()
 
 	f, err := os.OpenFile(pathFile, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0644)
 	if err != nil {
 		fmt.Println(err)
-		return
+
+		e := model.Error{
+			Code:    http.StatusInternalServerError,
+			Message: err.Error(),
+		}
+		return &e
 	}
 	w := csv.NewWriter(f)
 	for _, pokemon := range *newPokes {
+		fmt.Println("Pokemon: ", pokemon.Name)
 		w.Write([]string{strconv.Itoa(linesNumber), pokemon.Name, pokemon.URL})
 		linesNumber = linesNumber + 1
 	}
-	w.Flush()
+	defer w.Flush()
+
+	return nil
 }
 
 func (s *CsvService) GetPokemon(pokemonId int) (model.Pokemon, *model.Error) {

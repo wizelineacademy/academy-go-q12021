@@ -93,7 +93,13 @@ func (pc *PokemonController) GetPokemonsFromExternalAPI(
 	json.Unmarshal(bodyBytes, &response)
 
 	newPokemons := response.Results
-	pc.useCase.GetPokemonsFromExternalAPI(&newPokemons)
+	e := pc.useCase.GetPokemonsFromExternalAPI(&newPokemons)
 
-	fmt.Fprintf(w, "API Response as struct %+v\n", response)
+	if e != nil {
+		w.WriteHeader(e.Code)
+		fmt.Fprintf(w, "There was some errors, please try again.")
+	} else {
+		fmt.Fprintf(w, "API Response as struct %+v\n", response)
+	}
+
 }

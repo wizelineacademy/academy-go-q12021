@@ -12,7 +12,7 @@ type Usecase struct {
 type IUsecase interface {
 	GetPokemons() ([]model.Pokemon, *model.Error)
 	GetPokemon(pokemonId int) (model.Pokemon, *model.Error)
-	GetPokemonsFromExternalAPI(newPokemons *[]model.SinglePokeExternal)
+	GetPokemonsFromExternalAPI(newPokemons *[]model.SinglePokeExternal) *model.Error
 }
 
 func New(s service.NewCsvService) *Usecase {
@@ -27,6 +27,6 @@ func (us *Usecase) GetPokemon(pokemonId int) (model.Pokemon, *model.Error) {
 	return us.csvService.GetPokemon(pokemonId)
 }
 
-func (us *Usecase) GetPokemonsFromExternalAPI(newPokes *[]model.SinglePokeExternal) {
-	us.csvService.AddLineCsv(newPokes)
+func (us *Usecase) GetPokemonsFromExternalAPI(newPokes *[]model.SinglePokeExternal) *model.Error {
+	return us.csvService.AddLineCsv(newPokes)
 }
