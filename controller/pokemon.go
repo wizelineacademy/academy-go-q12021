@@ -3,15 +3,19 @@ package controller
 import (
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"net/http"
-	usecases "pokeapi/usecase"
+	"pokeapi/model"
+	"pokeapi/usecase"
 	"strconv"
 
 	"github.com/gorilla/mux"
 )
 
+const uri string = "https://pokeapi.co/api/v2/pokemon?limit=5&offset=300"
+
 type PokemonController struct {
-	useCase usecases.IUsecase
+	useCase usecase.IUsecase
 }
 
 type IPokemonController interface {
@@ -21,7 +25,7 @@ type IPokemonController interface {
 	GetPokemonsFromExternalAPI(w http.ResponseWriter, r *http.Request)
 }
 
-func New(pc usecases.IUsecase) *PokemonController {
+func New(pc usecase.IUsecase) *PokemonController {
 	return &PokemonController{pc}
 }
 
@@ -62,14 +66,34 @@ func (pc *PokemonController) GetPokemon(w http.ResponseWriter, r *http.Request) 
 	json.NewEncoder(w).Encode(pokemon)
 }
 
-func (pc *PokemonController) GetPokemonsFromExternalAPI(w http.ResponseWriter, r *http.Request) {
-	err := pc.useCase.GetPokemonsFromExternalAPI()
+func (pc *PokemonController) GetPokemonsFromExternalAPI(
+	w http.ResponseWriter, r *http.Request) {
+	client := &http.Client{}
+	w.Header().Set("Content-Type", "application/json")
 
+	req, err := http.NewRequest("GET", uri, nil)
 	if err != nil {
-		w.WriteHeader(err.Code)
-		fmt.Fprintf(w, "Uhh oh... %v", err.Message)
+		fmt.Fprintf(w, "Something happened: %v", err.Error())
+	}
+	req.Header.Add("Accept", "application/json")
+	req.Header.Add("Content-Type", "application/json")
+
+	resp, err := client.Do(req)
+	if err != nil {
+		fmt.Fprintf(w, err.Error())
+	}
+	defer resp.Body.Close()
+
+	bodyBytes, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		fmt.Fprintf(w, err.Error())
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	fmt.Fprintf(w, "Pokemons saved correctly, go and checkout your DB! (csv)")
+	var response model.PokemonExternal
+	json.Unmarshal(bodyBytes, &response)
+
+	newPokemons := response.Results
+	pc.useCase.GetPokemonsFromExternalAPI(&newPokemons)
+
+	fmt.Fprintf(w, "API Response as struct %+v\n", response)
 }

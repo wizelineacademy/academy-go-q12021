@@ -20,9 +20,10 @@ type CsvService struct{}
 type NewCsvService interface {
 	GetPokemons() ([]model.Pokemon, *model.Error)
 	GetPokemon(pokemonId int) (model.Pokemon, *model.Error)
+	AddLineCsv(newPokes *[]model.SinglePokeExternal)
 }
 
-func NewCsv() *CsvService {
+func New() *CsvService {
 	return &CsvService{}
 }
 
@@ -83,7 +84,7 @@ func readCsv() ([]model.Pokemon, *model.Error) {
 	return pokemons, nil
 }
 
-func addLineCsv(newPokes *[]model.SinglePokeExternal) {
+func (s *CsvService) AddLineCsv(newPokes *[]model.SinglePokeExternal) {
 	openCsv()
 	reader := csv.NewReader(csvFile)
 	reader.Comma = ','

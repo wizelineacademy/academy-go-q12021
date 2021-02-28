@@ -11,9 +11,8 @@ import (
 
 func main() {
 
-	httpService := service.NewHttp()
-	service := service.NewCsv()
-	usecase := usecase.New(service, httpService)
+	csvService := service.New()
+	usecase := usecase.New(csvService)
 	controller := controller.New(usecase)
 
 	router := router.New(controller)
