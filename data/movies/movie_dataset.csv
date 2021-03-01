@@ -2,7 +2,7 @@ movie_id,display_name,director_name,release_year
 1,Gone Girl,David Fincher,2014
 2,Seven,David Fincher,1995
 3,Blade Runner 2049,Denis Villeneuve,2017
-4,Prisioners,Denis Villeneuve,2013
+4,Prisoners,Denis Villeneuve,2013
 5,Arrival,Denis Villeneuve,2016
 6,Mank,David Fincher,2020
 7,Blade Runner,Ridley Scott,1982
@@ -57,3 +57,7 @@ movie_id,display_name,director_name,release_year
 55,The Wolf of Wall Street,Martin Scorsese,2013
 56,Raging Bull,Martin Scorsese,1980
 57,Casino,Martin Scorsese,1995
+58,Interstellar,Christopher Nolan,2014
+59,Memento,Christopher Nolan,2000
+60,Tenet,Christopher Nolan,2020
+61,Dallas Buyers Club,Jean-Marc Vallée,2014
