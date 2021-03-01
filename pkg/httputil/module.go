@@ -7,8 +7,8 @@ import (
 
 // Controller HTTP controller
 type Controller interface {
-	// Route maps exposed use cases from the current aggregate using the given mux.Router
-	Route(r *mux.Router)
+	// MapRoutes maps exposed use cases from the current aggregate using the given mux.Router
+	MapRoutes(r *mux.Router)
 }
 
 // ControllersGatewayFx Uber FX's HTTP controller input container
