@@ -1,36 +1,28 @@
 package main
 
 import (
-	"fmt"
+	"first/controller"
+	"log"
+	"net/http"
+	"time"
 
-	"first/repository"
-	"first/service"
+	"github.com/gorilla/mux"
 )
 
 func main() {
-	pokemonRepository, err := repository.NewPokemonRepository()
-	if err != nil {
-		panic(err)
-	}
-	pokemons, err := pokemonRepository.GetAll()
-	if err != nil {
-		panic(err)
-	}
-	for _, pokemon := range pokemons {
-		fmt.Println(pokemon.Id, pokemon.Name)
+
+	r := mux.NewRouter()
+
+	r.HandleFunc("/api/v1/pokemons", controller.GetAllPokemons).Methods("GET")
+	r.HandleFunc("/api/v1/pokemons/{pokemonId}", controller.GetPokemonById).Methods("GET")
+
+	server := &http.Server{
+		Handler: r,
+		Addr:    "127.0.0.1:8000",
+		// Good practice: enforce timeouts for servers you create!
+		WriteTimeout: 15 * time.Second,
+		ReadTimeout:  15 * time.Second,
 	}
 
-	pokemon, err := pokemonRepository.GetById(5)
-
-	if err != nil {
-		panic(err)
-	}
-	fmt.Println(pokemon.Id, pokemon.Name)
-
-	pokemonService, err := service.NewPokemonService()
-
-	if err != nil {
-		panic(err)
-	}
-	pokemonService.Saludo()
+	log.Fatal(server.ListenAndServe())
 }
