@@ -3,6 +3,7 @@ package csv
 import (
 	"bootcamp/usecase/csv"
 	"bootcamp/service/network"
+	"bootcamp/utils"
 	"net/http"
 	"github.com/gorilla/mux"
 	"strconv"
@@ -26,6 +27,14 @@ func GetPokemon(w http.ResponseWriter, r *http.Request) {
 
 			err = errors.New("Invalid index")
 		}
+	}
+
+	queryParams := r.URL.Query()
+
+	if len(queryParams) > 0 {
+		pokemon:= utils.GetPokemonByKey(queryParams, pokemonList)
+		network.Response(w, pokemon, err)
+		return
 	}
 
 	network.ResponseList(w, pokemonList, err)

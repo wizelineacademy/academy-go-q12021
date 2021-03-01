@@ -11,6 +11,8 @@ import (
 	"github.com/spf13/viper"
 	"gopkg.in/mgo.v2/bson"
 	"errors"
+	"net/url"
+	"reflect"
 )
 
 func GetEnvVar(key string) string {
@@ -91,4 +93,25 @@ func ReadCSV() (model.PokemonList, error) {
 		return nil, err
 	}
 	return nil, err
+}
+
+func getFieldString(pokemon *model.Pokemon, field string) string {
+	r := reflect.ValueOf(pokemon)
+	f := reflect.Indirect(r).FieldByName(field)
+	return f.String()
+}
+
+func GetPokemonByKey(params url.Values, pokemonList model.PokemonList) model.Pokemon {
+	var filteredPokemon model.Pokemon
+	key := reflect.ValueOf(params).MapKeys()[0].Interface().(string)
+	value := params[key][0]
+	
+	for _, pokemon := range pokemonList {
+		if getFieldString(&pokemon, key) == value {
+			filteredPokemon = pokemon
+			break
+		}
+	}
+
+	return filteredPokemon
 }
