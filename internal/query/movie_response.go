@@ -1,0 +1,40 @@
+package query
+
+import "github.com/maestre3d/academy-go-q12021/internal/aggregate"
+
+// MovieResponse Movie's DTO used for representation layer(s)
+type MovieResponse struct {
+	MovieID     string `json:"movie_id"`
+	DisplayName string `json:"display_name"`
+	Director    string `json:"director"`
+	ReleaseYear int    `json:"release_year"`
+}
+
+// MoviesResponse A list of movies as DTO used for representation layer(s)
+type MoviesResponse struct {
+	Movies     []MovieResponse `json:"movies"`
+	TotalItems int             `json:"total_items"`
+	NextPage   string          `json:"next_page"`
+}
+
+func marshalMovieResponse(m *aggregate.Movie) MovieResponse {
+	return MovieResponse{
+		MovieID:     string(m.ID),
+		DisplayName: string(m.DisplayName),
+		Director:    string(m.Director),
+		ReleaseYear: int(m.ReleaseYear),
+	}
+}
+
+func marshalMoviesResponse(nextPage string, movies ...*aggregate.Movie) MoviesResponse {
+	moviesResp := make([]MovieResponse, 0)
+	for _, m := range movies {
+		moviesResp = append(moviesResp, marshalMovieResponse(m))
+	}
+
+	return MoviesResponse{
+		Movies:     moviesResp,
+		TotalItems: len(moviesResp),
+		NextPage:   nextPage,
+	}
+}
