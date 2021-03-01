@@ -10,7 +10,6 @@ import (
 )
 
 func main() {
-
 	r := mux.NewRouter()
 
 	r.HandleFunc("/api/v1/pokemons", controller.GetAllPokemons).Methods("GET")
