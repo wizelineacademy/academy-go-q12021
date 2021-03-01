@@ -6,6 +6,8 @@ import (
 	"pokeapi/service"
 )
 
+const pathFile = "./csv/pokemon.csv"
+
 type Usecase struct {
 	csvService service.NewCsvService
 }
@@ -21,7 +23,6 @@ func New(s service.NewCsvService) *Usecase {
 }
 
 func (us *Usecase) GetPokemons() ([]model.Pokemon, *model.Error) {
-	const pathFile = "./csv/pokemon.csv"
 	f, err := us.csvService.Open(pathFile)
 
 	if err != nil {
@@ -34,7 +35,6 @@ func (us *Usecase) GetPokemons() ([]model.Pokemon, *model.Error) {
 }
 
 func (us *Usecase) GetPokemon(pokemonId int) (model.Pokemon, *model.Error) {
-	const pathFile = "./csv/pokemon.csv"
 	f, err := us.csvService.Open(pathFile)
 
 	if err != nil {
@@ -47,7 +47,6 @@ func (us *Usecase) GetPokemon(pokemonId int) (model.Pokemon, *model.Error) {
 }
 
 func (us *Usecase) GetPokemonsFromExternalAPI(newPokes *[]model.SinglePokeExternal) *model.Error {
-	const pathFile = "./csv/pokemon.csv"
 	f, _ := us.csvService.Open(pathFile) //Read only
 	lines, _ := us.csvService.ReadAllLines(f)
 	f, err := us.csvService.OpenAndWrite(pathFile) // Write
