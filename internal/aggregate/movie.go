@@ -12,7 +12,7 @@ import (
 type Movie struct {
 	ID          valueobject.MovieID
 	DisplayName valueobject.DisplayName
-	Director    valueobject.DisplayName
+	Directors   []valueobject.DisplayName
 	ReleaseYear valueobject.ReleaseYear
 
 	events []domain.Event
@@ -24,15 +24,15 @@ var (
 )
 
 // NewMovie creates a Movie and pushes the respective domain event
-func NewMovie(id valueobject.MovieID, name valueobject.DisplayName, director valueobject.DisplayName,
-	year valueobject.ReleaseYear) *Movie {
+func NewMovie(id valueobject.MovieID, name valueobject.DisplayName,
+	year valueobject.ReleaseYear, directors ...valueobject.DisplayName) *Movie {
 	return &Movie{
 		ID:          id,
 		DisplayName: name,
-		Director:    director,
+		Directors:   directors,
 		ReleaseYear: year,
 		events: []domain.Event{
-			event.NewMovieCreated(id, name, director, year),
+			event.NewMovieCreated(id, name, year, directors...),
 		},
 	}
 }
