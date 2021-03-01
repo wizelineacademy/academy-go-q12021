@@ -14,7 +14,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// Start a pre-configured HTTP Server
+// StartServer bootstraps a pre-configured HTTP Server
 func StartServer(lc fx.Lifecycle, cfg infrastructure.Configuration, logger *zap.Logger, mux *mux.Router,
 	gw ControllersGatewayFx) {
 	prefix := NewVersioning(cfg)
@@ -26,7 +26,7 @@ func StartServer(lc fx.Lifecycle, cfg infrastructure.Configuration, logger *zap.
 func routeControllers(prefix string, serveMux *mux.Router, gateway ControllersGatewayFx) {
 	public := serveMux.PathPrefix(prefix).Subrouter()
 	for _, c := range gateway.Controllers {
-		c.Route(public)
+		c.MapRoutes(public)
 	}
 }
 
