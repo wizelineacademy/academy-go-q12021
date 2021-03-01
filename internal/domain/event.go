@@ -1,6 +1,8 @@
 package domain
 
 // Event is a representation of aggregate's mutations inside the system in order to propagate side-effects to the same or external system(s).
+//
+// Something happened that domain experts care about.
 type Event interface {
 	// Kind returns the specific type of the event using the Async API naming specification
 	Kind() string
