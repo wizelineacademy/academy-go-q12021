@@ -4,6 +4,7 @@ import (
 	"encoding/csv"
 	"io"
 	"os"
+	"path/filepath"
 	"strconv"
 
 	"github.com/Topi99/academy-go-q12021/domain/model"
@@ -24,7 +25,8 @@ func NewPokemonRepository() PokemonRepository {
 }
 
 func (po *pokemonRepository) FindOne(id uint) (*model.Pokemon, error) {
-	f, err := os.Open("../../infrastructure/datastore/pokemons.csv")
+	absPath, _ := filepath.Abs("infrastructure/datastore/pokemons.csv")
+	f, err := os.Open(absPath)
 
 	if err != nil {
 		return nil, err
