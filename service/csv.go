@@ -13,44 +13,47 @@ import (
 
 const pathFile = "./csv/pokemon.csv"
 
-var pokemons []model.Pokemon = nil
-var csvFile *os.File
-
 type CsvService struct{}
 
 type NewCsvService interface {
-	GetPokemons() ([]model.Pokemon, *model.Error)
-	GetPokemon(pokemonId int) (model.Pokemon, *model.Error)
-	AddLineCsv(newPokes *[]model.SinglePokeExternal) *model.Error
+	GetPokemons(f *os.File) ([]model.Pokemon, *model.Error)
+	GetPokemon(pokemonId int, f *os.File) (model.Pokemon, *model.Error)
+	AddLine(f *os.File, l [][]string, newPokes *[]model.SinglePokeExternal) *model.Error
+	Open(path string) (*os.File, error)
+	OpenAndWrite(path string) (*os.File, error)
+	ReadAllLines(f *os.File) ([][]string, *model.Error)
 }
 
 func New() *CsvService {
 	return &CsvService{}
 }
 
-func openCsv() error {
-	f, err := os.Open(pathFile)
-	csvFile = f
+func (s *CsvService) Open(path string) (*os.File, error) {
+	f, err := os.Open(path)
 	if err != nil {
 		fmt.Printf("There was an error opening the file: %v\n", err)
-		return errors.New(err.Error())
+		return nil, errors.New("There was an error opening the file")
 	}
-	return nil
+	return f, nil
 }
 
-func readCsv() ([]model.Pokemon, *model.Error) {
-	openError := openCsv()
-	if openError != nil {
-		return nil, &model.Error{
-			Message: openError.Error(),
-			Code:    http.StatusInternalServerError,
-		}
+func (s *CsvService) OpenAndWrite(path string) (*os.File, error) {
+	f, err := os.OpenFile(path, os.O_RDONLY|os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0644)
+	if err != nil {
+		fmt.Printf("There was an error opening the file: %v\n", err)
+		return nil, errors.New("There was an error opening the file")
 	}
-	reader := csv.NewReader(csvFile)
+	return f, nil
+}
+
+func Read(f *os.File) ([]model.Pokemon, *model.Error) {
+
+	reader := csv.NewReader(f)
 	reader.Comma = ','
 	reader.Comment = '#'
 	reader.FieldsPerRecord = -1
 
+	var pokemons []model.Pokemon = nil
 	for {
 		line, err := reader.Read()
 
@@ -88,20 +91,13 @@ func readCsv() ([]model.Pokemon, *model.Error) {
 
 		pokemons = append(pokemons, tempPokemon)
 	}
-	defer csvFile.Close()
+	defer f.Close()
 
 	return pokemons, nil
 }
 
-func (s *CsvService) AddLineCsv(newPokes *[]model.SinglePokeExternal) *model.Error {
-	openError := openCsv()
-	if openError != nil {
-		return &model.Error{
-			Message: openError.Error(),
-			Code:    http.StatusInternalServerError,
-		}
-	}
-	reader := csv.NewReader(csvFile)
+func (s *CsvService) ReadAllLines(f *os.File) ([][]string, *model.Error) {
+	reader := csv.NewReader(f)
 	reader.Comma = ','
 	reader.Comment = '#'
 	reader.FieldsPerRecord = -1
@@ -111,23 +107,20 @@ func (s *CsvService) AddLineCsv(newPokes *[]model.SinglePokeExternal) *model.Err
 
 		e := model.Error{
 			Code:    http.StatusInternalServerError,
-			Message: err.Error(),
+			Message: "Error trying to read the lines of the file",
 		}
-		return &e
+		return nil, &e
 	}
+
+	defer f.Close()
+
+	return lines, nil
+}
+
+func (s *CsvService) AddLine(f *os.File, lines [][]string, newPokes *[]model.SinglePokeExternal) *model.Error {
+
 	linesNumber := len(lines) + 1
-	defer csvFile.Close()
 
-	f, err := os.OpenFile(pathFile, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0644)
-	if err != nil {
-		fmt.Println(err)
-
-		e := model.Error{
-			Code:    http.StatusInternalServerError,
-			Message: err.Error(),
-		}
-		return &e
-	}
 	w := csv.NewWriter(f)
 	for _, pokemon := range *newPokes {
 		w.Write([]string{strconv.Itoa(linesNumber), pokemon.Name, pokemon.URL})
@@ -138,8 +131,9 @@ func (s *CsvService) AddLineCsv(newPokes *[]model.SinglePokeExternal) *model.Err
 	return nil
 }
 
-func (s *CsvService) GetPokemon(pokemonId int) (model.Pokemon, *model.Error) {
-	pokes, err := readCsv()
+func (s *CsvService) GetPokemon(pokemonId int, f *os.File) (model.Pokemon, *model.Error) {
+
+	pokes, err := Read(f)
 
 	if err != nil {
 		err := model.Error{
@@ -160,8 +154,9 @@ func (s *CsvService) GetPokemon(pokemonId int) (model.Pokemon, *model.Error) {
 	return tempPokemon, nil
 }
 
-func (s *CsvService) GetPokemons() ([]model.Pokemon, *model.Error) {
-	pokes, err := readCsv()
+func (s *CsvService) GetPokemons(f *os.File) ([]model.Pokemon, *model.Error) {
+
+	pokes, err := Read(f)
 
 	if err != nil {
 		err := model.Error{
