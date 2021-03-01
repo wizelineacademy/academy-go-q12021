@@ -1,0 +1,59 @@
+movie_id,display_name,director_name,release_year
+1,Gone Girl,David Fincher,2014
+2,Seven,David Fincher,1995
+3,Blade Runner 2049,Denis Villeneuve,2017
+4,Prisioners,Denis Villeneuve,2013
+5,Arrival,Denis Villeneuve,2016
+6,Mank,David Fincher,2020
+7,Blade Runner,Ridley Scott,1982
+8,Black Hawk Down,Ridley Scott,2001
+9,Gladiator,Ridley Scott,2000
+10,A Clockwork Orange,Stanley Kubrick,1971
+11,2001: A Space Odissey,Stanley Kubrick,1968
+12,Paths of Glory,Stanley Kubrick,1957
+13,The Shining,Stanley Kubrick,1980
+14,Dr. Stangelove or: How I Learned to Stop Worrying and Love the Bomb,Stanley Kubrick,1965
+15,Eyes Wide Shut,Stanley Kubrick,1999
+16,Dune,Denis Villeneuve,2021
+17,No Country for Old Men,Ethan & Joel Coen,2007
+18,There Will Be Blood,Paul Thomas Anderson,2007
+19,The Big Lebowski,Ethan & Joel Coen,1998
+20,Seven Samurai,Akira Kurosawa,1954
+21,Casablanca,Michael Curtiz,1943
+22,Citizen Kane,Orson Welles,1941
+23,Stalker,Andrei Tarkovsky,1979
+24,Solaris,Andrei Tarkovsky,1971
+25,The Seventh Seal,Igmar Bergman,1957
+26,Touch of Evil,Orson Welles,1958
+27,The Master,Paul Thomas Anderson,2012
+28,The Grand Budapest Hotel,Wes Anderson,2014
+29,Fantastic Mr. Fox,Wes Anderson,2009
+30,8½,Federico Fellini,1964
+31,Inside Llewyn Davis,Ethan & Joel Coen,2013
+32,Drive,Nicolas Winding Refn,2011
+33,Inglorious Basterds,Quentin Tarantino,2009
+34,Taxi Driver,Martin Scorsese,1976
+35,Goodfellas,Martin Scorsese,1990
+36,Memories of Murder,Bong Joon-ho,2003
+37,Pulp Fiction,Quentin Tarantino,1994
+38,The Social Network,David Fincher,2010
+39,Midnight in Paris,Woody Allen,2011
+40,Psycho,Alfred Hitchcock,1960
+41,The Thing,John Carpenter,1982
+42,Children of Men,Alfonso Cuaron,2006
+43,Birdman or (The Unexpected Virtue of Ignorance),Alejandro González Iñárritu,2014
+43,The Revenant,Alejandro González Iñárritu,2015
+44,Amores Perros,Alejandro González Iñárritu,2000
+45,Vertigo,Alfred Hitchcock,1958
+46,The Shape of Water,Guillermo Del Toro,2017
+47,Full Metal Jacket,Stanley Kubrick,1987
+48,Zodiac,David Fincher,2007
+49,Mad Max: Fury Road,George Miller,2015
+50,"The Good, the Bad and the Ugly",Sergio Leone,1966
+51,The Godfather,Francis Ford Coppola,1972
+52,Apocalypse Now,Francis Ford Coppola,1979
+53,Once Upon Time in America,Sergio Leone,1984
+54,Phantom Thread,Paul Thomas Anderson,2017
+55,The Wolf of Wall Street,Martin Scorsese,2013
+56,Raging Bull,Martin Scorsese,1980
+57,Casino,Martin Scorsese,1995
