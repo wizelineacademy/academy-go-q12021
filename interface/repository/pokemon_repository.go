@@ -10,8 +10,6 @@ import (
 	"github.com/Topi99/academy-go-q12021/usecase/repository"
 )
 
-const file_ext = ".csv"
-
 type pokemonRepository struct {
 }
 
@@ -26,9 +24,7 @@ func NewPokemonRepository() PokemonRepository {
 }
 
 func (po *pokemonRepository) FindOne(id uint) (*model.Pokemon, error) {
-	var p *model.Pokemon
-
-	f, err := os.Open(p.TableName() + file_ext)
+	f, err := os.Open("../../infrastructure/datastore/pokemons.csv")
 
 	if err != nil {
 		return nil, err
@@ -56,9 +52,11 @@ func (po *pokemonRepository) FindOne(id uint) (*model.Pokemon, error) {
 		uintID := uint(recordID)
 
 		if uintID == id {
-			p.ID = uintID
-			p.Name = record[1]
-			p.URL = record[2]
+			p := &model.Pokemon{
+				ID:   uintID,
+				Name: record[1],
+				URL:  record[2],
+			}
 			return p, nil
 		}
 	}
