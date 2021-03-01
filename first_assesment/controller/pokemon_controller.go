@@ -1,12 +1,11 @@
 package controller
 
 import (
-	"encoding/json"
-	"first/core"
-	"first/service"
+	"log"
 	"net/http"
+	"time"
 
-	"strconv"
+	"first/controller"
 
 	"github.com/gorilla/mux"
 )
