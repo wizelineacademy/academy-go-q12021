@@ -27,8 +27,11 @@ func TestFindOne(t *testing.T) {
 
 	for _, tp := range tests {
 		r := repository.NewPokemonRepository()
-		_, err := r.FindOne(tp.id)
+		p, err := r.FindOne(tp.id)
 
 		assert.Equal(t, err, tp.want)
+		if p != nil && err == nil {
+			assert.Equal(t, p.ID, tp.id)
+		}
 	}
 }
