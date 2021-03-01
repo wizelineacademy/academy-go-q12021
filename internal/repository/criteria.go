@@ -20,8 +20,7 @@ const (
 	BeginsWithCondition     = "BEGINS_WITH"
 )
 
-// Criteria Newton DSL query lang
-//	DTO
+// Criteria Movies application DSL query lang
 type Criteria struct {
 	Limit      int    `json:"limit"`
 	NextPage   string `json:"next_page"`
