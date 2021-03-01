@@ -15,9 +15,9 @@ movie_id,display_name,director_name,release_year
 14,Dr. Stangelove or: How I Learned to Stop Worrying and Love the Bomb,Stanley Kubrick,1965
 15,Eyes Wide Shut,Stanley Kubrick,1999
 16,Dune,Denis Villeneuve,2021
-17,No Country for Old Men,Ethan & Joel Coen,2007
+17,No Country for Old Men,"Ethan Coen,Joel Coen",2007
 18,There Will Be Blood,Paul Thomas Anderson,2007
-19,The Big Lebowski,Ethan & Joel Coen,1998
+19,The Big Lebowski,"Ethan Coen,Joel Coen",1998
 20,Seven Samurai,Akira Kurosawa,1954
 21,Casablanca,Michael Curtiz,1943
 22,Citizen Kane,Orson Welles,1941
@@ -29,7 +29,7 @@ movie_id,display_name,director_name,release_year
 28,The Grand Budapest Hotel,Wes Anderson,2014
 29,Fantastic Mr. Fox,Wes Anderson,2009
 30,8½,Federico Fellini,1964
-31,Inside Llewyn Davis,Ethan & Joel Coen,2013
+31,Inside Llewyn Davis,"Ethan Coen,Joel Coen",2013
 32,Drive,Nicolas Winding Refn,2011
 33,Inglorious Basterds,Quentin Tarantino,2009
 34,Taxi Driver,Martin Scorsese,1976
