@@ -1,5 +1,6 @@
 package model
 
+// Pokemon is a struct that contains basic Pokemon information
 type Pokemon struct {
 	
 	Id int						`json:"id"`
@@ -9,4 +10,5 @@ type Pokemon struct {
 	Region string			`json:"region"`
 }
 
+// PokemonList is an array of Pokemon
 type PokemonList []Pokemon

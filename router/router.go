@@ -1,14 +1,17 @@
 package router
 
 import (
-	"bootcamp/domain/model"
-	"bootcamp/controller/hello"
-	"bootcamp/controller/csv"
-	"bootcamp/controller/pokemon"
-	"github.com/gorilla/mux"
 	"net/http"
+	"bootcamp/controller/csv"
+	"bootcamp/controller/hello"
+	"bootcamp/controller/pokemon"
+	"bootcamp/domain/model"
+	"github.com/gorilla/mux"
 )
 
+/*
+NewRouter implements a gorilla/mux router with the routes of the API
+*/
 func NewRouter() *mux.Router {
 	router := mux.NewRouter().StrictSlash(true)
 	for _, route := range routes {

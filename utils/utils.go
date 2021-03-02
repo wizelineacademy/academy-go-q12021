@@ -1,37 +1,37 @@
 package utils
 
 import (
-	"bootcamp/domain/model"
-	"log"
+	"encoding/csv"
+	"encoding/json"
+	"errors"
 	"io"
 	"os"
-	"encoding/json"
 	"strconv"
-	"encoding/csv"
-	"github.com/spf13/viper"
-	"gopkg.in/mgo.v2/bson"
-	"errors"
 	"net/url"
 	"reflect"
+	"bootcamp/domain/model"
+	"github.com/spf13/viper"
+	"gopkg.in/mgo.v2/bson"
 )
 
-func GetEnvVar(key string) string {
+/*
+GetEnvVar gets a given envar by key
+*/
+func GetEnvVar(key string) (string, error) {
   viper.SetConfigFile(".env")
   err := viper.ReadInConfig()
-
-  if err != nil {
-    log.Fatalf("Error while reading config file %s", err)
-  }
-
   value, ok := viper.Get(key).(string)
 
   if !ok {
-    log.Fatalf("Invalid type assertion")
+    err = errors.New("Invalid type assertion")
   }
 
-  return value
+  return value, err
 }
 
+/*
+GetObjectIdFromParams transforms an /{id} to a ObjectId
+*/
 func GetObjectIdFromParams(params map[string]string) (bson.ObjectId, error) {
 	var objectId bson.ObjectId
 	id := params["id"]
@@ -44,6 +44,9 @@ func GetObjectIdFromParams(params map[string]string) (bson.ObjectId, error) {
 	return objectId, nil
 }
 
+/*
+GetPokemonFromReader decode Pokemon from reader (body request) and returns the Pokemon information
+*/
 func GetPokemonFromReader(reader io.ReadCloser) (model.Pokemon, error) {
 	var tempPokemon model.Pokemon
 	decoder := json.NewDecoder(reader)
@@ -56,6 +59,9 @@ func GetPokemonFromReader(reader io.ReadCloser) (model.Pokemon, error) {
 	return tempPokemon, err
 }
 
+/*
+ReadCSV read a CSV with Pokemon information and transform the content to the Pokemon struct type
+*/
 func ReadCSV() (model.PokemonList, error) {
 	var pokemonList model.PokemonList
 	recordFile, err := os.Open("assets/pokemon.csv")
@@ -90,8 +96,8 @@ func ReadCSV() (model.PokemonList, error) {
 		
 			return pokemonList, nil
 		}
-		return nil, err
 	}
+
 	return nil, err
 }
 
@@ -101,6 +107,9 @@ func getFieldString(pokemon *model.Pokemon, field string) string {
 	return f.String()
 }
 
+/*
+GetPokemonByKey returns a Pokemon filtered by a query param property for the given PokemonList
+*/
 func GetPokemonByKey(params url.Values, pokemonList model.PokemonList) model.Pokemon {
 	var filteredPokemon model.Pokemon
 	key := reflect.ValueOf(params).MapKeys()[0].Interface().(string)
