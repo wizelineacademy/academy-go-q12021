@@ -1,16 +1,16 @@
 package main
 
 import (
-	"bootcamp/router"
-	"bootcamp/utils"
 	"fmt"
 	"log"
 	"net/http"
+	"bootcamp/router"
+	"bootcamp/utils"
 )
 
 func main() {
 	rt := router.NewRouter()
-	port := utils.GetEnvVar("PORT")
+	port, _ := utils.GetEnvVar("PORT")
 
 	fmt.Println("Server listening in port" + port)
 
