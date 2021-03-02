@@ -8,7 +8,7 @@ import (
 	"strconv"
 )
 
-var AllJokes []model.Joke
+var allJokes []model.Joke
 
 //Load this will load the data from the csv
 func LoadData() {
@@ -33,7 +33,12 @@ func LoadData() {
 		insert.ID, err = strconv.Atoi(rec[0])
 		insert.Setup = rec[1]
 		insert.Punchline = rec[2]
-		AllJokes = append(AllJokes, insert)
+		allJokes = append(allJokes, insert)
 	}
 
+}
+
+//ReadData will return the data from the file
+func ReadData() []model.Joke {
+	return allJokes
 }
