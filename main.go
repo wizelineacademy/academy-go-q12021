@@ -9,18 +9,16 @@ import (
 	"os"
 	"strconv"
 
-	//"academy-go-q12021/domain/model/book"
-
 	"github.com/gorilla/mux"
 )
 
 // Book contains information about each book
 type Book struct {
-	ID       int
-	isbn     string
-	authors  string
-	year     int
-	imageURL string
+	ID       int    `json:"id"`
+	Isbn     string `json:"isbn"`
+	Authors  string `json:"authors"`
+	Year     int    `json:"year"`
+	ImageURL string `json:"imageURL"`
 }
 
 func loadData(books []Book, path string) []Book {
@@ -58,7 +56,7 @@ func loadData(books []Book, path string) []Book {
 			log.Fatal(errConv)
 		}
 
-		books = append(books, Book{ID: id, isbn: record[1], authors: record[3], year: int(year), imageURL: record[5]})
+		books = append(books, Book{ID: id, Isbn: record[1], Authors: record[3], Year: int(year), ImageURL: record[5]})
 
 	}
 
