@@ -86,7 +86,7 @@ Based on the self-study material and mentorship covered until this deliverable, 
 - The information obtained should be stored in the CSV file
 - Add unit testing
 - Update the endpoint made in the first deliverable to display the result as a JSON
-- Refator if needed
+- Refactor if needed
 
 > Note: what’s listed in this deliverable is just for guidance and to help you distribute your workload; you can deliver more or fewer items if necessary. However, if you deliver fewer items at this point, you have to cover the remaining tasks in the next deliverable.
 
