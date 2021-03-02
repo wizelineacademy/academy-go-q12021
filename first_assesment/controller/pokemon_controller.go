@@ -34,7 +34,7 @@ func GetAllPokemons(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(pokemons)
 }
 
-func GetPokemonById(w http.ResponseWriter, r *http.Request) {
+func GetPokemonByID(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	pokemonService, err := service.NewPokemonService()
