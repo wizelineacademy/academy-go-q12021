@@ -2,6 +2,7 @@ package updatefile
 
 import (
 	"academy/model"
+	"academy/services/dataload"
 	"encoding/csv"
 	"fmt"
 	"os"
@@ -47,4 +48,5 @@ func UpdateFile(jsonData []model.Joke) {
 	}
 
 	writer.Flush()
+	dataload.LoadData()
 }
