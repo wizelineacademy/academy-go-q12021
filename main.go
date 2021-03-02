@@ -1,7 +1,11 @@
 package main
 
-import "academy/server"
+import (
+	"academy/router"
+	"academy/services/dataload"
+)
 
 func main() {
-	server.InitServer()
+	dataload.LoadData()
+	router.InitServer()
 }
