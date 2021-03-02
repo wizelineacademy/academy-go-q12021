@@ -15,7 +15,7 @@ func main() {
 	r := mux.NewRouter()
 
 	r.HandleFunc("/api/v1/pokemons", controller.GetAllPokemons).Methods("GET")
-	r.HandleFunc("/api/v1/pokemons/{pokemonId}", controller.GetPokemonById).Methods("GET")
+	r.HandleFunc("/api/v1/pokemons/{pokemonId}", controller.GetPokemonByID).Methods("GET")
 
 	viper.SetDefault("Address", "localhost:8080")
 	viper.SetDefault("WriteTimeout", "15")

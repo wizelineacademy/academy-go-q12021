@@ -7,6 +7,7 @@ import (
 	"first/model"
 
 	"github.com/gocarina/gocsv"
+	"github.com/spf13/viper"
 )
 
 type PokemonRepository struct {
@@ -14,8 +15,9 @@ type PokemonRepository struct {
 }
 
 func NewPokemonRepository() (*PokemonRepository, error) {
+	pokemonFile := viper.Get("CSVFile").(string)
 	return &PokemonRepository{
-		file: "csv/input_file.csv",
+		file: pokemonFile,
 	}, nil
 
 }
