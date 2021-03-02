@@ -2,27 +2,30 @@ package usecase
 
 import (
 	"net/http"
+
 	"pokeapi/model"
-	"pokeapi/service"
+	csvservice "pokeapi/service/csv"
+	httpservice "pokeapi/service/http"
 )
 
 const pathFile = "./csv/pokemon.csv"
 
-type Usecase struct {
-	csvService service.NewCsvService
+type PokemonUsecase struct {
+	csvService  csvservice.NewCsvService
+	httpService httpservice.NewHttpService
 }
 
-type IUsecase interface {
+type NewPokemonUsecase interface {
 	GetPokemons() ([]model.Pokemon, *model.Error)
 	GetPokemon(pokemonId int) (model.Pokemon, *model.Error)
-	GetPokemonsFromExternalAPI(newPokemons *[]model.SinglePokeExternal) *model.Error
+	GetPokemonsFromExternalAPI() (*[]model.SinglePokeExternal, *model.Error)
 }
 
-func New(s service.NewCsvService) *Usecase {
-	return &Usecase{s}
+func New(s csvservice.NewCsvService, h httpservice.NewHttpService) *PokemonUsecase {
+	return &PokemonUsecase{s, h}
 }
 
-func (us *Usecase) GetPokemons() ([]model.Pokemon, *model.Error) {
+func (us *PokemonUsecase) GetPokemons() ([]model.Pokemon, *model.Error) {
 	f, err := us.csvService.Open(pathFile)
 
 	if err != nil {
@@ -34,7 +37,7 @@ func (us *Usecase) GetPokemons() ([]model.Pokemon, *model.Error) {
 	return us.csvService.GetPokemons(f)
 }
 
-func (us *Usecase) GetPokemon(pokemonId int) (model.Pokemon, *model.Error) {
+func (us *PokemonUsecase) GetPokemon(pokemonId int) (model.Pokemon, *model.Error) {
 	f, err := us.csvService.Open(pathFile)
 
 	if err != nil {
@@ -46,17 +49,17 @@ func (us *Usecase) GetPokemon(pokemonId int) (model.Pokemon, *model.Error) {
 	return us.csvService.GetPokemon(pokemonId, f)
 }
 
-func (us *Usecase) GetPokemonsFromExternalAPI(newPokes *[]model.SinglePokeExternal) *model.Error {
+func (us *PokemonUsecase) GetPokemonsFromExternalAPI() (*[]model.SinglePokeExternal, *model.Error) {
 	f, _ := us.csvService.Open(pathFile) //Read only
 	lines, _ := us.csvService.ReadAllLines(f)
-	f, err := us.csvService.OpenAndWrite(pathFile) // Write
+	fileOpenAndWrite, _ := us.csvService.OpenAndWrite(pathFile) // Write
 
-	if err != nil {
-		return &model.Error{
-			Message: err.Error(),
-			Code:    http.StatusInternalServerError,
-		}
+	newPokemons, httpErr := us.httpService.GetPokemons()
+
+	if httpErr != nil {
+		return nil, httpErr
 	}
 
-	return us.csvService.AddLine(f, lines, newPokes)
+	us.csvService.AddLine(fileOpenAndWrite, lines, &newPokemons)
+	return &newPokemons, nil
 }

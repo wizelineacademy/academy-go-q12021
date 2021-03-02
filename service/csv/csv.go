@@ -1,14 +1,14 @@
-package service
+package csvservice
 
 import (
 	"encoding/csv"
 	"errors"
-	"fmt"
 	"io"
 	"net/http"
 	"os"
-	"pokeapi/model"
 	"strconv"
+
+	"pokeapi/model"
 )
 
 const pathFile = "./csv/pokemon.csv"
@@ -31,7 +31,6 @@ func New() *CsvService {
 func (s *CsvService) Open(path string) (*os.File, error) {
 	f, err := os.Open(path)
 	if err != nil {
-		fmt.Printf("There was an error opening the file: %v\n", err)
 		return nil, errors.New("There was an error opening the file")
 	}
 	return f, nil
@@ -40,7 +39,6 @@ func (s *CsvService) Open(path string) (*os.File, error) {
 func (s *CsvService) OpenAndWrite(path string) (*os.File, error) {
 	f, err := os.OpenFile(path, os.O_RDONLY|os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0644)
 	if err != nil {
-		fmt.Printf("There was an error opening the file: %v\n", err)
 		return nil, errors.New("There was an error opening the file")
 	}
 	return f, nil
@@ -62,8 +60,6 @@ func Read(f *os.File) ([]model.Pokemon, *model.Error) {
 		}
 
 		if err != nil {
-			fmt.Printf("There was an error reading something in line: %v\n", err)
-
 			err := model.Error{
 				Code:    http.StatusInternalServerError,
 				Message: err.Error(),
@@ -78,8 +74,6 @@ func Read(f *os.File) ([]model.Pokemon, *model.Error) {
 		if line[0] != "" {
 			id, err := strconv.Atoi(line[0])
 			if err != nil {
-				fmt.Printf("There was an error trying to process the ID: %v\n", err)
-
 				err := model.Error{
 					Code:    http.StatusInternalServerError,
 					Message: err.Error(),
@@ -103,8 +97,6 @@ func (s *CsvService) ReadAllLines(f *os.File) ([][]string, *model.Error) {
 	reader.FieldsPerRecord = -1
 	lines, err := reader.ReadAll()
 	if err != nil {
-		fmt.Println(err)
-
 		e := model.Error{
 			Code:    http.StatusInternalServerError,
 			Message: "Error trying to read the lines of the file",

@@ -1,16 +1,17 @@
-package service_test
+package csvservice_test
 
 import (
-	"pokeapi/model"
-	"pokeapi/service"
 	"testing"
+
+	"pokeapi/model"
+	csvservice "pokeapi/service/csv"
 
 	"github.com/stretchr/testify/assert"
 )
 
 func TestOpen(t *testing.T) {
 	pathFile := "../csv/pokemon.csv"
-	csvService := service.New()
+	csvService := csvservice.New()
 	f, _ := csvService.Open(pathFile)
 
 	assert.NotNil(t, f)
@@ -18,7 +19,7 @@ func TestOpen(t *testing.T) {
 
 func TestOpenError(t *testing.T) {
 	pathFile := "./csv/pokemon2.csv"
-	csvService := service.New()
+	csvService := csvservice.New()
 	_, err := csvService.Open(pathFile)
 
 	assert.Equal(t, err.Error(), "There was an error opening the file")
@@ -26,9 +27,9 @@ func TestOpenError(t *testing.T) {
 
 func TestRead(t *testing.T) {
 	pathFile := "../csv/pokemon.csv"
-	csvService := service.New()
+	csvService := csvservice.New()
 	f, _ := csvService.Open(pathFile)
-	pokemons, _ := service.Read(f)
+	pokemons, _ := csvservice.Read(f)
 	mockPokemons := []model.Pokemon{
 		{ID: 1, Name: "greninja", URL: "https://pokeapi.co/api/v2/pokemon/658/"},
 		{ID: 2, Name: "ursaring", URL: "https://pokeapi.co/api/v2/pokemon/217/"},
@@ -43,7 +44,7 @@ func TestRead(t *testing.T) {
 func TestAddLine(t *testing.T) {
 	pathFile := "../csv/pokemon.csv"
 
-	csvService := service.New()
+	csvService := csvservice.New()
 	fWrite, _ := csvService.OpenAndWrite(pathFile)
 	f, _ := csvService.Open(pathFile)
 	lines, _ := csvService.ReadAllLines(f)

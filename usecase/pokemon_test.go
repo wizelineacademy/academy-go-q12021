@@ -1,10 +1,11 @@
 package usecase_test
 
 import (
+	"testing"
+
 	"pokeapi/mock"
 	"pokeapi/service"
 	"pokeapi/usecase"
-	"testing"
 
 	"github.com/stretchr/testify/assert"
 )

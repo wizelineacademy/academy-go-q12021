@@ -3,16 +3,19 @@ package main
 import (
 	"log"
 	"net/http"
+
 	"pokeapi/controller"
 	"pokeapi/router"
-	"pokeapi/service"
+	csvservice "pokeapi/service/csv"
+	httpservice "pokeapi/service/http"
 	"pokeapi/usecase"
 )
 
 func main() {
 
-	csvService := service.New()
-	usecase := usecase.New(csvService)
+	csvService := csvservice.New()
+	httpService := httpservice.New()
+	usecase := usecase.New(csvService, httpService)
 	controller := controller.New(usecase)
 
 	router := router.New(controller)
