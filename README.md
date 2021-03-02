@@ -1,5 +1,23 @@
 # Golang Bootcamp
 
+## How to run
+Use Makefile to run the project in development stage, will watch for changes in go files using `fswatch`
+
+> make serve
+
+Otherwise use
+
+> go run main.go
+
+### Short architecture explanation
+
+Using `container` as IoC provider to rely on interfaces not hard structs implementations
+
+- main.go :: just creates the server, wires IoC container
+- router.go :: sets the routes and wires controllers to it
+- controller :: controllers here, wires endpoint to services using `container` IoC container 
+- service :: atomic functionality to solve one necessity.
+
 ## Introduction
 
 Thank you for participating in the Golang Bootcamp course!
