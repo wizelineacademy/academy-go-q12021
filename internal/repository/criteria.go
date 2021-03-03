@@ -1,5 +1,7 @@
 package repository
 
+import "go.uber.org/zap"
+
 const (
 	// simple statements
 
@@ -70,4 +72,14 @@ type Filter struct {
 	Negate    bool        `json:"negate"`
 	Value     interface{} `json:"value"`
 	AltValue  interface{} `json:"alt_value"`
+}
+
+// marshalCriteriaFieldsLog returns an slice containing formatted criteria fields for logs using Uber zap
+func marshalCriteriaFieldsLog(criteria Criteria) []zap.Field {
+	return []zap.Field{
+		zap.String("criteria_next_page", criteria.NextPage),
+		zap.Int("criteria_limit", criteria.Limit),
+		zap.Int("criteria_total_filters", len(criteria.Query.Filters)),
+		zap.Bool("criteria_active_only", criteria.ActiveOnly),
+	}
 }

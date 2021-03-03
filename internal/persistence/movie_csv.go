@@ -29,8 +29,8 @@ func NewMovieCSV(config infrastructure.Configuration) *MovieCSV {
 	}
 }
 
-// Find retrieves a Movie by its ID
-func (m *MovieCSV) Find(ctx context.Context, id valueobject.MovieID) (*aggregate.Movie, error) {
+// Get retrieves a Movie by its ID
+func (m *MovieCSV) Get(ctx context.Context, id valueobject.MovieID) (*aggregate.Movie, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 

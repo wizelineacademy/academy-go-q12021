@@ -25,7 +25,7 @@ func NewMovie(r repository.Movie, eventBus domain.EventBus) *Movie {
 
 // GetByID fetches a movie (if any) by the given unique identifier
 func (m Movie) GetByID(ctx context.Context, id valueobject.MovieID) (*aggregate.Movie, error) {
-	movie, err := m.repo.Find(ctx, id)
+	movie, err := m.repo.Get(ctx, id)
 	if err != nil {
 		return nil, err
 	} else if movie == nil {
