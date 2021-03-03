@@ -10,8 +10,9 @@ import (
 
 var allJokes []model.Joke
 
-//Load this will load the data from the csv
+//LoadData this will load the data from the csv
 func LoadData() {
+	allJokes = append(allJokes[:0])
 	pwd, _ := os.Getwd()
 	csvFile, err := os.Open(pwd + "/data/data.csv")
 	if err != nil {
