@@ -46,8 +46,8 @@ func startServer(lc fx.Lifecycle, cfg infrastructure.Configuration, mux *mux.Rou
 	server := http.Server{
 		Addr:              addr,
 		Handler:           muxhandlers.CombinedLoggingHandler(os.Stdout, mux),
-		TLSConfig:         nil, // use TLS
-		ReadTimeout:       5 * time.Second,
+		TLSConfig:         nil,             // use TLS
+		ReadTimeout:       5 * time.Second, // timeouts based on Cloudflare article: https://blog.cloudflare.com/exposing-go-on-the-internet/
 		ReadHeaderTimeout: 10 * time.Second,
 		WriteTimeout:      10 * time.Second,
 		IdleTimeout:       120 * time.Second,
