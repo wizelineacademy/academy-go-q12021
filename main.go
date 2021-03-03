@@ -1,13 +1,14 @@
 package main
 
-import "github.com/gin-gonic/gin"
+import (
+	"github.com/dannegm/academy-go-q12021/controller"
+	"github.com/gin-gonic/gin"
+)
 
 func main() {
 	app := gin.Default()
-	app.GET("/ping", func(c *gin.Context) {
-		c.JSON(200, gin.H{
-			"message": "pong",
-		})
-	})
+
+	app.GET("/pokedex", controller.GetPokemonList)
+
 	app.Run()
 }
