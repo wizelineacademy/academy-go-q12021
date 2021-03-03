@@ -1,63 +1,63 @@
-movie_id,display_name,director_name,release_year
-1,Gone Girl,David Fincher,2014
-2,Seven,David Fincher,1995
-3,Blade Runner 2049,Denis Villeneuve,2017
-4,Prisoners,Denis Villeneuve,2013
-5,Arrival,Denis Villeneuve,2016
-6,Mank,David Fincher,2020
-7,Blade Runner,Ridley Scott,1982
-8,Black Hawk Down,Ridley Scott,2001
-9,Gladiator,Ridley Scott,2000
-10,A Clockwork Orange,Stanley Kubrick,1971
-11,2001: A Space Odissey,Stanley Kubrick,1968
-12,Paths of Glory,Stanley Kubrick,1957
-13,The Shining,Stanley Kubrick,1980
-14,Dr. Stangelove or: How I Learned to Stop Worrying and Love the Bomb,Stanley Kubrick,1965
-15,Eyes Wide Shut,Stanley Kubrick,1999
-16,Dune,Denis Villeneuve,2021
-17,No Country for Old Men,"Ethan Coen,Joel Coen",2007
-18,There Will Be Blood,Paul Thomas Anderson,2007
-19,The Big Lebowski,"Ethan Coen,Joel Coen",1998
-20,Seven Samurai,Akira Kurosawa,1954
-21,Casablanca,Michael Curtiz,1943
-22,Citizen Kane,Orson Welles,1941
-23,Stalker,Andrei Tarkovsky,1979
-24,Solaris,Andrei Tarkovsky,1971
-25,The Seventh Seal,Igmar Bergman,1957
-26,Touch of Evil,Orson Welles,1958
-27,The Master,Paul Thomas Anderson,2012
-28,The Grand Budapest Hotel,Wes Anderson,2014
-29,Fantastic Mr. Fox,Wes Anderson,2009
-30,8½,Federico Fellini,1964
-31,Inside Llewyn Davis,"Ethan Coen,Joel Coen",2013
-32,Drive,Nicolas Winding Refn,2011
-33,Inglorious Basterds,Quentin Tarantino,2009
-34,Taxi Driver,Martin Scorsese,1976
-35,Goodfellas,Martin Scorsese,1990
-36,Memories of Murder,Bong Joon-ho,2003
-37,Pulp Fiction,Quentin Tarantino,1994
-38,The Social Network,David Fincher,2010
-39,Midnight in Paris,Woody Allen,2011
-40,Psycho,Alfred Hitchcock,1960
-41,The Thing,John Carpenter,1982
-42,Children of Men,Alfonso Cuaron,2006
-43,Birdman or (The Unexpected Virtue of Ignorance),Alejandro González Iñárritu,2014
-43,The Revenant,Alejandro González Iñárritu,2015
-44,Amores Perros,Alejandro González Iñárritu,2000
-45,Vertigo,Alfred Hitchcock,1958
-46,The Shape of Water,Guillermo Del Toro,2017
-47,Full Metal Jacket,Stanley Kubrick,1987
-48,Zodiac,David Fincher,2007
-49,Mad Max: Fury Road,George Miller,2015
-50,"The Good, the Bad and the Ugly",Sergio Leone,1966
-51,The Godfather,Francis Ford Coppola,1972
-52,Apocalypse Now,Francis Ford Coppola,1979
-53,Once Upon Time in America,Sergio Leone,1984
-54,Phantom Thread,Paul Thomas Anderson,2017
-55,The Wolf of Wall Street,Martin Scorsese,2013
-56,Raging Bull,Martin Scorsese,1980
-57,Casino,Martin Scorsese,1995
-58,Interstellar,Christopher Nolan,2014
-59,Memento,Christopher Nolan,2000
-60,Tenet,Christopher Nolan,2020
-61,Dallas Buyers Club,Jean-Marc Vallée,2014
+movie_id,display_name,director_name,release_year,imdb_id
+1,Gone Girl,David Fincher,2014,tt2267998
+2,Seven,David Fincher,1995,tt0114369
+3,Blade Runner 2049,Denis Villeneuve,2017,tt1856101
+4,Prisoners,Denis Villeneuve,2013,tt1392214
+5,Arrival,Denis Villeneuve,2016,tt2543164
+6,Mank,David Fincher,2020,tt10618286
+7,Blade Runner,Ridley Scott,1982,tt0083658
+8,Black Hawk Down,Ridley Scott,2001,tt0265086
+9,Gladiator,Ridley Scott,2000,tt0172495
+10,A Clockwork Orange,Stanley Kubrick,1971,tt0066921
+11,2001: A Space Odissey,Stanley Kubrick,1968,tt0062622
+12,Paths of Glory,Stanley Kubrick,1957,tt0050825
+13,The Shining,Stanley Kubrick,1980,tt0081505
+14,Dr. Stangelove or: How I Learned to Stop Worrying and Love the Bomb,Stanley Kubrick,1965,tt0057012
+15,Eyes Wide Shut,Stanley Kubrick,1999,tt0120663
+16,Dune,Denis Villeneuve,2021,tt1160419
+17,No Country for Old Men,"Ethan Coen,Joel Coen",2007,tt0477348
+18,There Will Be Blood,Paul Thomas Anderson,2007,tt0469494
+19,The Big Lebowski,"Ethan Coen,Joel Coen",1998,tt0118715
+20,Seven Samurai,Akira Kurosawa,1954,tt0047478
+21,Casablanca,Michael Curtiz,1943,tt0034583
+22,Citizen Kane,Orson Welles,1941,tt0033467
+23,Stalker,Andrei Tarkovsky,1979,tt0079944
+24,Solaris,Andrei Tarkovsky,1971,tt0069293
+25,The Seventh Seal,Igmar Bergman,1957,tt0050976
+26,Touch of Evil,Orson Welles,1958,tt0052311
+27,The Master,Paul Thomas Anderson,2012,tt1560747
+28,The Grand Budapest Hotel,Wes Anderson,2014,tt2278388
+29,Fantastic Mr. Fox,Wes Anderson,2009,tt0432283
+30,8½,Federico Fellini,1964,tt0056801
+31,Inside Llewyn Davis,"Ethan Coen,Joel Coen",2013,tt2042568
+32,Drive,Nicolas Winding Refn,2011,tt0780504
+33,Inglorious Basterds,Quentin Tarantino,2009,tt0361748
+34,Taxi Driver,Martin Scorsese,1976,tt0075314
+35,Goodfellas,Martin Scorsese,1990,tt0099685
+36,Memories of Murder,Bong Joon-ho,2003,tt0353969
+37,Pulp Fiction,Quentin Tarantino,1994,tt0110912
+38,The Social Network,David Fincher,2010,tt1285016
+39,Midnight in Paris,Woody Allen,2011,tt1605783
+40,Psycho,Alfred Hitchcock,1960,tt0054215
+41,The Thing,John Carpenter,1982,tt0084787
+42,Children of Men,Alfonso Cuaron,2006,tt0206634
+43,Birdman or (The Unexpected Virtue of Ignorance),Alejandro González Iñárritu,2014,
+43,The Revenant,Alejandro González Iñárritu,2015,tt2562232
+44,Amores Perros,Alejandro González Iñárritu,2000,tt0245712
+45,Vertigo,Alfred Hitchcock,1958,tt0052357
+46,The Shape of Water,Guillermo Del Toro,2017,tt5580390
+47,Full Metal Jacket,Stanley Kubrick,1987,tt0093058
+48,Zodiac,David Fincher,2007,tt0443706
+49,Mad Max: Fury Road,George Miller,2015,tt1392190
+50,"The Good, the Bad and the Ugly",Sergio Leone,1966,tt0060196
+51,The Godfather,Francis Ford Coppola,1972,tt0068646
+52,Apocalypse Now,Francis Ford Coppola,1979,tt0078788
+53,Once Upon Time in America,Sergio Leone,1984,tt0087843
+54,Phantom Thread,Paul Thomas Anderson,2017,tt5776858
+55,The Wolf of Wall Street,Martin Scorsese,2013,tt0993846
+56,Raging Bull,Martin Scorsese,1980,tt0081398
+57,Casino,Martin Scorsese,1995,tt0112641
+58,Interstellar,Christopher Nolan,2014,tt0816692
+59,Memento,Christopher Nolan,2000,tt0209144
+60,Tenet,Christopher Nolan,2020,tt6723592
+61,Dallas Buyers Club,Jean-Marc Vallée,2014,tt0790636
