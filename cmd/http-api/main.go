@@ -8,6 +8,7 @@ import (
 
 func main() {
 	app := fx.New(
+		fx.NopLogger,
 		controller.HTTPModule,
 		fx.Invoke(
 			httputil.StartServer,
