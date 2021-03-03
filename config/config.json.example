@@ -1,0 +1,8 @@
+{
+  "dataSource": {
+    "csv": "",
+    "json": ""
+  },
+  "env": "local",
+  "port": 8080
+}
