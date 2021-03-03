@@ -6,11 +6,12 @@ import (
 	"strconv"
 	"time"
 
-	"first/router"
+	"github.com/wizelineacademy/academy-go-q12021/router"
 
 	"github.com/spf13/viper"
 )
 
+// RunApplication boot application that contains configuration and inject routes
 func RunApplication() {
 	r := router.NewRouting()
 

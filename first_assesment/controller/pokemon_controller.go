@@ -5,12 +5,13 @@ import (
 	"net/http"
 	"strconv"
 
-	"first/core"
-	"first/service"
+	"github.com/wizelineacademy/academy-go-q12021/core"
+	"github.com/wizelineacademy/academy-go-q12021/service"
 
 	"github.com/gorilla/mux"
 )
 
+// GetAllPokemons get all pokemons
 func GetAllPokemons(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
@@ -34,6 +35,7 @@ func GetAllPokemons(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(pokemons)
 }
 
+// GetPokemonByID get pokemon based on ID
 func GetPokemonByID(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
@@ -54,7 +56,7 @@ func GetPokemonByID(w http.ResponseWriter, r *http.Request) {
 		})
 		return
 	}
-	pokemon, err := pokemonService.GetById(id)
+	pokemon, err := pokemonService.GetByID(id)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(w).Encode(core.ErrorResponse{

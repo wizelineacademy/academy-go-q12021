@@ -1,11 +1,12 @@
 package router
 
 import (
-	"first/controller"
+	"github.com/wizelineacademy/academy-go-q12021/controller"
 
 	"github.com/gorilla/mux"
 )
 
+// NewRouting Create microservice routing urls
 func NewRouting() *mux.Router {
 	r := mux.NewRouter()
 
