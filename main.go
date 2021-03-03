@@ -14,11 +14,13 @@ func main() {
 	port := flag.Int("port", 8080, "the port number")
 	flag.Parse()
 
-	pokeservice := poke.NewPokeService("poke/pokemon.csv")
-	// pokes := pokeservice.PokemonList
-	// fmt.Printf("%+v", pokes["6"])
+	pokeservice, err := poke.NewPokeService("poke/pokemon.csv")
+	if err != nil {
+		log.Fatalln(err)
+	}
+
 	ctx := context.Background()
-	s := api.NewPokeApi(ctx, *port, pokeservice)
-	log.Println("POKEAPI available at /getPoke?id")
-	s.StartServer()
+	s := api.NewPokeAPI(ctx, *port, pokeservice)
+	log.Printf("POKEAPI available at /getPoke?id using port: %d", port)
+	log.Fatalln(s.StartServer())
 }

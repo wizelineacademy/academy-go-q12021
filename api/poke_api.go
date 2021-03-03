@@ -8,22 +8,25 @@ import (
 	"github.com/wizelineacademy/academy-go-q12021/poke"
 )
 
-type PokeApi struct {
+// PokeAPI is the main API object
+type PokeAPI struct {
 	Router      *http.ServeMux
 	context     context.Context
 	port        int
 	server      *http.Server
-	PokeService *poke.PokeService
+	PokeService *poke.Service
 }
 
+// PokeWrapper holds the response JSON struct
 type PokeWrapper struct {
 	ID          int            `json:"id"`
 	PokemonData []poke.Pokemon `json:"pokemon_data"`
 }
 
-func NewPokeApi(ctx context.Context, port int, pokeService *poke.PokeService) *PokeApi {
+// NewPokeAPI creates and setups an instance of the api server
+func NewPokeAPI(ctx context.Context, port int, pokeService *poke.Service) *PokeAPI {
 
-	service := PokeApi{
+	service := PokeAPI{
 		Router:      http.NewServeMux(),
 		context:     ctx,
 		port:        port,
@@ -33,12 +36,14 @@ func NewPokeApi(ctx context.Context, port int, pokeService *poke.PokeService) *P
 	return &service
 }
 
-func (s *PokeApi) setupRouter() {
+func (s *PokeAPI) setupRouter() {
+
 	s.Router.HandleFunc("/", s.Health)
-	s.Router.HandleFunc("/getPoke/", s.GetPokeById)
+	s.Router.HandleFunc("/getPoke/", s.GetPokeByID)
 }
 
-func (s *PokeApi) StartServer() error {
+// StartServer initialize the server at the specified port
+func (s *PokeAPI) StartServer() error {
 	p := fmt.Sprintf(":%d", s.port)
 	s.server = &http.Server{
 		Addr:    p,

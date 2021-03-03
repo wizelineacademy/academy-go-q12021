@@ -8,12 +8,15 @@ import (
 	"strconv"
 )
 
-func (s *PokeApi) Health(w http.ResponseWriter, r *http.Request) {
+// Health is the healtcheck endpoint
+func (s *PokeAPI) Health(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	io.WriteString(w, "OK")
 }
 
-func (s *PokeApi) GetPokeById(w http.ResponseWriter, r *http.Request) {
+// GetPokeByID parses the id from the query param and returns the
+// selected pokemon from the service
+func (s *PokeAPI) GetPokeByID(w http.ResponseWriter, r *http.Request) {
 	pokeIDraw := r.URL.Query().Get("id")
 	pokeID, err := strconv.Atoi(pokeIDraw)
 	if err != nil {
@@ -36,6 +39,7 @@ func (s *PokeApi) GetPokeById(w http.ResponseWriter, r *http.Request) {
 		ID:          pokeID,
 		PokemonData: p,
 	}
+	log.Printf("serving pokemon id: %d", pokeID)
 	w.WriteHeader(http.StatusOK)
 	if err := json.NewEncoder(w).Encode(pl); err != nil {
 		log.Fatalln("cant encode")
