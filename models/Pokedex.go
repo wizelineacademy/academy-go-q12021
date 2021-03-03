@@ -7,8 +7,8 @@ import (
 	"github.com/dannegm/academy-go-q12021/helpers"
 )
 
-// Pokedex stores a list of Pokemon
-type Pokedex []Pokemon
+// Pokedex stores a map of Pokemon by ID
+type Pokedex map[int]Pokemon
 
 // PokedexFromFile return a list of Pokemon
 func PokedexFromFile() (pokes Pokedex, err error) {
@@ -18,11 +18,11 @@ func PokedexFromFile() (pokes Pokedex, err error) {
 		return
 	}
 
-	pokes = Pokedex{}
+	pokes = make(Pokedex)
 
 	for _, row := range rows[1:167] {
 		poke, _ := PokemonFromString(row)
-		pokes = append(pokes, poke)
+		pokes[poke.ID] = poke
 	}
 
 	return
