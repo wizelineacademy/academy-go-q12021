@@ -1,70 +1,19 @@
 package main
 
 import (
-	"encoding/csv"
 	"encoding/json"
-	"io"
 	"log"
 	"net/http"
-	"os"
 	"strconv"
+
+	"github.com/lbswl/academy-go-q12021/domain/model"
+	"github.com/lbswl/academy-go-q12021/infrastructure/datastore"
 
 	"github.com/gorilla/mux"
 )
 
-// Book contains information about each book
-type Book struct {
-	ID       int    `json:"id"`
-	Isbn     string `json:"isbn"`
-	Authors  string `json:"authors"`
-	Year     int    `json:"year"`
-	ImageURL string `json:"imageURL"`
-}
-
-func loadData(books []Book, path string) []Book {
-
-	f, err := os.Open("data/books.csv")
-
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	r := csv.NewReader(f)
-
-	for {
-		record, err := r.Read()
-
-		if err == io.EOF {
-			break
-		}
-
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		// Parse id to int
-		id, errConv := strconv.Atoi(record[0])
-
-		if errConv != nil {
-			log.Fatal(errConv)
-		}
-
-		// Parse year to int
-		year, errConv := strconv.ParseFloat(record[4], 64)
-
-		if errConv != nil {
-			log.Fatal(errConv)
-		}
-
-		books = append(books, Book{ID: id, Isbn: record[1], Authors: record[3], Year: int(year), ImageURL: record[5]})
-
-	}
-
-	return books
-}
-
 // findBookByID returns the index that corresponds to an ID (if exists)
-func findBookByID(books []Book, ID int) int {
+func findBookByID(books []model.Book, ID int) int {
 
 	for index, item := range books {
 		if item.ID == ID {
@@ -102,14 +51,14 @@ func getBook(w http.ResponseWriter, r *http.Request) {
 }
 
 // Data
-var books []Book
+var books []model.Book
 
 func main() {
 
 	//Init Router
 	r := mux.NewRouter()
 
-	books = loadData(books, "data/books.csv")
+	books = datastore.LoadData(books, "data/books.csv")
 
 	// Route Handlers / Endpoints
 	r.HandleFunc("/api/books", getBooks).Methods("GET")
