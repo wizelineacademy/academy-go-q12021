@@ -12,7 +12,7 @@ import (
 
 // NewRoutesFactory create and returns a factory to create routes for the card
 func NewRoutesFactory(group *gin.RouterGroup) func(service card.CardService) {
-  authorRoutesFactory := func(service card.CardService) {
+  cardRoutesFactory := func(service card.CardService) {
     group.GET("/", func(c *gin.Context) {
       results, err := service.ListCards()
       if err != nil {
@@ -34,26 +34,26 @@ func NewRoutesFactory(group *gin.RouterGroup) func(service card.CardService) {
     })
 
     group.POST("/", func(c *gin.Context) {
-      author, err := Bind(c)
+      card, err := Bind(c)
       if err != nil {
         appError := domainErrors.NewAppError(err, domainErrors.ValidationError)
         c.Error(appError)
         return
       }
 
-      newAuthor, err := service.CreateCard(author)
+      newCard, err := service.CreateCard(card)
       if err != nil {
         _ = c.Error(err)
         return
       }
 
-      c.JSON(http.StatusCreated, *toResponseModel(newAuthor))
+      c.JSON(http.StatusCreated, *toResponseModel(newCard))
     })
 
 
 
-    group.GET("/:authorId", func(c *gin.Context) {
-      id := c.Param("authorId")
+    group.GET("/:cardId", func(c *gin.Context) {
+      id := c.Param("cardId")
       i, err := strconv.Atoi(id)
       result, err := service.ReadCard(i)
       if err != nil {
@@ -65,5 +65,5 @@ func NewRoutesFactory(group *gin.RouterGroup) func(service card.CardService) {
     })
   }
 
-  return authorRoutesFactory
+  return cardRoutesFactory
 }

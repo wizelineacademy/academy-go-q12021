@@ -1,6 +1,6 @@
 package card
 
-// struct defines the database model for a Author.
+// Card struct defines the database model for a card.
 type Card struct {
   ID        int
   Name      string

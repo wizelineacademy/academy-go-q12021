@@ -1,19 +1,19 @@
 package card
 
-// CardService defines author service behavior.
+// CardService defines card service behavior.
 type CardService interface {
   CreateCard(*Card) (*Card, error)
   ReadCard(id int) (*Card, error)
   ListCards() ([]Card, error)
 }
 
-// Service struct handles author business logic tasks.
+// Service struct handles card business logic tasks.
 type Service struct {
   repository CardRepository
 }
 
-func (svc *Service) CreateCard(author *Card) (*Card, error) {
-  return svc.repository.CreateCard(author)
+func (svc *Service) CreateCard(card *Card) (*Card, error) {
+  return svc.repository.CreateCard(card)
 }
 
 func (svc *Service) ReadCard(id int) (*Card, error) {

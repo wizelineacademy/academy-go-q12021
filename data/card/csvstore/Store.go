@@ -9,12 +9,12 @@ import (
 )
 
 const (
-  createError = "Error in creating new author"
-  readError   = "Error in finding author in the database"
-  listError   = "Error in getting authors from the database"
+  createError = "Error in creating new card"
+  readError   = "Error in finding card in the database"
+  listError   = "Error in getting cards from the database"
 )
 
-// Store struct manages interactions with authors store
+// Store struct manages interactions with cards store
 type Store struct {
   csv       FileCSV
   booksRepo domainCard.CardRepository

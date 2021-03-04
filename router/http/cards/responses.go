@@ -1,6 +1,6 @@
 package cards
 
-// AuthorResponse struct defines response fields
+// CardResponse struct defines response fields
 type CardResponse struct {
   ID        int    `json:"id"`
   Name      string `json:"name"`
@@ -12,7 +12,7 @@ type CardResponse struct {
   DEF       int    `json:"def"`
 }
 
-// ListResponse struct defines authors list response structure
+// ListResponse struct defines cards list response structure
 type ListResponse struct {
   Data []CardResponse `json:"data"`
 }
