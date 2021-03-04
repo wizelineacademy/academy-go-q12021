@@ -19,9 +19,9 @@ type Movie interface {
 	Save(context.Context, aggregate.Movie) error
 }
 
-type movieLogger struct {
-	Logger *zap.Logger
-	Next   Movie
+type movielogger struct {
+	logger *zap.Logger
+	next   Movie
 }
 
 // NewMovie wraps the given Movie repository with observability (logging, *metrics and *tracing)
@@ -30,62 +30,65 @@ type movieLogger struct {
 //
 //	* Not yet implemented
 func NewMovie(root Movie, logger *zap.Logger) Movie {
-	return &movieLogger{
-		Logger: logger,
-		Next:   root,
+	return &movielogger{
+		logger: logger,
+		next:   root,
 	}
 }
 
-func (l *movieLogger) Get(ctx context.Context, id valueobject.MovieID) (movie *aggregate.Movie, err error) {
+func (l *movielogger) Get(ctx context.Context, id valueobject.MovieID) (movie *aggregate.Movie, err error) {
 	defer func(startTime time.Time) {
 		fields := []zap.Field{zap.String("movie_id", string(id)), zap.Duration("took", time.Since(startTime))}
 		if err != nil {
 			fields = append(fields, zap.Error(err))
-			l.Logger.Error("failed to fetch movie", fields...)
+			l.logger.Error("failed to fetch movie", fields...)
 			return
 		}
 
-		l.Logger.Info("fetched movie", fields...)
+		fields = append(fields, zap.String("movie_imdb_id", string(movie.IMDbID)),
+			zap.String("movie_display_name", string(movie.DisplayName)))
+		l.logger.Info("fetched movie", fields...)
 	}(time.Now())
 
-	movie, err = l.Next.Get(ctx, id)
+	movie, err = l.next.Get(ctx, id)
 	return
 }
 
-func (l *movieLogger) Search(ctx context.Context, criteria Criteria) (movies []*aggregate.Movie,
+func (l *movielogger) Search(ctx context.Context, criteria Criteria) (movies []*aggregate.Movie,
 	nextToken string, err error) {
 	defer func(startTime time.Time) {
 		fields := marshalCriteriaFieldsLog(criteria)
 		if err != nil {
 			fields = append(fields, zap.Error(err), zap.Duration("took", time.Since(startTime)))
-			l.Logger.Error("failed to fetch movies", fields...)
+			l.logger.Error("failed to fetch movies", fields...)
 			return
 		}
 
 		fields = append(fields, zap.String("next_page", nextToken), zap.Int("total_items", len(movies)),
 			zap.Duration("took", time.Since(startTime)))
-		l.Logger.Info("fetched movies", fields...)
+		l.logger.Info("fetched movies", fields...)
 	}(time.Now())
-	movies, nextToken, err = l.Next.Search(ctx, criteria)
+	movies, nextToken, err = l.next.Search(ctx, criteria)
 	return
 }
 
-func (l *movieLogger) Save(ctx context.Context, movie aggregate.Movie) (err error) {
+func (l *movielogger) Save(ctx context.Context, movie aggregate.Movie) (err error) {
 	defer func(startTime time.Time) {
 		fields := []zap.Field{
 			zap.String("movie_id", string(movie.ID)),
+			zap.String("movie_imdb_id", string(movie.IMDbID)),
 			zap.String("movie_display_name", string(movie.DisplayName)),
 			zap.Duration("took", time.Since(startTime)),
 		}
 		if err != nil {
 			fields = append(fields, zap.Error(err))
-			l.Logger.Error("failed to save movie state", fields...)
+			l.logger.Error("failed to save movie state", fields...)
 			return
 		}
 
-		l.Logger.Info("saved movie state", fields...)
+		l.logger.Info("saved movie state", fields...)
 	}(time.Now())
 
-	err = l.Next.Save(ctx, movie)
+	err = l.next.Save(ctx, movie)
 	return
 }
