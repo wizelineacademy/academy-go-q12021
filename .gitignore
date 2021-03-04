@@ -1,0 +1,16 @@
+# Trash
+.DS_Store
+
+# BIN
+academy-go-q12021
+main
+main.exe
+
+
+# IDE
+.idea
+
+# ENV FILES
+config.json
+
+
