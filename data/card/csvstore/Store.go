@@ -17,7 +17,7 @@ const (
 // Store struct manages interactions with cards store
 type Store struct {
   csv       FileCSV
-  booksRepo domainCard.CardRepository
+  cardsRepo domainCard.CardRepository
 }
 
 func New() *Store {
