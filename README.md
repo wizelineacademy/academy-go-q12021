@@ -1,6 +1,6 @@
 # Golang Bootcamp
 
-## Installation
+## Installation and Run
 In order to run this application, you must comply with the following requirements:
 - Go 1.15 or newer.
 - OMDb API Key.
@@ -12,6 +12,8 @@ Run the following command:
 ```console
 go run cmd/http-api/main.go
 ```
+
+Open your preferred HTTP client (Postman, Insomnia, ...) and make desired calls to `http://localhost:8081/v1/movies` and `http://localhost:8081/v1/sync/movies`
 
 ## Introduction
 
