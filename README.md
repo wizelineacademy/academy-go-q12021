@@ -1,5 +1,18 @@
 # Golang Bootcamp
 
+## Installation
+In order to run this application, you must comply with the following requirements:
+- Go 1.15 or newer.
+- OMDb API Key.
+
+Before running the application, one must add the OMDb API Key as an environment variable (_"movies.omdb.api.key"_) if `Movie Crawling feature` is desired.
+
+Run the following command:
+
+```console
+go run cmd/http-api/main.go
+```
+
 ## Introduction
 
 Thank you for participating in the Golang Bootcamp course!
