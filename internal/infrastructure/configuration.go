@@ -16,6 +16,7 @@ type Configuration struct {
 	HTTPAddress   string
 	HTTPPort      int
 	MoviesDataset string
+	OmdbAPIKey    string
 }
 
 func init() {
@@ -25,6 +26,7 @@ func init() {
 	viper.SetDefault("movies.http", "")
 	viper.SetDefault("movies.http.port", 8081)
 	viper.SetDefault("movies.dataset.file", "./data/movies/movies_dataset.csv")
+	viper.SetDefault("movies.omdb.api.key", "[YOUR_OMDB_API_KEY]")
 }
 
 const (
@@ -44,6 +46,7 @@ func NewConfiguration() Configuration {
 		HTTPAddress:   viper.GetString("movies.http"),
 		HTTPPort:      viper.GetInt("movies.http.port"),
 		MoviesDataset: viper.GetString("movies.dataset.file"),
+		OmdbAPIKey:    viper.GetString("movies.omdb.api.key"),
 	}
 }
 
