@@ -2,7 +2,7 @@ package query
 
 import (
 	"github.com/maestre3d/academy-go-q12021/internal/aggregate"
-	"github.com/maestre3d/academy-go-q12021/internal/service"
+	"github.com/maestre3d/academy-go-q12021/internal/valueobject"
 )
 
 // MovieResponse Movie's DTO used for representation layer(s)
@@ -24,7 +24,7 @@ func marshalMovieResponse(m *aggregate.Movie) MovieResponse {
 	return MovieResponse{
 		MovieID:     string(m.ID),
 		DisplayName: string(m.DisplayName),
-		Directors:   service.MarshalDirectorsPrimitive(m.Directors...),
+		Directors:   valueobject.MarshalDirectorsPrimitive(m.Directors...),
 		ReleaseYear: int(m.ReleaseYear),
 	}
 }

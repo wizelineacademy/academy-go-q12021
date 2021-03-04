@@ -3,7 +3,6 @@ package event
 import (
 	"time"
 
-	"github.com/maestre3d/academy-go-q12021/internal/service"
 	"github.com/maestre3d/academy-go-q12021/internal/valueobject"
 )
 
@@ -21,7 +20,7 @@ func NewMovieCreated(id valueobject.MovieID, name valueobject.DisplayName,
 	return MovieCreated{
 		ID:          string(id),
 		DisplayName: string(name),
-		Directors:   service.MarshalDirectorsPrimitive(directors...),
+		Directors:   valueobject.MarshalDirectorsPrimitive(directors...),
 		ReleaseYear: int(year),
 		CreateTime:  time.Now().UTC(),
 	}
