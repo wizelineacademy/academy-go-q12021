@@ -41,8 +41,8 @@ movie_id,display_name,director_name,release_year,imdb_id
 40,Psycho,Alfred Hitchcock,1960,tt0054215
 41,The Thing,John Carpenter,1982,tt0084787
 42,Children of Men,Alfonso Cuaron,2006,tt0206634
-43,Birdman or (The Unexpected Virtue of Ignorance),Alejandro González Iñárritu,2014,
-43,The Revenant,Alejandro González Iñárritu,2015,tt2562232
+43,Birdman or (The Unexpected Virtue of Ignorance),Alejandro González Iñárritu,2014,tt2562232
+43,The Revenant,Alejandro González Iñárritu,2015,tt1663202
 44,Amores Perros,Alejandro González Iñárritu,2000,tt0245712
 45,Vertigo,Alfred Hitchcock,1958,tt0052357
 46,The Shape of Water,Guillermo Del Toro,2017,tt5580390
@@ -61,3 +61,7 @@ movie_id,display_name,director_name,release_year,imdb_id
 59,Memento,Christopher Nolan,2000,tt0209144
 60,Tenet,Christopher Nolan,2020,tt6723592
 61,Dallas Buyers Club,Jean-Marc Vallée,2014,tt0790636
+97f30f02-628d-4ddd-8d02-0d700d0206e9,Cinema Paradiso,Giuseppe Tornatore,1988,tt0095765
+4bdcba55-5b8e-431f-aaa0-351c9ffb5c6d,Avengers: Infinity War,"Anthony Russo,Joe Russo",2018,tt4154756
+d2a6cd24-0a94-4afb-af12-6ce2097812fc,Avengers: Endgame,"Anthony Russo,Joe Russo",2019,tt4154796
+71ac7bd5-84a0-4671-88f9-76230d045866,Halloween,John Carpenter,1978,tt0077651
