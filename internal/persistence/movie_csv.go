@@ -5,6 +5,7 @@ import (
 	"encoding/csv"
 	"io"
 	"os"
+	"strconv"
 	"sync"
 
 	"github.com/maestre3d/academy-go-q12021/internal/aggregate"
@@ -38,6 +39,9 @@ func (m *MovieCSV) Get(ctx context.Context, id valueobject.MovieID) (*aggregate.
 	if err != nil {
 		return nil, err
 	}
+	defer func() {
+		err = file.Close()
+	}()
 
 	return m.searchMovieOnFile(csv.NewReader(file), id)
 }
@@ -75,6 +79,10 @@ func (m *MovieCSV) Search(ctx context.Context, criteria repository.Criteria) ([]
 	if err != nil {
 		return nil, "", err
 	}
+	defer func() {
+		err = file.Close()
+	}()
+
 	return m.searchMoviesOnFile(csv.NewReader(file), criteria)
 }
 
@@ -117,5 +125,30 @@ func (m *MovieCSV) searchMoviesOnFile(r *csv.Reader, criteria repository.Criteri
 func (m *MovieCSV) Save(ctx context.Context, movie aggregate.Movie) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
-	panic("not implemented")
+
+	file, err := os.OpenFile(m.cfg.MoviesDataset, os.O_APPEND, 0644)
+	if err != nil {
+		return err
+	}
+	defer func() {
+		err = file.Close()
+	}()
+
+	return m.writeToFile(file, movie)
+}
+
+func (m *MovieCSV) writeToFile(file io.Writer, movie aggregate.Movie) error {
+	w := csv.NewWriter(file)
+	fields := []string{
+		string(movie.ID),
+		string(movie.DisplayName),
+		string(valueobject.MarshalDirectorsString(movie.Directors...)),
+		strconv.Itoa(int(movie.ReleaseYear)),
+		string(movie.IMDbID),
+	}
+	if err := w.Write(fields); err != nil {
+		return err
+	}
+	w.Flush()
+	return w.Error()
 }

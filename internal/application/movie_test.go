@@ -13,7 +13,7 @@ import (
 )
 
 func TestMovieGetByID(t *testing.T) {
-	movieApp := NewMovie(persistence.NewMovieInMemory(), nil)
+	movieApp := NewMovie(persistence.NewMovieInMemory(), nil, nil)
 	movie, err := movieApp.GetByID(context.Background(), valueobject.MovieID("1"))
 	assert.NotNil(t, err)
 	errDomain := err.(domain.Error)
@@ -34,7 +34,7 @@ func TestMovieList(t *testing.T) {
 	repo := persistence.NewMovieInMemory()
 	// NewCriteria sets 100 to limit by default if empty value was given
 	criteria := *repository.NewCriteria(0, "")
-	movieApp := NewMovie(repo, nil)
+	movieApp := NewMovie(repo, nil, nil)
 	movies, _, err := movieApp.List(context.Background(), criteria)
 	assert.NotNil(t, err)
 	errDomain := err.(domain.Error)

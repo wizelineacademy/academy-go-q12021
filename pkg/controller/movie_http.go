@@ -3,8 +3,10 @@ package controller
 import (
 	"net/http"
 
+	"github.com/google/uuid"
 	"github.com/gorilla/mux"
 	"github.com/maestre3d/academy-go-q12021/internal/application"
+	"github.com/maestre3d/academy-go-q12021/internal/command"
 	"github.com/maestre3d/academy-go-q12021/internal/query"
 	"github.com/maestre3d/academy-go-q12021/pkg/httputil"
 )
@@ -23,11 +25,12 @@ func NewMovieHTTP(app *application.Movie) httputil.ControllersFx {
 
 // MapRoutes maps exposed use cases from the current aggregate using the given mux.Router
 func (m MovieHTTP) MapRoutes(r *mux.Router) {
-	r.Path("/movies").Methods(http.MethodGet).HandlerFunc(m.listMovies)
-	r.Path("/movies/{id}").Methods(http.MethodGet).HandlerFunc(m.getMovieByID)
+	r.Path("/movies").Methods(http.MethodGet).HandlerFunc(m.list)
+	r.Path("/movies/{id}").Methods(http.MethodGet).HandlerFunc(m.getByID)
+	r.Path("/sync/movies/{id}").Methods(http.MethodPut).HandlerFunc(m.syncExternal)
 }
 
-func (m *MovieHTTP) listMovies(w http.ResponseWriter, r *http.Request) {
+func (m *MovieHTTP) list(w http.ResponseWriter, r *http.Request) {
 	criteria, err := httputil.UnmarshalCriteriaJSON(r)
 	if err != nil {
 		criteria = httputil.UnmarshalCriteria(r)
@@ -41,7 +44,7 @@ func (m *MovieHTTP) listMovies(w http.ResponseWriter, r *http.Request) {
 	httputil.RespondJSON(w, http.StatusOK, movies)
 }
 
-func (m *MovieHTTP) getMovieByID(w http.ResponseWriter, r *http.Request) {
+func (m *MovieHTTP) getByID(w http.ResponseWriter, r *http.Request) {
 	id := mux.Vars(r)["id"]
 
 	movie, err := query.HandleGetMovieByID(r.Context(), m.app, query.GetMovieByID{
@@ -53,4 +56,15 @@ func (m *MovieHTTP) getMovieByID(w http.ResponseWriter, r *http.Request) {
 	}
 
 	httputil.RespondJSON(w, http.StatusOK, movie)
+}
+
+func (m *MovieHTTP) syncExternal(w http.ResponseWriter, r *http.Request) {
+	imdbID := mux.Vars(r)["id"]
+	id := uuid.New()
+	err := command.HandleSyncMovie(r.Context(), m.app, command.SyncMovie{ID: id.String(), IMDbID: imdbID})
+	if err != nil {
+		httputil.RespondErrJSON(w, r, err)
+		return
+	}
+	httputil.RespondJSON(w, http.StatusAccepted, id.String())
 }
