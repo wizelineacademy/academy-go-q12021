@@ -6,45 +6,36 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"os"
 
+	"github.com/oscarSantoyo/academy-go-q12021/model"
+
 	"github.com/fatih/structs"
+	"github.com/golobby/container"
+	"github.com/labstack/gommon/log"
 )
 
+// CsvService is used as an interface for this service.
 type CsvService interface {
-	FilterById(string) ([]Doc, error)
+	FilterByID(string) ([]model.Doc, error)
 	DownloadCsvData() error
 }
 
+// CsvServiceImpl is used as the implementation of this service.
 type CsvServiceImpl struct{}
 
-type SearchResponse struct {
-	Doc      []Doc `json:"docs"`
-	NumFound int   `json:"numFound"`
-	Start    int   `json:"start"`
-}
-
-type Doc struct {
-	Key       string `json:"key"`
-	Title     string `json:"title"`
-	Type      string `json:"type"`
-	Published string `json:"first_published_year"`
-}
-
-var CSVFile = "/home/omar/Desktop/saved.csv"
-
-// func (c )LoadCsvData
+// DownloadCsvData downloads information from external API.
 func (c CsvServiceImpl) DownloadCsvData() error {
 	getAndSaveData()
 	return nil
 }
 
-func (c CsvServiceImpl) FilterById(id string) ([]Doc, error) {
-	file, err := os.Open(CSVFile)
+// FilterByID reads records from a CSV and returns the filtered ones
+func (c CsvServiceImpl) FilterByID(id string) ([]model.Doc, error) {
+	file, err := os.Open(getConfigService().GetConfig().CSV.FileName)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to open file: %v", err)
 	}
 	reader := csv.NewReader(file)
 	records, errReader := reader.ReadAll()
@@ -52,24 +43,19 @@ func (c CsvServiceImpl) FilterById(id string) ([]Doc, error) {
 		return nil, errReader
 	}
 
-	var recordsStruct []Doc
+	var recordsStruct []model.Doc
 
 	for _, record := range records {
-		fmt.Println(record)
 
-		doc := Doc{
-			Key:       record[0],
-			Title:     record[1],
-			Type:      record[2],
-			Published: record[3],
+		if record[0] != id {
+			continue
 		}
-		if doc.Key == id {
-			recordsStruct = append(recordsStruct, doc)
-		}
+
+		recordsStruct = append(recordsStruct, toDoc(record))
 	}
 
 	if len(records) == 0 {
-		fmt.Println("The file is empty")
+		log.Info("The file is empty")
 		return nil, errors.New("The file is empty")
 	}
 	defer file.Close()
@@ -77,23 +63,20 @@ func (c CsvServiceImpl) FilterById(id string) ([]Doc, error) {
 	return recordsStruct, nil
 }
 
-// func fileExists(file string) bool {
-// 	if _, err := os.Stat(file); os.IsNotExist(err) {
-// 		fmt.Println("File "+file+" does not exists")
-// 		return false
-// 	}
-// 	return true
-// }
+func toDoc(record []string) model.Doc {
+	return model.Doc{
+		Key:       record[0],
+		Title:     record[1],
+		Type:      record[2],
+		Published: record[3],
+	}
+}
 
-// func readFileByRow(file string) ([]string, error) {
-
-// }
 func getAndSaveData() {
-
-	response, err := http.Get("http://openlibrary.org/search.json?q=the+lord+of+the+rings&page=1")
+	response, err := http.Get(getConfigService().GetConfig().External.ApiUrl)
 
 	if err != nil {
-		fmt.Println(err.Error())
+		log.Info(err.Error())
 		panic(err)
 	}
 
@@ -103,36 +86,43 @@ func getAndSaveData() {
 		log.Fatal(err)
 	}
 
-	var responseObject SearchResponse
+	var responseObject model.SearchResponse
 
 	json.Unmarshal(responseData, &responseObject)
 
-	file, err := os.Create(CSVFile)
-	defer file.Close()
+	file, err := os.Create(getConfigService().GetConfig().CSV.FileName)
 
 	if err != nil {
 		log.Fatal("Cannot create file", err)
 	}
-	SaveCsv(responseObject, *file)
+	defer file.Close()
+	saveCsv(responseObject, *file)
 
 }
 
-func SaveCsv(responseObject SearchResponse, file os.File) {
+func saveCsv(responseObject model.SearchResponse, file os.File) {
 	writer := csv.NewWriter(&file)
-	defer writer.Flush()
 	for _, doc := range responseObject.Doc {
-		err := writer.Write(interfaceToString(structs.Values(doc)))
+		str := interfaceToString(structs.Values(doc))
+		err := writer.Write(str)
 		if err != nil {
 			log.Fatal("cannot write CSV", err)
 		}
 	}
+	defer writer.Flush()
 }
 
 func interfaceToString(record []interface{}) []string {
-	var a []string
+	a := make([]string, len(record))
 
-	for _, row := range record {
-		a = append(a, row.(string))
+	for i, row := range record {
+		a[i] = row.(string)
 	}
 	return a
+}
+
+func getConfigService() ConfigService {
+	var config ConfigService
+	container.Make(&config)
+	return config
 }

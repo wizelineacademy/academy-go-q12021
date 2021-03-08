@@ -1,29 +1,22 @@
 package service
 
 import (
-	"fmt"
+	"github.com/oscarSantoyo/academy-go-q12021/model"
+
 	"github.com/golobby/container"
 )
 
-var csvService CsvService
-
+// Search interface of sevice
 type Search interface {
-	Search(string) ([]Doc, error)
+	Search(string) ([]model.Doc, error)
 }
 
+// SearchImpl implementation of Search service
 type SearchImpl struct{}
 
-func init() {
-	fmt.Println("ignited")
-}
-
-func (s SearchImpl) Search(term string) ([]Doc, error) {
-	return getCsvService().FilterById(term)
-}
-
-func getCsvService() CsvService {
-	if csvService == nil {
-		container.Make(&csvService)
-	}
-	return csvService
+// Search return the data filtered by
+func (s SearchImpl) Search(term string) ([]model.Doc, error) {
+	var csvService CsvService
+	container.Make(&csvService)
+	return csvService.FilterByID(term)
 }

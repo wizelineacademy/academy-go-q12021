@@ -1,19 +1,22 @@
 package container
 
 import (
-	"fmt"
+	"github.com/oscarSantoyo/academy-go-q12021/service"
 
 	"github.com/golobby/container"
-	"github.com/oscarSantoyo/academy-go-q12021/service"
+	"github.com/labstack/gommon/log"
 )
 
-func Connect ( ){
-	fmt.Println("Connecting container")
-	// var instance = container.NewContainer();
-	container.Singleton(func () service.Search {
+// Connect wires container with services references
+func Connect() {
+	log.Info("Connecting container")
+	container.Singleton(func() service.Search {
 		return &service.SearchImpl{}
 	})
-	container.Singleton(func () service.CsvService {
+	container.Singleton(func() service.CsvService {
 		return &service.CsvServiceImpl{}
+	})
+	container.Singleton(func() service.ConfigService {
+		return &service.ConfigImpl{}
 	})
 }

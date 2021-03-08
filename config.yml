@@ -1,0 +1,11 @@
+server:
+  port: 8080
+
+log:
+  level: debug
+
+CSV:
+  FileName: /home/omar/Desktop/saved.csv
+
+external:
+  ApiUrl: http://openlibrary.org/search.json?q=the+lord+of+the+rings&page=1

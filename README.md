@@ -1,11 +1,26 @@
-# Golang Bootcamp
+# Golang Bootcamp Wizeline's Workshop
+
+This project exposes an API to handle two types of requests
+
+- Download data from external API (books)
+```
+/loadData
+```
+Download data from http://openlibrary.org/search.json?q=the+lord+of+the+rings&page=1
+- Perform a search over the dowloaded data (by ID) reading a CSV file with the data previously downloaded and returns the data found
+```
+/filter?id=<term>
+```
 
 ## How to run
-Use Makefile to run the project in development stage, will watch for changes in go files using `fswatch`
+
+### Using Makefile and fswatch
+Use Makefile to run the project. 
+In development stage, will watch for changes in go files using `fswatch`
 
 > make serve
 
-Otherwise use
+#### Using go run
 
 > go run main.go
 
@@ -17,6 +32,7 @@ Using `container` as IoC provider to rely on interfaces not hard structs impleme
 - router.go :: sets the routes and wires controllers to it
 - controller :: controllers here, wires endpoint to services using `container` IoC container 
 - service :: atomic functionality to solve one necessity.
+
 
 ## Introduction
 

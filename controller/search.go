@@ -1,25 +1,27 @@
 package controller
 
 import (
-	"fmt"
+	"github.com/oscarSantoyo/academy-go-q12021/model"
+	"github.com/oscarSantoyo/academy-go-q12021/service"
 
 	"github.com/golobby/container"
-	"github.com/oscarSantoyo/academy-go-q12021/service"
+	"github.com/labstack/gommon/log"
 )
 
 var search service.Search
 
-func SearchById(id string) []service.Doc{
+// SearchByID returns data read from file filtered by ID
+func SearchByID(id string) []model.Doc {
 	result, err := getSearchService().Search(id)
 	if err != nil {
-		fmt.Println("There was no records present")
+		log.Info("There was no records present")
 	}
 	return result
 }
 
 func getSearchService() service.Search {
-	if (search == nil) {
-		fmt.Println("wiring search service")
+	if search == nil {
+		log.Info("wiring search service")
 		container.Make(&search)
 	}
 	return search
