@@ -9,7 +9,8 @@ import (
 
 	"github.com/jesus-mata/academy-go-q12021/infrastructure"
 	"github.com/jesus-mata/academy-go-q12021/infrastructure/config"
-	"github.com/jesus-mata/academy-go-q12021/infrastructure/handlers"
+	"github.com/jesus-mata/academy-go-q12021/infrastructure/handler"
+	"github.com/jesus-mata/academy-go-q12021/infrastructure/routes"
 	"github.com/jesus-mata/academy-go-q12021/interfaces/repository"
 	"github.com/jesus-mata/academy-go-q12021/usecase/interactors"
 )
@@ -28,9 +29,9 @@ func main() {
 	srv := infrastructure.NewServer(router, addr)
 
 	nh := provideNewsHandler(logger)
-	nh.Setup(router)
+	routes.SetupRoutes(router, nh)
 
-	logger.Println(appName, "started and listeining requests at", addr)
+	logger.Println(appName, "started and listening requests at", addr)
 
 	err := srv.ListenAndServe()
 	if err != nil {
@@ -39,13 +40,13 @@ func main() {
 
 }
 
-func provideNewsHandler(logger *log.Logger) *handlers.NewsHandlers {
+func provideNewsHandler(logger *log.Logger) *handler.NewsHandlers {
 
 	csvReader := infrastructure.NewCsvReader("./resources/data.csv", logger)
 	newsRepository := repository.NewNewsArticleRepository(csvReader, logger)
 
 	newsInteractor := interactors.NewNewsArticlesInteractor(newsRepository)
 
-	nh := handlers.NewNewsHandlers(newsInteractor)
+	nh := handler.NewNewsHandlers(newsInteractor)
 	return nh
 }

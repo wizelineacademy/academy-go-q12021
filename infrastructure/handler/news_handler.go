@@ -1,4 +1,4 @@
-package handlers
+package handler
 
 import (
 	"encoding/json"
@@ -18,12 +18,6 @@ type NewsHandlers struct {
 
 func NewNewsHandlers(newsInteractor interactors.NewsArticlesInteractor) *NewsHandlers {
 	return &NewsHandlers{newsInteractor}
-}
-
-func (h *NewsHandlers) Setup(r *mux.Router) {
-
-	r.HandleFunc("/news", h.ListAll).Methods("GET")
-	r.HandleFunc("/news/{id}", h.GetByID).Methods("GET")
 }
 
 func (h *NewsHandlers) ListAll(w http.ResponseWriter, req *http.Request) {

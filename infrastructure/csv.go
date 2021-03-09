@@ -44,7 +44,7 @@ func (c *CsvReader) PrintAllLines() error {
 func (c *CsvReader) GetAllLines() ([][]string, error) {
 	rows := make([][]string, 0, 5)
 
-	c.logger.Panicln("Reading all lines of CSV file", c.file)
+	c.logger.Println("Reading all lines of CSV file", c.file)
 
 	csvfile, err := os.Open(c.file)
 	if err != nil {

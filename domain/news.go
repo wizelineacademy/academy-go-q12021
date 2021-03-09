@@ -15,7 +15,7 @@ type NewsArticle struct {
 	Title         string    `json:"title"`
 }
 
-func CreateNewsArticle(id int, publishedDate time.Time, title string, category string, author string) (*NewsArticle, error) {
+func CreateNewsArticle(id int, publishedDate time.Time, title, category, author string) (*NewsArticle, error) {
 
 	if id <= 0 {
 		return nil, errors.New(fmt.Sprintf("News ID %v is not a valid ID.", id))
