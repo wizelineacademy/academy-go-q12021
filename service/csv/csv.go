@@ -20,6 +20,7 @@ type NewCsvService interface {
 	GetPokemons() ([]model.Pokemon, *model.Error)
 	GetPokemon(pokemonId int) (model.Pokemon, *model.Error)
 	SavePokemons(*[]model.SinglePokeExternal) *model.Error
+	GetPokemonsConcurrently(items int, itemsPerWorker int) ([]model.Pokemon, *model.Error)
 }
 
 func New() *CsvService {
@@ -51,6 +52,52 @@ func Read(f *os.File) ([]model.Pokemon, *model.Error) {
 
 	var pokemons []model.Pokemon = nil
 	for {
+		line, err := reader.Read()
+
+		if err == io.EOF {
+			break
+		}
+
+		if err != nil {
+			err := model.Error{
+				Code:    http.StatusInternalServerError,
+				Message: err.Error(),
+			}
+			return nil, &err
+		}
+		tempPokemon := model.Pokemon{
+			Name: line[1],
+			URL:  line[2],
+		}
+
+		if line[0] != "" {
+			id, err := strconv.Atoi(line[0])
+			if err != nil {
+				err := model.Error{
+					Code:    http.StatusInternalServerError,
+					Message: err.Error(),
+				}
+				return nil, &err
+			}
+			tempPokemon.ID = id
+		}
+
+		pokemons = append(pokemons, tempPokemon)
+	}
+	defer f.Close()
+
+	return pokemons, nil
+}
+
+func ReadConcurrently(f *os.File, items int, itemsPerWorker int) ([]model.Pokemon, *model.Error) {
+
+	reader := csv.NewReader(f)
+	reader.Comma = ','
+	reader.Comment = '#'
+	reader.FieldsPerRecord = -1
+
+	var pokemons []model.Pokemon = nil
+	for i := 0; i < items; i++ {
 		line, err := reader.Read()
 
 		if err == io.EOF {
@@ -195,4 +242,28 @@ func (s *CsvService) SavePokemons(newPokemons *[]model.SinglePokeExternal) *mode
 	}
 
 	return nil
+}
+
+func (s *CsvService) GetPokemonsConcurrently(items int, itemsPerWorker int) ([]model.Pokemon, *model.Error) {
+	f, err := Open(pathFile)
+
+	if err != nil {
+		err := model.Error{
+			Code:    http.StatusInternalServerError,
+			Message: err,
+		}
+		return nil, &err
+	}
+
+	pokes, errorReading := ReadConcurrently(f, items, itemsPerWorker)
+
+	if errorReading != nil {
+		errorReading := model.Error{
+			Code:    http.StatusInternalServerError,
+			Message: errorReading,
+		}
+		return nil, &errorReading
+	}
+
+	return pokes, nil
 }

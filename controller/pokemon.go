@@ -21,6 +21,7 @@ type NewPokemonController interface {
 	GetPokemons(w http.ResponseWriter, r *http.Request)
 	GetPokemon(w http.ResponseWriter, r *http.Request)
 	GetPokemonsFromExternalAPI(w http.ResponseWriter, r *http.Request)
+	GetPokemonConcurrently(w http.ResponseWriter, r *http.Request)
 }
 
 func New(pc usecase.NewPokemonUsecase) *PokemonController {
@@ -81,4 +82,26 @@ func (pc *PokemonController) GetPokemonsFromExternalAPI(
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(response)
 
+}
+
+func (pc *PokemonController) GetPokemonConcurrently(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	typeConcurrency := vars["type"]
+	itemsS := r.FormValue("items")
+	itemsPerWorkerS := r.FormValue("items_per_worker")
+
+	items, _ := strconv.Atoi(r.FormValue("items"))
+	itemsPerWorker, _ := strconv.Atoi(r.FormValue("items_per_worker"))
+
+	pokemons, _ := pc.useCase.GetPokemonsConcurrently(items, itemsPerWorker)
+
+	if typeConcurrency == "even" || typeConcurrency == "odd" {
+		w.WriteHeader(http.StatusOK)
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(typeConcurrency + " " + itemsS + " " + itemsPerWorkerS)
+		json.NewEncoder(w).Encode(&pokemons)
+	} else {
+		w.WriteHeader(http.StatusInternalServerError)
+		fmt.Fprintln(w, "You only can use \"even\" or \"odd\"")
+	}
 }

@@ -13,6 +13,7 @@ type PokemonUsecase struct {
 
 type NewPokemonUsecase interface {
 	GetPokemons() ([]model.Pokemon, *model.Error)
+	GetPokemonsConcurrently(items int, itemsPerWorker int) ([]model.Pokemon, *model.Error)
 	GetPokemon(pokemonId int) (model.Pokemon, *model.Error)
 	GetPokemonsFromExternalAPI() (*[]model.SinglePokeExternal, *model.Error)
 }
@@ -27,6 +28,10 @@ func (us *PokemonUsecase) GetPokemons() ([]model.Pokemon, *model.Error) {
 
 func (us *PokemonUsecase) GetPokemon(pokemonId int) (model.Pokemon, *model.Error) {
 	return us.csvService.GetPokemon(pokemonId)
+}
+
+func (us *PokemonUsecase) GetPokemonsConcurrently(items int, itemsPerWorker int) ([]model.Pokemon, *model.Error) {
+	return us.csvService.GetPokemonsConcurrently(items, itemsPerWorker)
 }
 
 func (us *PokemonUsecase) GetPokemonsFromExternalAPI() (*[]model.SinglePokeExternal, *model.Error) {

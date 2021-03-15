@@ -64,6 +64,21 @@ func (mr *MockNewPokemonUsecaseMockRecorder) GetPokemons() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPokemons", reflect.TypeOf((*MockNewPokemonUsecase)(nil).GetPokemons))
 }
 
+// GetPokemonsConcurrently mocks base method.
+func (m *MockNewPokemonUsecase) GetPokemonsConcurrently(items, itemsPerWorker int) ([]model.Pokemon, *model.Error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetPokemonsConcurrently", items, itemsPerWorker)
+	ret0, _ := ret[0].([]model.Pokemon)
+	ret1, _ := ret[1].(*model.Error)
+	return ret0, ret1
+}
+
+// GetPokemonsConcurrently indicates an expected call of GetPokemonsConcurrently.
+func (mr *MockNewPokemonUsecaseMockRecorder) GetPokemonsConcurrently(items, itemsPerWorker interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPokemonsConcurrently", reflect.TypeOf((*MockNewPokemonUsecase)(nil).GetPokemonsConcurrently), items, itemsPerWorker)
+}
+
 // GetPokemonsFromExternalAPI mocks base method.
 func (m *MockNewPokemonUsecase) GetPokemonsFromExternalAPI() (*[]model.SinglePokeExternal, *model.Error) {
 	m.ctrl.T.Helper()

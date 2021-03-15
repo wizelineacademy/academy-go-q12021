@@ -64,6 +64,21 @@ func (mr *MockNewCsvServiceMockRecorder) GetPokemons() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPokemons", reflect.TypeOf((*MockNewCsvService)(nil).GetPokemons))
 }
 
+// GetPokemonsConcurrently mocks base method.
+func (m *MockNewCsvService) GetPokemonsConcurrently(items, itemsPerWorker int) ([]model.Pokemon, *model.Error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetPokemonsConcurrently", items, itemsPerWorker)
+	ret0, _ := ret[0].([]model.Pokemon)
+	ret1, _ := ret[1].(*model.Error)
+	return ret0, ret1
+}
+
+// GetPokemonsConcurrently indicates an expected call of GetPokemonsConcurrently.
+func (mr *MockNewCsvServiceMockRecorder) GetPokemonsConcurrently(items, itemsPerWorker interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPokemonsConcurrently", reflect.TypeOf((*MockNewCsvService)(nil).GetPokemonsConcurrently), items, itemsPerWorker)
+}
+
 // SavePokemons mocks base method.
 func (m *MockNewCsvService) SavePokemons(arg0 *[]model.SinglePokeExternal) *model.Error {
 	m.ctrl.T.Helper()
