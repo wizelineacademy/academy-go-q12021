@@ -7,19 +7,21 @@ import (
 	"io"
 	"log"
 	"os"
+
+	"github.com/jesus-mata/academy-go-q12021/infrastructure/dto"
 )
 
-type CsvReader struct {
+type CsvSource struct {
 	file   string
 	logger *log.Logger
 }
 
-func NewCsvReader(file string, logger *log.Logger) *CsvReader {
+func NewCsvSource(file string, logger *log.Logger) *CsvSource {
 
-	return &CsvReader{file, logger}
+	return &CsvSource{file, logger}
 }
 
-func (c *CsvReader) PrintAllLines() error {
+func (c *CsvSource) PrintAllLines() error {
 
 	csvfile, err := os.Open(c.file)
 	if err != nil {
@@ -41,7 +43,7 @@ func (c *CsvReader) PrintAllLines() error {
 	return nil
 }
 
-func (c *CsvReader) GetAllLines() ([][]string, error) {
+func (c *CsvSource) GetAllLines() ([][]string, error) {
 	rows := make([][]string, 0, 5)
 
 	c.logger.Println("Reading all lines of CSV file", c.file)
@@ -66,4 +68,30 @@ func (c *CsvReader) GetAllLines() ([][]string, error) {
 		rows = append(rows, record)
 	}
 	return rows, nil
+}
+
+func (c *CsvSource) WriteLines(newsItems []dto.NewItem) error {
+	f, err := os.OpenFile(c.file, os.O_TRUNC|os.O_WRONLY, os.ModeAppend)
+	defer f.Close()
+
+	if err != nil {
+		return err
+	}
+
+	w := csv.NewWriter(f)
+	defer w.Flush()
+
+	for _, newItem := range newsItems {
+		category := ""
+		if len(newItem.Category) > 0 {
+			category = newItem.Category[0]
+		}
+		record := []string{newItem.Id, newItem.Title, newItem.Description, newItem.Url, newItem.Author, newItem.Image, newItem.Language, category, newItem.Published}
+		if err := w.Write(record); err != nil {
+			fmt.Println(err)
+			return err
+		}
+	}
+
+	return nil
 }

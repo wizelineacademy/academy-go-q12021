@@ -4,27 +4,28 @@ import (
 	"errors"
 	"fmt"
 	"log"
-	"strconv"
 	"time"
 
+	"github.com/jesus-mata/academy-go-q12021/application/repository"
 	"github.com/jesus-mata/academy-go-q12021/domain"
 	"github.com/jesus-mata/academy-go-q12021/infrastructure"
-	"github.com/jesus-mata/academy-go-q12021/usecase/repository"
+	"github.com/jesus-mata/academy-go-q12021/infrastructure/newsapi"
 	"github.com/jesus-mata/academy-go-q12021/utils"
 )
 
 type newsRepository struct {
-	csvReader *infrastructure.CsvReader
+	csvSource *infrastructure.CsvSource
+	newsApi   newsapi.NewsApiClient
 	logger    *log.Logger
 }
 
-func NewNewsArticleRepository(csv *infrastructure.CsvReader, logger *log.Logger) repository.NewsArticleRepository {
-	return &newsRepository{csv, logger}
+func NewNewsArticleRepository(csv *infrastructure.CsvSource, newsApi newsapi.NewsApiClient, logger *log.Logger) repository.NewsArticleRepository {
+	return &newsRepository{csv, newsApi, logger}
 }
 
-func (r *newsRepository) FindByID(id int) (*domain.NewsArticle, error) {
+func (r *newsRepository) FindByID(id string) (*domain.NewsArticle, error) {
 	r.logger.Println("Finding News Article by ID", id)
-	records, err := r.csvReader.GetAllLines()
+	records, err := r.csvSource.GetAllLines()
 	if err != nil {
 		return nil, err
 	}
@@ -45,7 +46,7 @@ func (r *newsRepository) FindByID(id int) (*domain.NewsArticle, error) {
 
 func (r *newsRepository) FindAll() ([]*domain.NewsArticle, error) {
 	r.logger.Println("Retriving all News Articles")
-	records, err := r.csvReader.GetAllLines()
+	records, err := r.csvSource.GetAllLines()
 	if err != nil {
 		return nil, err
 	}
@@ -59,10 +60,23 @@ func (r *newsRepository) FindAll() ([]*domain.NewsArticle, error) {
 		}
 
 		newsArticles = append(newsArticles, newsArticle)
-
 	}
 
 	return newsArticles, nil
+}
+
+func (r *newsRepository) FetchCurrent() (string, error) {
+	r.logger.Println("Fetching all News Articles from API")
+	newsItems, err := r.newsApi.GetCurrentNews()
+	if err != nil {
+		return "nil", err
+	}
+	r.logger.Printf("News Found %v \n", len(newsItems))
+	err = r.csvSource.WriteLines(newsItems)
+	if err != nil {
+		return "error", err
+	}
+	return "OK", nil
 }
 
 func mapFromCSVRecord(record []string) (*domain.NewsArticle, error) {
@@ -70,18 +84,18 @@ func mapFromCSVRecord(record []string) (*domain.NewsArticle, error) {
 		return nil, errors.New("CSV file has not valid News data")
 	}
 
-	id, err := strconv.Atoi(record[0])
-	if err != nil {
-		return nil, fmt.Errorf("CSV has invalid data. The ID '%v' is not valid.", record[0])
-	}
-	author := record[1]
-	category := record[2]
-	publishedDate, err := time.Parse(utils.LayoutDateTimeISO, record[3])
+	id := record[0]
+	title := record[1]
+	description := record[2]
+	url := record[3]
+	author := record[4]
+	image := record[5]
+	language := record[6]
+	category := record[7]
+	publishedDate, err := time.Parse(utils.LayoutDateTimeIDOWithTZ, record[8])
 	if err != nil {
 		return nil, fmt.Errorf("CSV has invalid data. The Published Date '%v' is not a valid date.", record[3])
 	}
 
-	title := record[4]
-
-	return domain.CreateNewsArticle(id, publishedDate, title, category, author)
+	return domain.CreateNewsArticle(id, title, description, url, author, image, language, category, publishedDate)
 }

@@ -3,16 +3,18 @@ package main
 import (
 	"fmt"
 	"log"
+	"net/http"
 	"os"
 
 	"github.com/gorilla/mux"
 
+	"github.com/jesus-mata/academy-go-q12021/application/interactors"
 	"github.com/jesus-mata/academy-go-q12021/infrastructure"
 	"github.com/jesus-mata/academy-go-q12021/infrastructure/config"
 	"github.com/jesus-mata/academy-go-q12021/infrastructure/handler"
+	"github.com/jesus-mata/academy-go-q12021/infrastructure/newsapi"
 	"github.com/jesus-mata/academy-go-q12021/infrastructure/routes"
 	"github.com/jesus-mata/academy-go-q12021/interfaces/repository"
-	"github.com/jesus-mata/academy-go-q12021/usecase/interactors"
 )
 
 func main() {
@@ -42,8 +44,10 @@ func main() {
 
 func provideNewsHandler(logger *log.Logger) *handler.NewsHandlers {
 
-	csvReader := infrastructure.NewCsvReader("./resources/data.csv", logger)
-	newsRepository := repository.NewNewsArticleRepository(csvReader, logger)
+	csvReader := infrastructure.NewCsvSource("./resources/data.csv", logger)
+	client := &http.Client{}
+	newsApi := newsapi.NewApiClient(client)
+	newsRepository := repository.NewNewsArticleRepository(csvReader, newsApi, logger)
 
 	newsInteractor := interactors.NewNewsArticlesInteractor(newsRepository)
 
