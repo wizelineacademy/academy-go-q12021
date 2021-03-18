@@ -20,5 +20,6 @@ func NewRegistry(db *sql.DB) Registry {
 func (r *registry) NewAppController() controller.AppController {
 	return controller.AppController {
 		Item: r.NewItemController(),
+		Joke: r.NewJokeController(),
 	}
 }

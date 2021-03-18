@@ -21,7 +21,7 @@ func (ir *itemRepository) FindAll(items []*model.Item) ([]*model.Item, error) {
 	fmt.Println("lenght=== %s", len(items))
 
 	// SQL query to get all records from CSV file
-	queryString := "SELECT id, name FROM `items.csv`"
+	queryString := "SELECT id, name FROM items"
 
 	if len(items) > 0 {
 		var ids []string
