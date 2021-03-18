@@ -1,0 +1,5 @@
+database:
+    repository: items.csv
+
+server:
+  address: 8080
