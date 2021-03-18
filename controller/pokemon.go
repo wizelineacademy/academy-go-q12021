@@ -1,5 +1,7 @@
 package controller
 
+// go:generate mockgen -source=controller/pokemon.go -destination=controller/mock/pokemon_controller.go -package=mock
+
 import (
 	"encoding/json"
 	"fmt"
@@ -86,19 +88,19 @@ func (pc *PokemonController) GetPokemonsFromExternalAPI(
 
 func (pc *PokemonController) GetPokemonConcurrently(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	typeConcurrency := vars["type"]
+	typeNumber := vars["type"]
 	itemsS := r.FormValue("items")
 	itemsPerWorkerS := r.FormValue("items_per_worker")
 
 	items, _ := strconv.Atoi(r.FormValue("items"))
 	itemsPerWorker, _ := strconv.Atoi(r.FormValue("items_per_worker"))
 
-	pokemons, _ := pc.useCase.GetPokemonsConcurrently(items, itemsPerWorker)
+	pokemons, _ := pc.useCase.GetPokemonsConcurrently(typeNumber, items, itemsPerWorker)
 
-	if typeConcurrency == "even" || typeConcurrency == "odd" {
+	if typeNumber == "even" || typeNumber == "odd" {
 		w.WriteHeader(http.StatusOK)
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(typeConcurrency + " " + itemsS + " " + itemsPerWorkerS)
+		json.NewEncoder(w).Encode(typeNumber + " " + itemsS + " " + itemsPerWorkerS)
 		json.NewEncoder(w).Encode(&pokemons)
 	} else {
 		w.WriteHeader(http.StatusInternalServerError)

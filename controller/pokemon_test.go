@@ -12,6 +12,27 @@ import (
 	"github.com/golang/mock/gomock"
 )
 
+var pokemonsTest = []model.Pokemon{
+	{ID: 1, Name: "greninja", URL: "https://pokeapi.co/api/v2/pokemon/658/"},
+	{ID: 2, Name: "ursaring", URL: "https://pokeapi.co/api/v2/pokemon/217/"},
+	{ID: 3, Name: "arcanine", URL: "https://pokeapi.co/api/v2/pokemon/59/"},
+	{ID: 4, Name: "gengar", URL: "https://pokeapi.co/api/v2/pokemon/94/"},
+	{ID: 5, Name: "porygon", URL: "https://pokeapi.co/api/v2/pokemon/137/"},
+	{ID: 6, Name: "flareon", URL: "https://pokeapi.co/api/v2/pokemon/136/"},
+	{ID: 7, Name: "omanyte", URL: "https://pokeapi.co/api/v2/pokemon/138/"},
+	{ID: 8, Name: "frillish", URL: "https://pokeapi.co/api/v2/pokemon/592/"},
+	{ID: 9, Name: "cacturne", URL: "https://pokeapi.co/api/v2/pokemon/332/"},
+	{ID: 10, Name: "scizor", URL: "https://pokeapi.co/api/v2/pokemon/212/"},
+}
+
+var pokemonsFromHttp = &[]model.SinglePokeExternal{
+	{Name: "delcatty", URL: "https://pokeapi.co/api/v2/pokemon/301/"},
+	{Name: "sableye", URL: "https://pokeapi.co/api/v2/pokemon/302/"},
+	{Name: "mawile", URL: "https://pokeapi.co/api/v2/pokemon/303/"},
+	{Name: "aron", URL: "https://pokeapi.co/api/v2/pokemon/304/"},
+	{Name: "lairon", URL: "https://pokeapi.co/api/v2/pokemon/305/"},
+}
+
 func TestPokemonController_Index(t *testing.T) {
 
 	request := httptest.NewRequest("GET", "/", nil)
@@ -56,13 +77,7 @@ func TestPokemonController_GetPokemons(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	pokemons := []model.Pokemon{
-		{ID: 1, Name: "greninja", URL: "https://pokeapi.co/api/v2/pokemon/658/"},
-		{ID: 2, Name: "ursaring", URL: "https://pokeapi.co/api/v2/pokemon/217/"},
-		{ID: 3, Name: "arcanine", URL: "https://pokeapi.co/api/v2/pokemon/59/"},
-		{ID: 4, Name: "gengar", URL: "https://pokeapi.co/api/v2/pokemon/94/"},
-		{ID: 5, Name: "porygon", URL: "https://pokeapi.co/api/v2/pokemon/137/"},
-	}
+	pokemons := pokemonsTest
 
 	mockUsecasePokemon := usecasemock.NewMockNewPokemonUsecase(ctrl)
 	mockUsecasePokemon.EXPECT().GetPokemons().Return(pokemons, nil)
@@ -173,13 +188,7 @@ func TestPokemonController_GetPokemonsFromExternalAPI(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	newPokemons := &[]model.SinglePokeExternal{
-		{Name: "delcatty", URL: "https://pokeapi.co/api/v2/pokemon/301/"},
-		{Name: "sableye", URL: "https://pokeapi.co/api/v2/pokemon/302/"},
-		{Name: "mawile", URL: "https://pokeapi.co/api/v2/pokemon/303/"},
-		{Name: "aron", URL: "https://pokeapi.co/api/v2/pokemon/304/"},
-		{Name: "lairon", URL: "https://pokeapi.co/api/v2/pokemon/305/"},
-	}
+	newPokemons := pokemonsFromHttp
 	mockUsecasePokemon := usecasemock.NewMockNewPokemonUsecase(ctrl)
 	mockUsecasePokemon.EXPECT().GetPokemonsFromExternalAPI().Return(newPokemons, nil)
 

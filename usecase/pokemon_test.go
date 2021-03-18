@@ -12,18 +12,33 @@ import (
 	"github.com/golang/mock/gomock"
 )
 
+var pokemonsTest = []model.Pokemon{
+	{ID: 1, Name: "greninja", URL: "https://pokeapi.co/api/v2/pokemon/658/"},
+	{ID: 2, Name: "ursaring", URL: "https://pokeapi.co/api/v2/pokemon/217/"},
+	{ID: 3, Name: "arcanine", URL: "https://pokeapi.co/api/v2/pokemon/59/"},
+	{ID: 4, Name: "gengar", URL: "https://pokeapi.co/api/v2/pokemon/94/"},
+	{ID: 5, Name: "porygon", URL: "https://pokeapi.co/api/v2/pokemon/137/"},
+	{ID: 6, Name: "flareon", URL: "https://pokeapi.co/api/v2/pokemon/136/"},
+	{ID: 7, Name: "omanyte", URL: "https://pokeapi.co/api/v2/pokemon/138/"},
+	{ID: 8, Name: "frillish", URL: "https://pokeapi.co/api/v2/pokemon/592/"},
+	{ID: 9, Name: "cacturne", URL: "https://pokeapi.co/api/v2/pokemon/332/"},
+	{ID: 10, Name: "scizor", URL: "https://pokeapi.co/api/v2/pokemon/212/"},
+}
+
+var pokemonsFromHttp = []model.SinglePokeExternal{
+	{Name: "delcatty", URL: "https://pokeapi.co/api/v2/pokemon/301/"},
+	{Name: "sableye", URL: "https://pokeapi.co/api/v2/pokemon/302/"},
+	{Name: "mawile", URL: "https://pokeapi.co/api/v2/pokemon/303/"},
+	{Name: "aron", URL: "https://pokeapi.co/api/v2/pokemon/304/"},
+	{Name: "lairon", URL: "https://pokeapi.co/api/v2/pokemon/305/"},
+}
+
 func TestPokemonUsecase_GetPokemons(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
 	mockCsvService := mock.NewMockNewCsvService(ctrl)
-	mockCsvService.EXPECT().GetPokemons().Return([]model.Pokemon{
-		{ID: 1, Name: "greninja", URL: "https://pokeapi.co/api/v2/pokemon/658/"},
-		{ID: 2, Name: "ursaring", URL: "https://pokeapi.co/api/v2/pokemon/217/"},
-		{ID: 3, Name: "arcanine", URL: "https://pokeapi.co/api/v2/pokemon/59/"},
-		{ID: 4, Name: "gengar", URL: "https://pokeapi.co/api/v2/pokemon/94/"},
-		{ID: 5, Name: "porygon", URL: "https://pokeapi.co/api/v2/pokemon/137/"},
-	}, nil)
+	mockCsvService.EXPECT().GetPokemons().Return(pokemonsTest, nil)
 
 	tests := []struct {
 		name       string
@@ -34,14 +49,8 @@ func TestPokemonUsecase_GetPokemons(t *testing.T) {
 		{
 			name:       "succeded Get Pokemons",
 			csvService: mockCsvService,
-			want: []model.Pokemon{
-				{ID: 1, Name: "greninja", URL: "https://pokeapi.co/api/v2/pokemon/658/"},
-				{ID: 2, Name: "ursaring", URL: "https://pokeapi.co/api/v2/pokemon/217/"},
-				{ID: 3, Name: "arcanine", URL: "https://pokeapi.co/api/v2/pokemon/59/"},
-				{ID: 4, Name: "gengar", URL: "https://pokeapi.co/api/v2/pokemon/94/"},
-				{ID: 5, Name: "porygon", URL: "https://pokeapi.co/api/v2/pokemon/137/"},
-			},
-			wantErr: nil,
+			want:       pokemonsTest,
+			wantErr:    nil,
 		},
 	}
 	for _, tt := range tests {
@@ -132,13 +141,7 @@ func TestPokemonUsecase_GetPokemonsFromExternalAPI(t *testing.T) {
 	mockHttpService := mock.NewMockNewHttpService(ctrl)
 
 	// We create the mocking new Pokemons array retrieved by the http Service
-	mockNewPokemons := []model.SinglePokeExternal{
-		{Name: "delcatty", URL: "https://pokeapi.co/api/v2/pokemon/301/"},
-		{Name: "sableye", URL: "https://pokeapi.co/api/v2/pokemon/302/"},
-		{Name: "mawile", URL: "https://pokeapi.co/api/v2/pokemon/303/"},
-		{Name: "aron", URL: "https://pokeapi.co/api/v2/pokemon/304/"},
-		{Name: "lairon", URL: "https://pokeapi.co/api/v2/pokemon/305/"},
-	}
+	mockNewPokemons := pokemonsFromHttp
 
 	// we mock our methods
 	mockHttpService.EXPECT().GetPokemons().Return(mockNewPokemons, nil)

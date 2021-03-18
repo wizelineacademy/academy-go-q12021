@@ -1,5 +1,7 @@
 package usecase
 
+// go:generate mockgen -source=usecase/pokemon.go -destination=usecase/mock/pokemon_usecase.go -package=mock
+
 import (
 	"pokeapi/model"
 	csvservice "pokeapi/service/csv"
@@ -13,7 +15,7 @@ type PokemonUsecase struct {
 
 type NewPokemonUsecase interface {
 	GetPokemons() ([]model.Pokemon, *model.Error)
-	GetPokemonsConcurrently(items int, itemsPerWorker int) ([]model.Pokemon, *model.Error)
+	GetPokemonsConcurrently(typeNumber string, items int, itemsPerWorker int) ([]model.Pokemon, *model.Error)
 	GetPokemon(pokemonId int) (model.Pokemon, *model.Error)
 	GetPokemonsFromExternalAPI() (*[]model.SinglePokeExternal, *model.Error)
 }
@@ -30,8 +32,8 @@ func (us *PokemonUsecase) GetPokemon(pokemonId int) (model.Pokemon, *model.Error
 	return us.csvService.GetPokemon(pokemonId)
 }
 
-func (us *PokemonUsecase) GetPokemonsConcurrently(items int, itemsPerWorker int) ([]model.Pokemon, *model.Error) {
-	return us.csvService.GetPokemonsConcurrently(items, itemsPerWorker)
+func (us *PokemonUsecase) GetPokemonsConcurrently(typeNumber string, items int, itemsPerWorker int) ([]model.Pokemon, *model.Error) {
+	return us.csvService.GetPokemonsConcurrently(typeNumber, items, itemsPerWorker)
 }
 
 func (us *PokemonUsecase) GetPokemonsFromExternalAPI() (*[]model.SinglePokeExternal, *model.Error) {

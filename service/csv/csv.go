@@ -1,5 +1,6 @@
-// go:generate mockgen -source=csv.go -destination=mock/csv_mock.go -package mock
 package csvservice
+
+// go:generate mockgen -source=service/csv/csv.go -destination=service/mock/csv_mock.go -package=mock
 
 import (
 	"encoding/csv"
@@ -16,11 +17,12 @@ const pathFile = "./csv/pokemon.csv"
 
 type CsvService struct{}
 
+// mockgen -source=service/csv/csv.go -destination=service/mock/csv_mock.go -package=mock
 type NewCsvService interface {
 	GetPokemons() ([]model.Pokemon, *model.Error)
 	GetPokemon(pokemonId int) (model.Pokemon, *model.Error)
 	SavePokemons(*[]model.SinglePokeExternal) *model.Error
-	GetPokemonsConcurrently(items int, itemsPerWorker int) ([]model.Pokemon, *model.Error)
+	GetPokemonsConcurrently(typeNumber string, items int, itemsPerWorker int) ([]model.Pokemon, *model.Error)
 }
 
 func New() *CsvService {
@@ -244,7 +246,9 @@ func (s *CsvService) SavePokemons(newPokemons *[]model.SinglePokeExternal) *mode
 	return nil
 }
 
-func (s *CsvService) GetPokemonsConcurrently(items int, itemsPerWorker int) ([]model.Pokemon, *model.Error) {
+func (s *CsvService) GetPokemonsConcurrently(typeNumber string, items int,
+	itemsPerWorker int) ([]model.Pokemon, *model.Error) {
+
 	f, err := Open(pathFile)
 
 	if err != nil {
