@@ -46,7 +46,10 @@ func provideNewsHandler(logger *log.Logger) *handler.NewsHandlers {
 
 	csvReader := infrastructure.NewCsvSource("./resources/data.csv", logger)
 	client := &http.Client{}
-	newsApi := newsapi.NewApiClient(client)
+
+	host := config.GetString("currentnews.api.host")
+	apikey := config.GetString("currentnews.api.apiKey")
+	newsApi := newsapi.NewApiClient(host, apikey, client)
 	newsRepository := repository.NewNewsArticleRepository(csvReader, newsApi, logger)
 
 	newsInteractor := interactors.NewNewsArticlesInteractor(newsRepository)

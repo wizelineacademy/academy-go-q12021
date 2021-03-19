@@ -51,12 +51,12 @@ func (h *NewsHandlers) GetByID(w http.ResponseWriter, req *http.Request) {
 func (h *NewsHandlers) FetchAll(w http.ResponseWriter, req *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=uft-8")
 
-	newsArticles, err := h.newsInteractor.FetchAll()
+	err := h.newsInteractor.FetchAll()
 	if err != nil {
 		json.NewEncoder(w).Encode(dto.NewErrorResponse(err.Error(), "Unable to retrieve all articles."))
 		return
 	}
-
-	json.NewEncoder(w).Encode(newsArticles)
+	resp := dto.Respose{Message: "Current News fetched and saved on csv file."}
+	json.NewEncoder(w).Encode(resp)
 
 }

@@ -1,3 +1,8 @@
 app:
   name: "News API"
   port: 8080
+
+currentnews:
+  api:
+    host: "https://api.currentsapi.services/v1/latest-news"
+    apiKey: "VVaqbbrkdYyMa4Kw92mRefEDZAAxwFudy8Mhew4I-2HmQS1P"

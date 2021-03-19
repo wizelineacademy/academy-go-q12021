@@ -14,12 +14,12 @@ import (
 )
 
 type newsRepository struct {
-	csvSource *infrastructure.CsvSource
+	csvSource infrastructure.CsvSource
 	newsApi   newsapi.NewsApiClient
 	logger    *log.Logger
 }
 
-func NewNewsArticleRepository(csv *infrastructure.CsvSource, newsApi newsapi.NewsApiClient, logger *log.Logger) repository.NewsArticleRepository {
+func NewNewsArticleRepository(csv infrastructure.CsvSource, newsApi newsapi.NewsApiClient, logger *log.Logger) repository.NewsArticleRepository {
 	return &newsRepository{csv, newsApi, logger}
 }
 
@@ -65,18 +65,18 @@ func (r *newsRepository) FindAll() ([]*domain.NewsArticle, error) {
 	return newsArticles, nil
 }
 
-func (r *newsRepository) FetchCurrent() (string, error) {
+func (r *newsRepository) FetchCurrent() error {
 	r.logger.Println("Fetching all News Articles from API")
 	newsItems, err := r.newsApi.GetCurrentNews()
 	if err != nil {
-		return "nil", err
+		return err
 	}
 	r.logger.Printf("News Found %v \n", len(newsItems))
 	err = r.csvSource.WriteLines(newsItems)
 	if err != nil {
-		return "error", err
+		return err
 	}
-	return "OK", nil
+	return nil
 }
 
 func mapFromCSVRecord(record []string) (*domain.NewsArticle, error) {

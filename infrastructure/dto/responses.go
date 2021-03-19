@@ -11,3 +11,8 @@ type errorRespose struct {
 func NewErrorResponse(msg string, desc string) errorRespose {
 	return errorRespose{Message: msg, Description: desc, Timestamp: time.Now()}
 }
+
+type Respose struct {
+	Message     string `json:"message"`
+	Description string `json:"description"`
+}

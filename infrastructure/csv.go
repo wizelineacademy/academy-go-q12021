@@ -11,39 +11,22 @@ import (
 	"github.com/jesus-mata/academy-go-q12021/infrastructure/dto"
 )
 
-type CsvSource struct {
+//go:generate mockgen -package mocks -destination $ROOTDIR/mocks/$GOPACKAGE/mock_$GOFILE . CsvSource
+type CsvSource interface {
+	WriteLines(newsItems []dto.NewItem) error
+	GetAllLines() ([][]string, error)
+}
+type csvSource struct {
 	file   string
 	logger *log.Logger
 }
 
-func NewCsvSource(file string, logger *log.Logger) *CsvSource {
+func NewCsvSource(file string, logger *log.Logger) CsvSource {
 
-	return &CsvSource{file, logger}
+	return &csvSource{file, logger}
 }
 
-func (c *CsvSource) PrintAllLines() error {
-
-	csvfile, err := os.Open(c.file)
-	if err != nil {
-		return err
-	}
-
-	reader := csv.NewReader(csvfile)
-	for {
-		record, err := reader.Read()
-		if err == io.EOF {
-			break
-		}
-		if err != nil {
-			c.logger.Fatal(err)
-			return err
-		}
-		c.logger.Println("CSV Record: ", record)
-	}
-	return nil
-}
-
-func (c *CsvSource) GetAllLines() ([][]string, error) {
+func (c *csvSource) GetAllLines() ([][]string, error) {
 	rows := make([][]string, 0, 5)
 
 	c.logger.Println("Reading all lines of CSV file", c.file)
@@ -52,6 +35,7 @@ func (c *CsvSource) GetAllLines() ([][]string, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	reader := csv.NewReader(csvfile)
 
 	for {
@@ -70,7 +54,7 @@ func (c *CsvSource) GetAllLines() ([][]string, error) {
 	return rows, nil
 }
 
-func (c *CsvSource) WriteLines(newsItems []dto.NewItem) error {
+func (c *csvSource) WriteLines(newsItems []dto.NewItem) error {
 	f, err := os.OpenFile(c.file, os.O_TRUNC|os.O_WRONLY, os.ModeAppend)
 	defer f.Close()
 

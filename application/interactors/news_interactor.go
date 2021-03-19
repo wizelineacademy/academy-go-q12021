@@ -8,7 +8,7 @@ import (
 type NewsArticlesInteractor interface {
 	GetAll() ([]*domain.NewsArticle, error)
 	GetByID(id string) (*domain.NewsArticle, error)
-	FetchAll() (string, error)
+	FetchAll() error
 }
 
 type newsArticlesInteractor struct {
@@ -27,6 +27,6 @@ func (s *newsArticlesInteractor) GetByID(id string) (*domain.NewsArticle, error)
 	return s.newsRepository.FindByID(id)
 }
 
-func (s *newsArticlesInteractor) FetchAll() (string, error) {
+func (s *newsArticlesInteractor) FetchAll() error {
 	return s.newsRepository.FetchCurrent()
 }

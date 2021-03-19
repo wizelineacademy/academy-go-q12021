@@ -1,0 +1,3 @@
+export ROOTDIR=$(pwd)
+
+go generate -x ./... 

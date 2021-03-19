@@ -2,6 +2,8 @@ package newsapi
 
 import (
 	"encoding/json"
+	"errors"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 
@@ -9,26 +11,29 @@ import (
 	"github.com/jesus-mata/academy-go-q12021/infrastructure/dto"
 )
 
+//go:generate mockgen -package mocks -destination $ROOTDIR/mocks/$GOPACKAGE/mock_$GOFILE . NewsApiClient
 type NewsApiClient interface {
 	GetCurrentNews() ([]dto.NewItem, error)
 }
 
 type newsApiClient struct {
+	host   string
+	apiKey string
 	client infrastructure.HTTPClient
 }
 
-func NewApiClient(client infrastructure.HTTPClient) NewsApiClient {
-	return &newsApiClient{client}
+func NewApiClient(host string, apiKey string, client infrastructure.HTTPClient) NewsApiClient {
+	return &newsApiClient{host, apiKey, client}
 }
 
 func (c *newsApiClient) GetCurrentNews() ([]dto.NewItem, error) {
-	req, err := http.NewRequest(http.MethodGet, "https://api.currentsapi.services/v1/latest-news", nil)
+	req, err := http.NewRequest(http.MethodGet, c.host, nil)
 	if err != nil {
 		return nil, err
 	}
-	req.Header.Add("Authorization", "VVaqbbrkdYyMa4Kw92mRefEDZAAxwFudy8Mhew4I-2HmQS1P")
+	req.Header.Add("Authorization", c.apiKey)
 
-	client := &http.Client{}
+	client := c.client
 	response, err := client.Do(req)
 	if err != nil {
 		return nil, err
@@ -37,6 +42,10 @@ func (c *newsApiClient) GetCurrentNews() ([]dto.NewItem, error) {
 	responseData, err := ioutil.ReadAll(response.Body)
 	if err != nil {
 		return nil, err
+	}
+
+	if response.StatusCode != 200 {
+		return nil, errors.New(fmt.Sprintf("Error on API request %s", string(responseData)))
 	}
 
 	var responseObject dto.NewsApiResponse
