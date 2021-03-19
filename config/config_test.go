@@ -15,12 +15,12 @@ const pokemonSourceValue = "../test.csv"
 
 // Test default values and required env vars
 func TestDefaultConfig(t *testing.T) {
-	environment := Environment
+	environment := GetEnv()
 	if environment != constant.DefaultEnvironment {
 		t.Errorf("%v default should be %v, got %v", constant.EnvironmentVarName, constant.DefaultEnvironment, environment)
 	}
 
-	serverPort := ServerPort
+	serverPort := GetServerPort()
 	if serverPort != constant.DefaultServerPort {
 		t.Errorf("%v default should be %v, got %v", constant.ServerPortVarName, constant.DefaultServerPort, serverPort)
 	}
@@ -32,8 +32,7 @@ func TestDefaultConfig(t *testing.T) {
 			fmt.Println("The config has throwed an exception")
 		}
 	}()
-
-	fmt.Println(PokemonSource)
+	fmt.Println(GetPokemonSource())
 }
 
 // Test assignation for env vars
@@ -42,12 +41,12 @@ func TestAssignedConfig(t *testing.T) {
 	os.Setenv(constant.EnvironmentVarName, environmentValue)
 	os.Setenv(constant.PokemonSourceVarName, pokemonSourceValue)
 
-	environment := Environment
+	environment := GetEnv()
 	if environment != environmentValue {
 		t.Errorf("%v did not change its value, expected '%v', got '%v'", constant.EnvironmentVarName, environmentValue, environment)
 	}
 
-	serverPort := ServerPort
+	serverPort := GetServerPort()
 	if serverPort != serverPortValue {
 		t.Errorf("%v did not change its value, expected '%v', got '%v'", constant.ServerPortVarName, serverPortValue, serverPort)
 	}
@@ -58,7 +57,7 @@ func TestAssignedConfig(t *testing.T) {
 		}
 	}()
 
-	pokemonSource := PokemonSource
+	pokemonSource := GetPokemonSource()
 	if pokemonSource != pokemonSourceValue {
 		t.Errorf("%v did not change its value, expected '%v', got '%v'", constant.PokemonSourceVarName, pokemonSourceValue, pokemonSource)
 	}

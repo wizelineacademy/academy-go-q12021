@@ -7,16 +7,8 @@ import (
 	"github.com/wizelineacademy/academy-go/constant"
 )
 
-// Environment contains the value of the current environment
-var Environment = getEnv()
-
-// PokemonSource contains the value of data source for pokemon endpoint
-var PokemonSource = getPokemonSource()
-
-// ServerPort contains the value of server port
-var ServerPort = getServerPort()
-
-func getServerPort() string {
+// GetServerPort returns the value of server port or '8080' by default if 'SERVER_PORT' is not defined
+func GetServerPort() string {
 	serverPort, ok := os.LookupEnv(constant.ServerPortVarName)
 	if ok {
 		return serverPort
@@ -25,7 +17,8 @@ func getServerPort() string {
 	return constant.DefaultServerPort
 }
 
-func getPokemonSource() string {
+// GetPokemonSource returns the value of data source for pokemon endpoint and panic when 'POKEMON_SOURCE' is not defined
+func GetPokemonSource() string {
 	pokemonSource, ok := os.LookupEnv(constant.PokemonSourceVarName)
 	if ok {
 		return pokemonSource
@@ -34,7 +27,8 @@ func getPokemonSource() string {
 	panic(errors.New(constant.PokemonSourceVarName + " env var is required"))
 }
 
-func getEnv() string {
+// GetEnv returns the value of the current environment or 'dev' by default if 'ENVIRONMENT' is not defined
+func GetEnv() string {
 	environment, ok := os.LookupEnv(constant.EnvironmentVarName)
 	if ok {
 		return environment
