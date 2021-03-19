@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/wizelineacademy/academy-go-q12021/model"
+	"github.com/wizelineacademy/academy-go-q12021/model/mapper"
 
 	"github.com/gocarina/gocsv"
 	"github.com/spf13/viper"
@@ -62,14 +63,26 @@ func (p *PokemonRepository) GetByID(id int) (*model.Pokemon, error) {
 	return nil, errors.New("the pokemon does not exist")
 }
 
-func (p PokemonRepository) StoreByID(id int) (*model.Pokemon, error) {
-	/*	pokemonMap, err := p.getCSVDataInMemory()
-		if err != nil {
-			return nil, err
-		}
-	*/
-
-	return nil, nil
+func (p PokemonRepository) StoreToCSV(pokemonAPI model.PokemonAPI) (*model.Pokemon, error) {
+	pokemonMap, err := p.getCSVDataInMemory()
+	if err != nil {
+		return nil, err
+	}
+	pokemon := mapper.PokemonAPItoPokemon(pokemonAPI)
+	pokemonMap[pokemon.Id] = pokemon
+	pokemons := make([]model.Pokemon, 0)
+	for _, pokemonObj := range pokemonMap {
+		pokemons = append(pokemons, pokemonObj)
+	}
+	pokemonFile, err := p.openFile()
+	if err != nil {
+		return nil, err
+	}
+	if err := gocsv.MarshalFile(&pokemons, pokemonFile); err != nil {
+		return nil, errors.New("There was a problem accesing to csv file")
+	}
+	defer pokemonFile.Close()
+	return &pokemon, nil
 }
 
 func (p PokemonRepository) getCSVDataInMemory() (map[int]model.Pokemon, error) {
@@ -81,6 +94,5 @@ func (p PokemonRepository) getCSVDataInMemory() (map[int]model.Pokemon, error) {
 	for _, pokemon := range pokemons {
 		pokemonMap[pokemon.Id] = pokemon
 	}
-
 	return pokemonMap, nil
 }

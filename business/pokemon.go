@@ -5,6 +5,7 @@ import (
 
 	"github.com/wizelineacademy/academy-go-q12021/model"
 	"github.com/wizelineacademy/academy-go-q12021/repository"
+	"github.com/wizelineacademy/academy-go-q12021/service"
 )
 
 // PokemonService dependencies from Pokemon service
@@ -47,7 +48,14 @@ func (s *PokemonBusiness) GetByID(id int) (*model.Pokemon, error) {
 // StoreByID get pokemon by his id
 func (s *PokemonBusiness) StoreByID(id int) (*model.Pokemon, error) {
 	log.Println("Enter to search and store pokemon by id!!!")
-	pokemon, err := s.pokemonRepository.StoreByID(id)
+
+	pokemonService := service.NewExternalPokemonAPI()
+
+	pokemonAPI, err := pokemonService.GetPokemonFromAPI(id)
+	if err != nil {
+		return nil, err
+	}
+	pokemon, err := s.pokemonRepository.StoreToCSV(*pokemonAPI)
 	if err != nil {
 		return nil, err
 	}
