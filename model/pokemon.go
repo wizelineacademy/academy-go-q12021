@@ -5,10 +5,10 @@ import (
 )
 
 type Pokemon struct {
-	Id int `json:"id"`
+	Id   int    `json:"id"`
 	Name string `json:"name"`
 }
 
 func (p Pokemon) String() string {
-	return fmt.Sprintf("ID\t\t\t|Name\n%v\t\t\t|%v", p.Id, p.Name)
+	return fmt.Sprintf("\n{\n\tID: %v,\n\tName: %v\n}\n", p.Id, p.Name)
 }

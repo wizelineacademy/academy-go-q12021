@@ -2,22 +2,20 @@ package controller
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"strconv"
 
-	"../model"
-	"../service"
+	"github.com/wizelineacademy/academy-go/service"
 )
 
-var dataService = service.PokemonDataService(make(map[int]model.Pokemon))
+var dataService service.DataService
 
-func getPokemonByIdQueryParamas(r *http.Request) map[string]int {
+func getPokemonsQueryParamas(r *http.Request) map[string]int {
 	queryParams := make(map[string]int, 3)
 
-	queryId, ok := r.URL.Query()["id"]
-	if ok && len(queryId[0]) > 0 {
-		id, err := strconv.Atoi(queryId[0])
+	queryID, ok := r.URL.Query()["id"]
+	if ok && len(queryID[0]) > 0 {
+		id, err := strconv.Atoi(queryID[0])
 		if err == nil {
 			queryParams["id"] = id
 		}
@@ -46,42 +44,36 @@ func getPokemonByIdQueryParamas(r *http.Request) map[string]int {
 	return queryParams
 }
 
-var getPokemonById = func(w http.ResponseWriter, r *http.Request) {
-	queryParams := getPokemonByIdQueryParamas(r)
+var getPokemons = func(w http.ResponseWriter, r *http.Request) {
+	queryParams := getPokemonsQueryParamas(r)
 
+	// Return just one pokemon by ID
 	id, ok := queryParams["id"]
 	if ok {
-		pokemon, err := dataService.Get(id)
-		if err != nil {
-			response := model.ResponsePokemon{Error: fmt.Sprintf("%v", err)}
-			json.NewEncoder(w).Encode(response)
-			return
+		responseGet := dataService.Get(id)
+		if responseGet.Error != nil {
+			http.Error(w, responseGet.Error.Error(), http.StatusNotFound)
+		} else {
+			json.NewEncoder(w).Encode(responseGet)
 		}
-
-		result := make([]model.Pokemon, 1)
-		result = append(result, pokemon)
-		response := model.ResponsePokemon{Result: result, Total: len(result), Page: 1}
-		json.NewEncoder(w).Encode(response)
 		return
 	}
 
 	count, _ := queryParams["count"]
 	page, _ := queryParams["page"]
-	pokemons, err := dataService.List(count, page)
-	if err != nil {
-		response := model.ResponsePokemon{Error: fmt.Sprintf("%v", err)}
-		json.NewEncoder(w).Encode(response)
-		return
+	responseList := dataService.List(count, page)
+	if responseList.Error != nil {
+		http.Error(w, responseList.Error.Error(), http.StatusNotFound)
+	} else {
+		json.NewEncoder(w).Encode(responseList)
 	}
-
-	response := model.ResponsePokemon{Result: pokemons, Total: len(dataService), Page: page}
-	json.NewEncoder(w).Encode(response)
 }
 
-func GetPokemonRoutes() map[string]func(http.ResponseWriter, *http.Request) {
-	dataService.Init()
+// GetPokemonRoutes returns a map with the handlers for pokemon endpoints
+func GetPokemonRoutes(pokemonService service.DataService) map[string]func(http.ResponseWriter, *http.Request) {
+	dataService = pokemonService
 	pokemonRoutes := map[string]func(http.ResponseWriter, *http.Request){
-		"/pokemons": getPokemonById,
+		"/pokemons": getPokemons,
 	}
 
 	return pokemonRoutes
