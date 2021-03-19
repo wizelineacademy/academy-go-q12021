@@ -2,6 +2,7 @@ package controller
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -46,6 +47,7 @@ func getPokemonsQueryParamas(r *http.Request) map[string]int {
 
 var getPokemons = func(w http.ResponseWriter, r *http.Request) {
 	queryParams := getPokemonsQueryParamas(r)
+	fmt.Printf("%v %v: %v\n", r.Method, r.URL.Path, queryParams)
 
 	// Return just one pokemon by ID
 	id, ok := queryParams["id"]
@@ -59,6 +61,7 @@ var getPokemons = func(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// List all pokemons
 	count, _ := queryParams["count"]
 	page, _ := queryParams["page"]
 	responseList := dataService.List(count, page)
