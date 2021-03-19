@@ -1,4 +1,4 @@
-package csv_file_reader
+package csvfilereader
 
 import (
 	"encoding/csv"

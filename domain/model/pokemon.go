@@ -2,11 +2,11 @@ package model
 
 //Representation of a Pokemon
 type Pokemon struct {
-	Id         int32
-	Species    string
-	Sprite     string
-	FlavorText string
-	Types      []string
+	Id         int32    `json:"id"`
+	Species    string   `json:"species"`
+	Sprite     string   `json:"sprite"`
+	FlavorText string   `json:"flavorText"`
+	Types      []string `json:"types"`
 }
 
 //Creates an struct with pokemagic

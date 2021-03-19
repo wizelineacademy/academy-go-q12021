@@ -2,21 +2,20 @@ package repository
 
 import (
 	"errors"
-
 	"github.com/ToteEmmanuel/academy-go-q12021/domain/model"
-	csv_file_reader "github.com/ToteEmmanuel/academy-go-q12021/tools/reader"
+	cvsfilereader "github.com/ToteEmmanuel/academy-go-q12021/tools/reader"
 )
-
-type pokeRepository struct {
-	storage *csv_file_reader.CsvPokeStorage
-}
 
 type PokeRepository interface {
 	FindById(id int32) (*model.Pokemon, error)
-	FindAll() []*model.Pokemon
+	FindAll() ([]*model.Pokemon, error)
 }
 
-func NewPokeRepository(storage *csv_file_reader.CsvPokeStorage) PokeRepository {
+type pokeRepository struct {
+	storage *cvsfilereader.CsvPokeStorage
+}
+
+func NewPokeRepository(storage *cvsfilereader.CsvPokeStorage) PokeRepository {
 	return &pokeRepository{storage}
 }
 
@@ -28,7 +27,7 @@ func (pR *pokeRepository) FindById(id int32) (*model.Pokemon, error) {
 	return pokemon, nil
 }
 
-func (pR *pokeRepository) FindAll() []*model.Pokemon {
+func (pR *pokeRepository) FindAll() ([]*model.Pokemon, error) {
 	pokemon := pR.storage.FindAll()
-	return pokemon
+	return pokemon, nil
 }
