@@ -10,13 +10,17 @@ import (
 	"github.com/wizelineacademy/academy-go-q12021/model"
 )
 
+type IExternalPokemonAPI interface {
+	GetPokemonFromAPI(id int) (*model.PokemonAPI, error)
+}
+
 // ExternalPokemonAPI dependencies from Pokemon service
 type ExternalPokemonAPI struct {
 	url string
 }
 
 // NewExternalPokemonAPI initializer method for create ExternalPokemonAPI
-func NewExternalPokemonAPI() *ExternalPokemonAPI {
+func NewExternalPokemonAPI() IExternalPokemonAPI {
 	return &ExternalPokemonAPI{
 		url: "https://pokeapi.co/api/v2/pokemon",
 	}

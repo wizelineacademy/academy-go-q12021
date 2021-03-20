@@ -7,6 +7,8 @@ import (
 
 	"github.com/wizelineacademy/academy-go-q12021/business"
 	"github.com/wizelineacademy/academy-go-q12021/core"
+	"github.com/wizelineacademy/academy-go-q12021/repository"
+	"github.com/wizelineacademy/academy-go-q12021/service"
 
 	"github.com/gorilla/mux"
 )
@@ -15,7 +17,18 @@ import (
 func GetAllPokemons(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	pokemonBusiness, err := business.NewPokemonBusiness()
+	pokemonRepository, err := repository.NewPokemonRepository()
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(core.ErrorResponse{
+			Error: "Error creating repository",
+		})
+		return
+	}
+
+	pokemonService := service.NewExternalPokemonAPI()
+
+	pokemonBusiness, err := business.NewPokemonBusiness(pokemonRepository, pokemonService)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(w).Encode(core.ErrorResponse{
@@ -39,7 +52,18 @@ func GetAllPokemons(w http.ResponseWriter, r *http.Request) {
 func GetPokemonByID(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	pokemonBusiness, err := business.NewPokemonBusiness()
+	pokemonRepository, err := repository.NewPokemonRepository()
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(core.ErrorResponse{
+			Error: "Error creating repository",
+		})
+		return
+	}
+
+	pokemonService := service.NewExternalPokemonAPI()
+
+	pokemonBusiness, err := business.NewPokemonBusiness(pokemonRepository, pokemonService)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(w).Encode(core.ErrorResponse{
@@ -72,7 +96,17 @@ func GetPokemonByID(w http.ResponseWriter, r *http.Request) {
 func StorePokemonByID(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	pokemonBusiness, err := business.NewPokemonBusiness()
+	pokemonRepository, err := repository.NewPokemonRepository()
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(core.ErrorResponse{
+			Error: "Error creating repository",
+		})
+		return
+	}
+	pokemonService := service.NewExternalPokemonAPI()
+
+	pokemonBusiness, err := business.NewPokemonBusiness(pokemonRepository, pokemonService)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(w).Encode(core.ErrorResponse{

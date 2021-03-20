@@ -8,20 +8,23 @@ import (
 	"github.com/wizelineacademy/academy-go-q12021/service"
 )
 
+type IPokemonBusiness interface {
+	GetAll() ([]model.Pokemon, error)
+	GetByID(id int) (*model.Pokemon, error)
+	StoreByID(id int) (*model.Pokemon, error)
+}
+
 // PokemonService dependencies from Pokemon service
 type PokemonBusiness struct {
-	pokemonRepository *repository.PokemonRepository
+	pokemonRepository repository.IPokemonRepository
+	serviceAPI        service.IExternalPokemonAPI
 }
 
 // NewPokemonService initializer method for create PokemonService
-func NewPokemonBusiness() (*PokemonBusiness, error) {
-	pokemonRepository, err := repository.NewPokemonRepository()
-	if err != nil {
-		return nil, err
-	}
-
+func NewPokemonBusiness(repository repository.IPokemonRepository, service service.IExternalPokemonAPI) (IPokemonBusiness, error) {
 	return &PokemonBusiness{
-		pokemonRepository: pokemonRepository,
+		pokemonRepository: repository,
+		serviceAPI:        service,
 	}, nil
 }
 
@@ -48,10 +51,7 @@ func (s *PokemonBusiness) GetByID(id int) (*model.Pokemon, error) {
 // StoreByID get pokemon by his id
 func (s *PokemonBusiness) StoreByID(id int) (*model.Pokemon, error) {
 	log.Println("Enter to search and store pokemon by id!!!")
-
-	pokemonService := service.NewExternalPokemonAPI()
-
-	pokemonAPI, err := pokemonService.GetPokemonFromAPI(id)
+	pokemonAPI, err := s.serviceAPI.GetPokemonFromAPI(id)
 	if err != nil {
 		return nil, err
 	}
