@@ -87,13 +87,13 @@ func (m *MovieCSV) Search(ctx context.Context, criteria repository.Criteria) ([]
 
 	reader := csv.NewReader(file)
 	if workerItems := criteria.Query.Filters[totalItemsWorkersFilterKey].Value.(string); workerItems != "" {
-		return m.searchMovieOnFileParallel(reader, criteria)
+		return m.searchMoviesOnFileParallel(reader, criteria)
 	}
 
 	return m.searchMoviesOnFile(reader, criteria)
 }
 
-func (m *MovieCSV) searchMovieOnFileParallel(r *csv.Reader, criteria repository.Criteria) ([]*aggregate.Movie, string, error) {
+func (m *MovieCSV) searchMoviesOnFileParallel(r *csv.Reader, criteria repository.Criteria) ([]*aggregate.Movie, string, error) {
 	records, err := r.ReadAll()
 	if err != nil {
 		return nil, "", err
@@ -102,8 +102,8 @@ func (m *MovieCSV) searchMovieOnFileParallel(r *csv.Reader, criteria repository.
 	}
 
 	totalWorkers := len(records)
-	if len(records) > 10 {
-		totalWorkers = 10 // avoid more than 10 workers
+	if len(records) > 100 {
+		totalWorkers = 100 // avoid more than 100 workers
 	}
 
 	totalItemsPerWorker, err := strconv.Atoi(criteria.Query.Filters[totalItemsWorkersFilterKey].Value.(string))
@@ -113,17 +113,14 @@ func (m *MovieCSV) searchMovieOnFileParallel(r *csv.Reader, criteria repository.
 
 	movies := make([]*aggregate.Movie, 0)
 	movieChan := make(chan *aggregate.Movie, len(records))
-	jobsChan := make(chan []string, len(records))
+	jobs := make(chan []string, len(records))
 	workerWg := new(sync.WaitGroup)
 	workerWg.Add(totalWorkers)
 	for i := 0; i < totalWorkers; i++ {
-		go m.searchMovieWorker(totalItemsPerWorker, jobsChan, workerWg, movieChan)
+		go m.searchMoviesWorker(totalItemsPerWorker, jobs, workerWg, movieChan)
 	}
 
-	for _, record := range records {
-		jobsChan <- record
-	}
-	close(jobsChan)
+	go m.enqueueSearchMoviesJobs(records, jobs)
 	workerWg.Wait()
 	close(movieChan)
 
@@ -136,7 +133,7 @@ func (m *MovieCSV) searchMovieOnFileParallel(r *csv.Reader, criteria repository.
 	return movies, "", nil
 }
 
-func (m *MovieCSV) searchMovieWorker(totalItems int, jobs <-chan []string, wg *sync.WaitGroup, movieChan chan<- *aggregate.Movie) {
+func (m *MovieCSV) searchMoviesWorker(totalItems int, jobs <-chan []string, wg *sync.WaitGroup, movieChan chan<- *aggregate.Movie) {
 	defer wg.Done()
 	validItemsCount := 0
 	for record := range jobs {
@@ -150,6 +147,13 @@ func (m *MovieCSV) searchMovieWorker(totalItems int, jobs <-chan []string, wg *s
 		}
 		movieChan <- movie
 	}
+}
+
+func (m *MovieCSV) enqueueSearchMoviesJobs(records [][]string, jobs chan<- []string) {
+	for _, record := range records {
+		jobs <- record
+	}
+	close(jobs)
 }
 
 func (m *MovieCSV) searchMoviesOnFile(r *csv.Reader, criteria repository.Criteria) ([]*aggregate.Movie, string, error) {

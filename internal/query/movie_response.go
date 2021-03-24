@@ -15,8 +15,8 @@ type MovieResponse struct {
 
 // MoviesResponse A list of movies as DTO used for representation layer(s)
 type MoviesResponse struct {
-	Movies     []MovieResponse `json:"movies"`
 	TotalItems int             `json:"total_items"`
+	Movies     []MovieResponse `json:"movies"`
 	NextPage   string          `json:"next_page"`
 }
 
