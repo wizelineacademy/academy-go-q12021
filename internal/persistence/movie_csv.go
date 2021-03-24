@@ -6,6 +6,7 @@ import (
 	"io"
 	"os"
 	"strconv"
+	"strings"
 	"sync"
 
 	"github.com/maestre3d/academy-go-q12021/internal/aggregate"
@@ -15,7 +16,10 @@ import (
 	"github.com/maestre3d/academy-go-q12021/internal/valueobject"
 )
 
-const totalItemsWorkersFilterKey = "items_per_worker"
+const (
+	totalItemsWorkersFilterKey = "items_per_worker"
+	searchGenericFilterKey     = "type"
+)
 
 // MovieCSV handles all persistence Movie's operations locally using an specific `.csv` file
 //	Implements Movie repository
@@ -117,7 +121,8 @@ func (m *MovieCSV) searchMoviesOnFileParallel(r *csv.Reader, criteria repository
 	workerWg := new(sync.WaitGroup)
 	workerWg.Add(totalWorkers)
 	for i := 0; i < totalWorkers; i++ {
-		go m.searchMoviesWorker(totalItemsPerWorker, jobs, workerWg, movieChan)
+		go m.searchMoviesWorker(criteria.Query.Filters[searchGenericFilterKey].Value.(string),
+			totalItemsPerWorker, jobs, workerWg, movieChan)
 	}
 
 	go m.enqueueSearchMoviesJobs(records, jobs)
@@ -133,7 +138,7 @@ func (m *MovieCSV) searchMoviesOnFileParallel(r *csv.Reader, criteria repository
 	return movies, "", nil
 }
 
-func (m *MovieCSV) searchMoviesWorker(totalItems int, jobs <-chan []string, wg *sync.WaitGroup, movieChan chan<- *aggregate.Movie) {
+func (m *MovieCSV) searchMoviesWorker(filter string, totalItems int, jobs <-chan []string, wg *sync.WaitGroup, movieChan chan<- *aggregate.Movie) {
 	defer wg.Done()
 	validItemsCount := 0
 	for record := range jobs {
@@ -144,6 +149,15 @@ func (m *MovieCSV) searchMoviesWorker(totalItems int, jobs <-chan []string, wg *
 		movie := aggregate.NewEmptyMovie()
 		if err := marshal.UnmarshalMovieCSV(movie, record...); err == nil {
 			validItemsCount++
+		}
+
+		cleanedID, err := strconv.Atoi(strings.TrimPrefix(string(movie.IMDbID), "tt"))
+		if err != nil {
+			continue
+		} else if filter == "odd" && cleanedID%2 == 0 {
+			continue
+		} else if filter == "even" && cleanedID%2 != 0 {
+			continue
 		}
 		movieChan <- movie
 	}

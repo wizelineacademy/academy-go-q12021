@@ -27,5 +27,9 @@ func UnmarshalCriteria(r *http.Request) repository.Criteria {
 		Condition: repository.EqualsCondition,
 		Value:     r.URL.Query().Get("items_per_worker"),
 	}
+	criteria.Query.Filters["type"] = repository.Filter{
+		Condition: repository.EqualsCondition,
+		Value:     r.URL.Query().Get("type"),
+	}
 	return criteria
 }

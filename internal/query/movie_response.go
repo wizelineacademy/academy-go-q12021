@@ -11,6 +11,7 @@ type MovieResponse struct {
 	DisplayName string   `json:"title"`
 	Directors   []string `json:"directors"`
 	ReleaseYear int      `json:"release_year"`
+	IMDbID      string   `json:"imdb_id"`
 }
 
 // MoviesResponse A list of movies as DTO used for representation layer(s)
@@ -26,6 +27,7 @@ func marshalMovieResponse(m *aggregate.Movie) MovieResponse {
 		DisplayName: string(m.DisplayName),
 		Directors:   valueobject.MarshalDirectorsPrimitive(m.Directors...),
 		ReleaseYear: int(m.ReleaseYear),
+		IMDbID:      string(m.IMDbID),
 	}
 }
 
