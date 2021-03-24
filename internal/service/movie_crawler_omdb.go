@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"encoding/json"
+	"io"
 	"net/http"
 	"sync"
 
@@ -37,9 +38,12 @@ func (c *MovieCrawlerOmdb) Fetch(ctx context.Context, imdbID valueobject.MovieID
 	defer func() {
 		err = resp.Body.Close()
 	}()
+	return c.marshalFromHTTPResponse(resp.Body)
+}
 
+func (c *MovieCrawlerOmdb) marshalFromHTTPResponse(res io.ReadCloser) (*aggregate.Movie, error) {
 	movieOmdb := marshal.MovieOmdb{}
-	err = json.NewDecoder(resp.Body).Decode(&movieOmdb)
+	err := json.NewDecoder(res).Decode(&movieOmdb)
 	if err != nil {
 		return nil, err
 	}

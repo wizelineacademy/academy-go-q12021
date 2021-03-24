@@ -23,5 +23,9 @@ func UnmarshalCriteria(r *http.Request) repository.Criteria {
 	limit, _ := strconv.Atoi(r.URL.Query().Get("limit"))
 	criteria := *repository.NewCriteria(limit, r.URL.Query().Get("next_page"))
 	criteria.ActiveOnly, _ = strconv.ParseBool(r.URL.Query().Get("active_only"))
+	criteria.Query.Filters["items_per_worker"] = repository.Filter{
+		Condition: repository.EqualsCondition,
+		Value:     r.URL.Query().Get("items_per_worker"),
+	}
 	return criteria
 }

@@ -15,6 +15,8 @@ import (
 	"github.com/maestre3d/academy-go-q12021/internal/valueobject"
 )
 
+const totalItemsWorkersFilterKey = "items_per_worker"
+
 // MovieCSV handles all persistence Movie's operations locally using an specific `.csv` file
 //	Implements Movie repository
 type MovieCSV struct {
@@ -83,7 +85,71 @@ func (m *MovieCSV) Search(ctx context.Context, criteria repository.Criteria) ([]
 		err = file.Close()
 	}()
 
-	return m.searchMoviesOnFile(csv.NewReader(file), criteria)
+	reader := csv.NewReader(file)
+	if workerItems := criteria.Query.Filters[totalItemsWorkersFilterKey].Value.(string); workerItems != "" {
+		return m.searchMovieOnFileParallel(reader, criteria)
+	}
+
+	return m.searchMoviesOnFile(reader, criteria)
+}
+
+func (m *MovieCSV) searchMovieOnFileParallel(r *csv.Reader, criteria repository.Criteria) ([]*aggregate.Movie, string, error) {
+	records, err := r.ReadAll()
+	if err != nil {
+		return nil, "", err
+	} else if len(records) >= 2 {
+		records = records[1:] // remove header
+	}
+
+	totalWorkers := len(records)
+	if len(records) > 10 {
+		totalWorkers = 10 // avoid more than 10 workers
+	}
+
+	totalItemsPerWorker, err := strconv.Atoi(criteria.Query.Filters[totalItemsWorkersFilterKey].Value.(string))
+	if err != nil {
+		return nil, "", err
+	}
+
+	movies := make([]*aggregate.Movie, 0)
+	movieChan := make(chan *aggregate.Movie, len(records))
+	jobsChan := make(chan []string, len(records))
+	workerWg := new(sync.WaitGroup)
+	workerWg.Add(totalWorkers)
+	for i := 0; i < totalWorkers; i++ {
+		go m.searchMovieWorker(totalItemsPerWorker, jobsChan, workerWg, movieChan)
+	}
+
+	for _, record := range records {
+		jobsChan <- record
+	}
+	close(jobsChan)
+	workerWg.Wait()
+	close(movieChan)
+
+	for movie := range movieChan {
+		movies = append(movies, movie)
+		if totalMovies := len(movies); totalMovies == criteria.Limit {
+			break
+		}
+	}
+	return movies, "", nil
+}
+
+func (m *MovieCSV) searchMovieWorker(totalItems int, jobs <-chan []string, wg *sync.WaitGroup, movieChan chan<- *aggregate.Movie) {
+	defer wg.Done()
+	validItemsCount := 0
+	for record := range jobs {
+		if validItemsCount == totalItems {
+			return
+		}
+
+		movie := aggregate.NewEmptyMovie()
+		if err := marshal.UnmarshalMovieCSV(movie, record...); err == nil {
+			validItemsCount++
+		}
+		movieChan <- movie
+	}
 }
 
 func (m *MovieCSV) searchMoviesOnFile(r *csv.Reader, criteria repository.Criteria) ([]*aggregate.Movie, string, error) {
@@ -93,7 +159,7 @@ func (m *MovieCSV) searchMoviesOnFile(r *csv.Reader, criteria repository.Criteri
 	movies := make([]*aggregate.Movie, 0)
 	nextPageToken := ""
 	for {
-		records, err := r.Read()
+		record, err := r.Read()
 		if err == io.EOF {
 			break
 		} else if err != nil {
@@ -101,12 +167,12 @@ func (m *MovieCSV) searchMoviesOnFile(r *csv.Reader, criteria repository.Criteri
 		} else if isHeader {
 			isHeader = false
 			continue
-		} else if criteria.NextPage != "" && records[0] != criteria.NextPage && allowFetch == false {
+		} else if criteria.NextPage != "" && record[0] != criteria.NextPage && allowFetch == false {
 			continue
 		}
 
 		movie := aggregate.NewEmptyMovie()
-		if err = marshal.UnmarshalMovieCSV(movie, records...); err != nil {
+		if err = marshal.UnmarshalMovieCSV(movie, record...); err != nil {
 			return nil, "", err
 		} else if totalCount >= criteria.Limit { // fetch one more item to get next page
 			nextPageToken = string(movie.ID)
@@ -139,6 +205,7 @@ func (m *MovieCSV) Save(ctx context.Context, movie aggregate.Movie) error {
 
 func (m *MovieCSV) writeToFile(file io.Writer, movie aggregate.Movie) error {
 	w := csv.NewWriter(file)
+	defer w.Flush()
 	fields := []string{
 		string(movie.ID),
 		string(movie.DisplayName),
@@ -149,6 +216,5 @@ func (m *MovieCSV) writeToFile(file io.Writer, movie aggregate.Movie) error {
 	if err := w.Write(fields); err != nil {
 		return err
 	}
-	w.Flush()
 	return w.Error()
 }
