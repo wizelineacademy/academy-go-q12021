@@ -15,6 +15,8 @@ go run cmd/http-api/main.go
 
 Open your preferred HTTP client (Postman, Insomnia, ...) and make desired calls to `http://localhost:8081/v1/movies` and `http://localhost:8081/v1/sync/movies`
 
+_Note: If you don't want to get your own OMDb API Key, please send a message to @aruizea on Keybase_
+
 ## Introduction
 
 Thank you for participating in the Golang Bootcamp course!
