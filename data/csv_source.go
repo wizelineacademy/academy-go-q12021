@@ -2,8 +2,11 @@ package data
 
 import (
 	"encoding/csv"
+	"fmt"
 	"os"
+	"strings"
 
+	"github.com/wizelineacademy/academy-go/model"
 	"github.com/wizelineacademy/academy-go/model/errs"
 )
 
@@ -11,20 +14,44 @@ import (
 type CsvSource string
 
 // GetData is an implementation of Source interface which returns a Data struct with the data from the CSV file
-func (source CsvSource) GetData() (Data, error) {
-	file, err := os.Open(string(source))
+func (source CsvSource) GetData(csvConfig ...*model.SourceConfig) (*model.Data, error) {
+	path := string(source)
+	if len(csvConfig) > 0 {
+		path = *&csvConfig[0].CsvConfig
+	}
+
+	file, err := os.Open(path)
 	if err != nil {
 		storageError := errs.StorageError{TechnicalError: err}
-		return Data{}, storageError
+		return &model.Data{}, storageError
 	}
 	defer file.Close()
 
 	lines, err := csv.NewReader(file).ReadAll()
 	if err != nil {
 		storageError := errs.StorageError{TechnicalError: err}
-		return Data{}, storageError
+		return &model.Data{}, storageError
 	}
 
-	data := NewCsvData(lines)
+	data := model.NewCsvData(lines)
 	return data, nil
+}
+
+func (source CsvSource) SetData(generalData *model.Data) error {
+	// Open the file to append at the end
+	file, err := os.OpenFile(string(source), os.O_APPEND|os.O_WRONLY, os.ModeAppend)
+	if err != nil {
+		return errs.StorageError{TechnicalError: err}
+	}
+	defer file.Close()
+
+	csvData := generalData.CsvData
+	for _, row := range csvData {
+		line := strings.Join(row, ",")
+		if _, err := file.WriteString(fmt.Sprintf("%v\n", line)); err != nil {
+			fmt.Printf("Error writing '%v' in '%v' file: %v", line, string(source), err)
+		}
+	}
+
+	return nil
 }
