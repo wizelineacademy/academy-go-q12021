@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/csv"
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
@@ -9,83 +10,98 @@ import (
 	"strconv"
 )
 
-type ProgrammingLanguage struct {
-	Id string
-    Title string 
+/* Generic functions and structure */
+type Response struct {
+	Title string `json:"title"`
+	Message string `json:"message"`
+}
+type Item struct {
+	Id string `json:"id"`
+    Title string `json:"title"`
+}
+
+func ConvertStructToJSON(obj interface{}) string {
+    e, err := json.Marshal(obj)
+    if err != nil {
+        return err.Error()
+    }
+    return string(e)
 }
 
 func displayError(w http.ResponseWriter, message string) {
-	fmt.Fprintf(w, "%v", message)
     log.Println(message)
+	fmt.Fprintf(w, "%s", ConvertStructToJSON(Response{Title: "Error", Message: message}))
+
 }
 
-func OpenCSV(filePath string) (*os.File)  {
+func GetDataFromCSVFile(filePath string) ([][] string)  {
 	csvFile, err := os.Open(filePath)
 	if err != nil {
 		fmt.Println("\n- An error ocurred while reading the file. \n", err)
 	} else {
 		fmt.Println("\nSuccessfully Opened CSV file") 
 	}
-	return csvFile
+	csvLines, err := csv.NewReader(csvFile).ReadAll()
+    if err != nil {
+		log.Println("\n- An error ocurred while reading the file. \n", err)
+		return nil
+    }
+	return csvLines
 }
 
+/* Non Generic functions */
 
-func PrintDataFromCSVFile(filePath string) (listOfProgrammingLanguages []ProgrammingLanguage ) { 
-    csvFile := OpenCSV(filePath)
-    defer csvFile.Close()
-
-    csvLines, err := csv.NewReader(csvFile).ReadAll()
-    if err != nil {
-		fmt.Println("\n- An error ocurred while reading the file. \n", err)
-		return
-    }
-
+func ParseCSVDataToItemsList(csvLines [][]string) (listOfItems []Item ) { 
+	log.Println(csvLines)
+	// Convert csv lines to a generic item structure and append them to the array of items
     for _, line := range csvLines {
-		newProgrammingLanguage := ProgrammingLanguage{
+		newItem := Item{
             Id: line[0],
             Title: line[1],
         }
-        listOfProgrammingLanguages = append(listOfProgrammingLanguages, newProgrammingLanguage)
-        fmt.Println(newProgrammingLanguage.Id + " " + newProgrammingLanguage.Title + " ")
+        listOfItems = append(listOfItems, newItem)
+        log.Println(newItem.Id + " " + newItem.Title + " ")
     }
-	csvFile.Close()
 	return 
 }
 
+/* Endpoint Functions */
 
-func getAllLanguages(w http.ResponseWriter, r *http.Request) {
-	listOfProgrammingLanguages := PrintDataFromCSVFile("data.csv")
-    for  _, value := range listOfProgrammingLanguages {
-    	fmt.Fprintf(w, "\n\tId: %s, Title: %s", value.Id, value.Title)
-	}
+func getLanguages(w http.ResponseWriter, r *http.Request) {
+	csvLines := GetDataFromCSVFile("data.csv")
+	listOfItems :=  ParseCSVDataToItemsList(csvLines)   
+	fmt.Fprintf(w, "%s", ConvertStructToJSON(listOfItems))
 }
 
-
-
 func getLanguageById(w http.ResponseWriter, r *http.Request) {
-	listOfProgrammingLanguages := PrintDataFromCSVFile("data.csv")
-
+	csvLines := GetDataFromCSVFile("data.csv")
+	listOfItems :=  ParseCSVDataToItemsList(csvLines)   
+	// Obtain the query param id number from URL
 	keys, ok := r.URL.Query()["id"]
     if !ok || len(keys[0]) < 1 {
 		displayError(w, "Url Param 'id' is missing!")
         return
     }
+	// Casting the string number to an integer
     id, err := strconv.Atoi(keys[0])
 	if err != nil {
 		displayError(w, "The Id provided is wrong, please check it!")
 		return
 	}
-	if (id >= len(listOfProgrammingLanguages) || id < 0) {
+	// Validations: number is positive and that exists as index in the slice 
+	if (id >= len(listOfItems) || id < 0) {
 		displayError(w, "The Id doesn't seem to exist!")
 		return
 	}
-
-    fmt.Fprintf(w, "\nId: %s \nTitle: %s", listOfProgrammingLanguages[id].Id, listOfProgrammingLanguages[id].Title)
+	// Get the object from slice using the id as index
+	obj := listOfItems[id]
+    fmt.Fprintf(w, "%s", ConvertStructToJSON(obj))
 }
 
 func main() {
-    http.HandleFunc("/getAllLanguages", getAllLanguages)
+    http.HandleFunc("/getLanguages", getLanguages)
 	http.HandleFunc("/getLanguageById", getLanguageById)
+	log.Println("Server running succesfully on port 8080!")
     log.Fatal(http.ListenAndServe(":8080", nil))
 }
 
