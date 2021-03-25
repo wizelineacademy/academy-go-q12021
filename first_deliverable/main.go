@@ -52,7 +52,6 @@ func GetDataFromCSVFile(filePath string) ([][] string)  {
 /* Non Generic functions */
 
 func ParseCSVDataToItemsList(csvLines [][]string) (listOfItems []Item ) { 
-	log.Println(csvLines)
 	// Convert csv lines to a generic item structure and append them to the array of items
     for _, line := range csvLines {
 		newItem := Item{
