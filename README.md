@@ -5,7 +5,7 @@ In order to run this application, you must comply with the following requirement
 - Go 1.15 or newer.
 - OMDb API Key.
 
-Before running the application, one must add the OMDb API Key as an environment variable (_"movies.omdb.api.key"_) if `Movie Crawling feature` is desired.
+Before running the application, one must add the OMDb API Key in the (_"/configs/movies.yaml"_) if `Movie Crawling feature` is desired.
 
 Run the following command:
 
