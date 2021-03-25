@@ -9,56 +9,68 @@ import (
 	"github.com/wizelineacademy/academy-go/constant"
 )
 
-const serverPortValue = "2021"
-const environmentValue = "prod"
-const pokemonSourceValue = "../test.csv"
-
-// Test default values and required env vars
-func TestDefaultConfig(t *testing.T) {
-	environment := GetEnv()
-	if environment != constant.DefaultEnvironment {
-		t.Errorf("%v default should be %v, got %v", constant.EnvironmentVarName, constant.DefaultEnvironment, environment)
-	}
-
-	serverPort := GetServerPort()
-	if serverPort != constant.DefaultServerPort {
-		t.Errorf("%v default should be %v, got %v", constant.ServerPortVarName, constant.DefaultServerPort, serverPort)
-	}
-
-	defer func() {
-		if error := recover(); error == nil {
-			t.Errorf("It should panic when %v is not defined", constant.PokemonSourceVarName)
-		} else {
-			fmt.Println("The config has throwed an exception")
-		}
-	}()
-	fmt.Println(GetPokemonSource())
+type envVars struct {
+	VarName      string
+	DefaultValue string
+	TestValue    string
 }
 
-// Test assignation for env vars
-func TestAssignedConfig(t *testing.T) {
-	os.Setenv(constant.ServerPortVarName, serverPortValue)
-	os.Setenv(constant.EnvironmentVarName, environmentValue)
-	os.Setenv(constant.PokemonSourceVarName, pokemonSourceValue)
+var testCases = []envVars{
+	{
+		VarName:      constant.EnvironmentVarName,
+		DefaultValue: constant.DefaultEnvironment,
+		TestValue:    "prod",
+	},
+	{
+		VarName:      constant.PokemonServiceVarName,
+		DefaultValue: constant.DefaultPokemonService,
+		TestValue:    "https://my-url.com",
+	},
+	{
+		VarName:   constant.PokemonSourceVarName,
+		TestValue: "../test.csv",
+	},
+	{
+		VarName:      constant.ServerPortVarName,
+		DefaultValue: constant.DefaultServerPort,
+		TestValue:    "2021",
+	},
+}
 
-	environment := GetEnv()
-	if environment != environmentValue {
-		t.Errorf("%v did not change its value, expected '%v', got '%v'", constant.EnvironmentVarName, environmentValue, environment)
-	}
-
-	serverPort := GetServerPort()
-	if serverPort != serverPortValue {
-		t.Errorf("%v did not change its value, expected '%v', got '%v'", constant.ServerPortVarName, serverPortValue, serverPort)
-	}
-
-	defer func() {
-		if r := recover(); r != nil {
-			t.Errorf("%v should not trigger panic", constant.PokemonSourceVarName)
+func TestDefaultConfig(t *testing.T) {
+	for _, testCase := range testCases {
+		if testCase.DefaultValue == "" {
+			defer func() {
+				if error := recover(); error == nil {
+					t.Errorf("It should panic when %v is not defined", testCase.VarName)
+				} else {
+					fmt.Printf("The config has throwed an exception for %v variable\n", testCase.VarName)
+				}
+			}()
 		}
-	}()
 
-	pokemonSource := GetPokemonSource()
-	if pokemonSource != pokemonSourceValue {
-		t.Errorf("%v did not change its value, expected '%v', got '%v'", constant.PokemonSourceVarName, pokemonSourceValue, pokemonSource)
+		envVar := GetEnvVar(testCase.VarName)
+		if envVar != testCase.DefaultValue {
+			t.Errorf("%v default should be '%v', got '%v'", testCase.VarName, testCase.DefaultValue, envVar)
+		}
+	}
+}
+
+func TestAssignedConfig(t *testing.T) {
+	for _, testCase := range testCases {
+		os.Setenv(testCase.VarName, testCase.TestValue)
+
+		if testCase.DefaultValue == "" {
+			defer func() {
+				if r := recover(); r != nil {
+					t.Errorf("%v should not trigger panic", testCase.VarName)
+				}
+			}()
+		}
+
+		envVar := GetEnvVar(testCase.VarName)
+		if envVar != testCase.TestValue {
+			t.Errorf("%v did not change its value, expected '%v', got '%v'", testCase.VarName, testCase.TestValue, envVar)
+		}
 	}
 }
