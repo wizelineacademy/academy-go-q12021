@@ -1,0 +1,11 @@
+movies:
+  application: org.neutrinocorp.go-movies
+  dataset:
+    file: ./data/movies/movies_dataset.csv
+  http:
+    port: 8081
+  omdb:
+    api:
+      key: ""
+  stage: dev
+  version: 1.0.0

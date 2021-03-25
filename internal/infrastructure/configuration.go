@@ -26,7 +26,7 @@ func init() {
 	viper.SetDefault("movies.http", "")
 	viper.SetDefault("movies.http.port", 8081)
 	viper.SetDefault("movies.dataset.file", "./data/movies/movies_dataset.csv")
-	viper.SetDefault("movies.omdb.api.key", "[YOUR_OMDB_API_KEY]")
+	viper.SetDefault("movies.omdb.api.key", "")
 }
 
 const (
@@ -37,8 +37,11 @@ const (
 )
 
 // NewConfiguration creates a Configuration with default configs or from sources
-func NewConfiguration() Configuration {
-	viper.AutomaticEnv()
+func NewConfiguration() (Configuration, error) {
+	if err := readConfigFromFile(); err != nil {
+		return Configuration{}, err
+	}
+
 	return Configuration{
 		Application:   viper.GetString("movies.application"),
 		Stage:         viper.GetString("movies.stage"),
@@ -47,7 +50,25 @@ func NewConfiguration() Configuration {
 		HTTPPort:      viper.GetInt("movies.http.port"),
 		MoviesDataset: viper.GetString("movies.dataset.file"),
 		OmdbAPIKey:    viper.GetString("movies.omdb.api.key"),
+	}, nil
+}
+
+func readConfigFromFile() error {
+	viper.SetConfigName("movies")
+	viper.SetConfigType("yaml")
+	viper.AddConfigPath("./configs/")
+	viper.AddConfigPath(".")
+	if err := viper.ReadInConfig(); err != nil {
+		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
+			// Config file not found; ignore error if desired
+			return viper.SafeWriteConfig()
+		}
+
+		return err
 	}
+
+	viper.WatchConfig()
+	return nil
 }
 
 // IsProd returns if current config stage is in production stage
