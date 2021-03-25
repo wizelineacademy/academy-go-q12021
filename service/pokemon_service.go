@@ -1,12 +1,18 @@
 package service
 
 import (
+	"encoding/json"
+	"errors"
 	"fmt"
+	"net/http"
 	"regexp"
 	"sort"
 	"strconv"
 	"strings"
+	"time"
 
+	"github.com/wizelineacademy/academy-go/config"
+	"github.com/wizelineacademy/academy-go/constant"
 	"github.com/wizelineacademy/academy-go/data"
 	"github.com/wizelineacademy/academy-go/model"
 	"github.com/wizelineacademy/academy-go/model/errs"
@@ -17,13 +23,22 @@ const dataType = "pokemon"
 var isDigit = regexp.MustCompile(`\d+`)
 
 // PokemonDataService is a service layer to work with the data (list, filter, etc.)
-type PokemonDataService map[int]model.Pokemon
+type PokemonDataService struct {
+	Data       map[int]model.Pokemon
+	keys       pokemonsIDSorter
+	CsvSource  data.Source
+	HttpSource data.Source
+}
 
 // Init initiliazes the data layer
-func (pds PokemonDataService) Init(datasource data.Source) error {
-	data, err := datasource.GetData()
+func (pds *PokemonDataService) Init() error {
+	data, err := pds.CsvSource.GetData()
 	if err != nil {
 		return err
+	}
+
+	if pds.Data == nil || len(pds.Data) == 0 {
+		pds.Data = make(map[int]model.Pokemon)
 	}
 
 	for _, line := range data.CsvData {
@@ -42,57 +57,64 @@ func (pds PokemonDataService) Init(datasource data.Source) error {
 		}
 
 		pokemon := model.Pokemon{Id: convID, Name: name}
-		pds[convID] = pokemon
+		pds.Data[convID] = pokemon
 	}
 
+	pds.setPokemonKeys()
 	return nil
 }
 
 // Get returns a pokemon by ID
-func (pds PokemonDataService) Get(id int) model.Response {
-	if pds == nil || len(pds) == 0 {
-		emptyError := errs.EmptyDataError(dataType)
-		return model.Response{Error: emptyError}
-	}
-
-	pokemon, ok := pds[id]
+func (pds *PokemonDataService) Get(id int) model.Response {
+	// Look for Pokemon in CSV Data
+	pokemon, ok := pds.Data[id]
 	if ok {
 		pokemons := []model.Pokemon{pokemon}
 		response := model.Response{Result: pokemons, Total: 1, Count: 1, Page: 1}
 		return response
 	}
-
 	notFoundError := errs.NotFoundError{Id: id, Datatype: dataType}
+
+	// Look for Pokemon in API
+	if httpsource, ok := pds.HttpSource.(data.HttpSource); ok {
+		pokemon, apiError := pds.getPokemonFromAPI(id, &httpsource)
+		if apiError == nil {
+			response := model.Response{Result: []model.Pokemon{pokemon}, Total: len(pds.Data), Count: 1, Page: 1}
+			return response
+		}
+		notFoundError.TechnicalError = apiError
+	} else {
+		notFoundError.TechnicalError = errors.New("Error converting HttpSource")
+	}
+
 	return model.Response{Error: notFoundError}
 }
 
 // List returns all the pokemons by page
-func (pds PokemonDataService) List(count, page int) model.Response {
-	if pds == nil || len(pds) == 0 {
+func (pds *PokemonDataService) List(count, page int) model.Response {
+	if pds.Data == nil || len(pds.Data) == 0 {
 		emptyError := errs.EmptyDataError(dataType)
 		return model.Response{Error: emptyError}
 	}
 
 	pokemons, page := pds.getPage(count, page)
-	return model.Response{Result: pokemons, Total: len(pds), Page: page, Count: count}
+	return model.Response{Result: pokemons, Total: len(pds.Data), Page: page, Count: count}
 }
 
-func (pds PokemonDataService) getPokemonKeys() []int {
-	keys := make([]int, len(pds))
+func (pds *PokemonDataService) setPokemonKeys() {
+	keys := make([]int, len(pds.Data))
 	index := 0
-	for key := range pds {
+	for key := range pds.Data {
 		keys[index] = key
 		index++
 	}
 
-	return keys
+	pds.keys = pokemonsIDSorter(keys)
+	sort.Sort(pds.keys)
 }
 
-func (pds PokemonDataService) getPage(count, page int) ([]model.Pokemon, int) {
-	pokemonIds := pokemonsIDSorter(pds.getPokemonKeys())
-	sort.Sort(pokemonIds)
-
-	total := len(pokemonIds)
+func (pds *PokemonDataService) getPage(count, page int) ([]model.Pokemon, int) {
+	total := len(pds.keys)
 	if count > total {
 		count = total
 	}
@@ -106,9 +128,9 @@ func (pds PokemonDataService) getPage(count, page int) ([]model.Pokemon, int) {
 	index := 0
 	resultList := make([]model.Pokemon, count)
 
-	for pokeKeyIndex, pokemonKey := range pokemonIds {
+	for pokeKeyIndex, pokemonKey := range pds.keys {
 		if pokeKeyIndex >= startFrom && pokeKeyIndex < endAt {
-			pokemon, ok := pds[pokemonKey]
+			pokemon, ok := pds.Data[pokemonKey]
 			if ok {
 				resultList[index] = pokemon
 				index++
@@ -123,6 +145,35 @@ func (pds PokemonDataService) getPage(count, page int) ([]model.Pokemon, int) {
 	return resultList, page
 }
 
+func (pds *PokemonDataService) getPokemonFromAPI(id int, httpSource *data.HttpSource) (model.Pokemon, error) {
+	httpData := model.HttpData{
+		Url:    fmt.Sprintf("%v/%v", config.GetEnvVar(constant.PokemonServiceVarName), id),
+		Method: http.MethodGet,
+	}
+
+	httpSource.NewData(httpData)
+	apiResponse, error := httpSource.GetData()
+	if error != nil {
+		return model.Pokemon{}, error
+	}
+
+	var pokemon model.Pokemon
+	if unmarshallError := json.Unmarshal([]byte(apiResponse.HttpData), &pokemon); unmarshallError != nil {
+		return model.Pokemon{}, unmarshallError
+	}
+
+	appendPokemon := model.Data{
+		CsvData: [][]string{
+			{
+				fmt.Sprint(pokemon.Id),
+				pokemon.Name,
+			},
+		}}
+	defer pds.CsvSource.SetData(&appendPokemon)
+	pds.Data[pokemon.Id] = pokemon
+	return pokemon, nil
+}
+
 type pokemonsIDSorter []int
 
 func (pis pokemonsIDSorter) Len() int { return len(pis) }
@@ -130,3 +181,16 @@ func (pis pokemonsIDSorter) Len() int { return len(pis) }
 func (pis pokemonsIDSorter) Less(i, j int) bool { return pis[i] < pis[j] }
 
 func (pis pokemonsIDSorter) Swap(i, j int) { pis[i], pis[j] = pis[j], pis[i] }
+
+func NewPokemonDataService(csvPath, apiEndpoint string) *PokemonDataService {
+	csvSource := data.CsvSource(csvPath)
+	httpSource := data.HttpSource{
+		Client: &http.Client{Timeout: time.Minute},
+	}
+	service := &PokemonDataService{
+		CsvSource:  csvSource,
+		HttpSource: httpSource,
+	}
+
+	return service
+}
