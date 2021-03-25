@@ -6,10 +6,45 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/wizelineacademy/academy-go/model"
 	"github.com/wizelineacademy/academy-go/service"
 )
 
-var dataService service.DataService
+type PokemonController struct {
+	DataService service.DataService
+}
+
+func (pc PokemonController) GetPokemons(w http.ResponseWriter, r *http.Request) {
+	queryParams := getPokemonsQueryParamas(r)
+	fmt.Printf("%v %v: %v\n", r.Method, r.URL.Path, queryParams)
+
+	// Return just one pokemon by ID
+	id, ok := queryParams["id"]
+	if ok {
+		responseGet := pc.DataService.Get(id)
+		if responseGet.Error != nil {
+			http.Error(w, responseGet.Error.Error(), http.StatusNotFound)
+		} else {
+			json.NewEncoder(w).Encode(responseGet)
+		}
+		return
+	}
+
+	// List all pokemons
+	count, _ := queryParams["count"]
+	page, _ := queryParams["page"]
+	responseList := pc.DataService.List(count, page)
+	if responseList.Error != nil {
+		json.NewEncoder(w).Encode(model.Response{
+			Result: make([]model.Pokemon, 0),
+			Total:  0,
+			Page:   1,
+			Count:  count,
+		})
+	} else {
+		json.NewEncoder(w).Encode(responseList)
+	}
+}
 
 func getPokemonsQueryParamas(r *http.Request) map[string]int {
 	queryParams := make(map[string]int, 3)
@@ -45,39 +80,13 @@ func getPokemonsQueryParamas(r *http.Request) map[string]int {
 	return queryParams
 }
 
-var getPokemons = func(w http.ResponseWriter, r *http.Request) {
-	queryParams := getPokemonsQueryParamas(r)
-	fmt.Printf("%v %v: %v\n", r.Method, r.URL.Path, queryParams)
-
-	// Return just one pokemon by ID
-	id, ok := queryParams["id"]
-	if ok {
-		responseGet := dataService.Get(id)
-		if responseGet.Error != nil {
-			http.Error(w, responseGet.Error.Error(), http.StatusNotFound)
-		} else {
-			json.NewEncoder(w).Encode(responseGet)
-		}
-		return
+func NewPokemonController(csvPath, apiEndpoint string) (PokemonController, error) {
+	dataService := service.NewPokemonDataService(csvPath, apiEndpoint)
+	iniErrror := dataService.Init()
+	if iniErrror != nil {
+		return PokemonController{}, iniErrror
 	}
-
-	// List all pokemons
-	count, _ := queryParams["count"]
-	page, _ := queryParams["page"]
-	responseList := dataService.List(count, page)
-	if responseList.Error != nil {
-		http.Error(w, responseList.Error.Error(), http.StatusNotFound)
-	} else {
-		json.NewEncoder(w).Encode(responseList)
-	}
-}
-
-// GetPokemonRoutes returns a map with the handlers for pokemon endpoints
-func GetPokemonRoutes(pokemonService service.DataService) map[string]func(http.ResponseWriter, *http.Request) {
-	dataService = pokemonService
-	pokemonRoutes := map[string]func(http.ResponseWriter, *http.Request){
-		"/pokemons": getPokemons,
-	}
-
-	return pokemonRoutes
+	return PokemonController{
+		DataService: dataService,
+	}, nil
 }

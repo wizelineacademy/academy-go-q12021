@@ -7,33 +7,70 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/wizelineacademy/academy-go/data"
 	"github.com/wizelineacademy/academy-go/model"
-	"github.com/wizelineacademy/academy-go/service"
 )
 
-type dataSourceMock string
+type pokemonDataServiceMock string
 
-func (dsm dataSourceMock) GetData() (data.Data, error) {
-	csvData := getDataMock()
-	data := data.NewCsvData(csvData)
-	return data, nil
+func (pdsm pokemonDataServiceMock) Init() error {
+	return nil
+}
+func (pdsm pokemonDataServiceMock) Get(id int) model.Response {
+	if id == 1 {
+		return errorResponse
+	}
+
+	return getPokemonSuccess
+}
+func (pdsm pokemonDataServiceMock) List(count, page int) model.Response {
+	if page == 1 {
+		return errorResponse
+	}
+
+	return listPokemonSuccess
 }
 
-var getDataMock func() [][]string
-var dataServiceMock service.DataService
-var emptyData = [][]string{
-	{"2", ""},
-	{"1", ""},
+var getPokemonSuccess = model.Response{
+	Result: []model.Pokemon{
+		{
+			Id:   2,
+			Name: "ivysaur",
+		},
+	},
+	Total: 2,
+	Page:  1,
+	Count: 1,
 }
-var validData = [][]string{
-	{"2", "pikachu"},
-	{"1", "charmander"},
+var listPokemonSuccess = model.Response{
+	Result: []model.Pokemon{
+		{
+			Id:   1,
+			Name: "bulbasaur",
+		},
+		{
+			Id:   2,
+			Name: "ivysaur",
+		},
+	},
+	Total: 2,
+	Page:  2,
+	Count: 10,
 }
+var errorResponse = model.Response{Error: fmt.Errorf("Testing")}
+var emptyResponseList = model.Response{
+	Result: make([]model.Pokemon, 0),
+	Total:  0,
+	Page:   1,
+	Count:  10,
+}
+
+var controller = PokemonController{
+	DataService: pokemonDataServiceMock(""),
+}
+var handler = http.HandlerFunc(controller.GetPokemons)
 
 type testCases struct {
 	Name                 string
-	Seed                 [][]string
 	RequestPath          string
 	ExpectedResponseCode int
 	ExpectedResponseBody string
@@ -42,72 +79,34 @@ type testCases struct {
 var pokemonControllerCases = []testCases{
 	{
 		Name:                 "Get a pokemon by ID successfully",
-		Seed:                 validData,
-		RequestPath:          "/pokemons?id=1",
+		RequestPath:          "/pokemons?id=2",
 		ExpectedResponseCode: http.StatusOK,
-		ExpectedResponseBody: fmt.Sprint(model.Response{Result: []model.Pokemon{
-			{
-				Id:   1,
-				Name: "charmander",
-			},
-		},
-			Total: 1,
-			Page:  1,
-			Count: 1,
-		}),
-	},
-	{
-		Name:                 "Get a pokemon by ID when source is empty",
-		Seed:                 emptyData,
-		RequestPath:          "/pokemons?id=1",
-		ExpectedResponseCode: http.StatusNotFound,
-		ExpectedResponseBody: fmt.Sprint("There are not any pokemons\n"),
+		ExpectedResponseBody: fmt.Sprint(getPokemonSuccess),
 	},
 	{
 		Name:                 "Get a pokemon by ID when ID does not exist",
-		Seed:                 validData,
-		RequestPath:          "/pokemons?id=3",
+		RequestPath:          "/pokemons?id=1",
 		ExpectedResponseCode: http.StatusNotFound,
-		ExpectedResponseBody: fmt.Sprint("The pokemon with 3 ID was not found\n"),
+		ExpectedResponseBody: fmt.Sprint("Testing\n"),
 	},
 	{
 		Name:                 "List all pokemons sucessfully",
-		Seed:                 validData,
-		RequestPath:          "/pokemons",
+		RequestPath:          "/pokemons?page=2",
 		ExpectedResponseCode: http.StatusOK,
-		ExpectedResponseBody: fmt.Sprint(model.Response{Result: []model.Pokemon{
-			{
-				Id:   1,
-				Name: "charmander",
-			},
-			{
-				Id:   2,
-				Name: "pikachu",
-			},
-		},
-			Total: 2,
-			Page:  1,
-			Count: 10,
-		}),
+		ExpectedResponseBody: fmt.Sprint(listPokemonSuccess),
 	},
 	{
-		Name:                 "List all pokemons when there is not data",
-		Seed:                 emptyData,
+		Name:                 "List all pokemons when there is not data or an error was triggered",
 		RequestPath:          "/pokemons",
-		ExpectedResponseCode: http.StatusNotFound,
-		ExpectedResponseBody: fmt.Sprint("There are not any pokemons\n"),
+		ExpectedResponseCode: http.StatusOK,
+		ExpectedResponseBody: fmt.Sprint(emptyResponseList),
 	},
 }
 
 func TestPokemonController(t *testing.T) {
 	for _, testCase := range pokemonControllerCases {
 		fmt.Println(testCase.Name)
-		getDataMock = func() [][]string {
-			return testCase.Seed
-		}
-		initDataService(t)
 
-		handler := getHandler()
 		responseRecorder := httptest.NewRecorder()
 		request := createRequest(t, testCase.RequestPath)
 		handler.ServeHTTP(responseRecorder, request)
@@ -131,25 +130,10 @@ func TestPokemonController(t *testing.T) {
 	}
 }
 
-func initDataService(t *testing.T) {
-	dataServiceMock = service.PokemonDataService(make(map[int]model.Pokemon))
-	initDataServiceErr := dataServiceMock.Init(dataSourceMock(""))
-	if initDataServiceErr != nil {
-		t.Errorf("PokemonDataService init failed: '%v'", initDataServiceErr)
-	}
-}
-
 func createRequest(t *testing.T, path string) *http.Request {
 	request, createRequestError := http.NewRequest("GET", path, nil)
 	if createRequestError != nil {
 		t.Errorf("Create request failed: '%v'", createRequestError)
 	}
 	return request
-}
-
-func getHandler() http.Handler {
-	pokemonRoutes := GetPokemonRoutes(dataServiceMock)
-	getPokemons := pokemonRoutes["/pokemons"]
-	handler := http.HandlerFunc(getPokemons)
-	return handler
 }
