@@ -5,7 +5,6 @@ package controller
 import (
 	"encoding/json"
 	"fmt"
-	"io"
 	"net/http"
 	"strconv"
 
@@ -33,7 +32,7 @@ func New(pc usecase.NewPokemonUsecase) *PokemonController {
 func (pc *PokemonController) Index(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	w.Header().Set("Content-Type", "application/json")
-	io.WriteString(w, `{ "message": "Welcome to my Poke-API" }`)
+	fmt.Fprint(w, `{ "message": "Welcome to my Poke-API" }`)
 }
 
 func (pc *PokemonController) GetPokemons(w http.ResponseWriter, r *http.Request) {

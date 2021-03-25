@@ -91,7 +91,7 @@ func Read(f *os.File) ([]model.Pokemon, *model.Error) {
 	return pokemons, nil
 }
 
-func ReadConcurrently(f *os.File, items int, itemsPerWorker int) ([]model.Pokemon, *model.Error) {
+func ReadConcurrently(f *os.File, typeNumber string, items int, itemsPerWorker int) ([]model.Pokemon, *model.Error) {
 
 	reader := csv.NewReader(f)
 	reader.Comma = ','
@@ -99,7 +99,7 @@ func ReadConcurrently(f *os.File, items int, itemsPerWorker int) ([]model.Pokemo
 	reader.FieldsPerRecord = -1
 
 	var pokemons []model.Pokemon = nil
-	for i := 0; i < items; i++ {
+	for {
 		line, err := reader.Read()
 
 		if err == io.EOF {
@@ -113,6 +113,7 @@ func ReadConcurrently(f *os.File, items int, itemsPerWorker int) ([]model.Pokemo
 			}
 			return nil, &err
 		}
+
 		tempPokemon := model.Pokemon{
 			Name: line[1],
 			URL:  line[2],
@@ -127,10 +128,19 @@ func ReadConcurrently(f *os.File, items int, itemsPerWorker int) ([]model.Pokemo
 				}
 				return nil, &err
 			}
+
+			if id%2 != 0 && typeNumber == "even" || id%2 == 0 && typeNumber == "odd" {
+				continue
+			}
+
 			tempPokemon.ID = id
 		}
 
 		pokemons = append(pokemons, tempPokemon)
+		items-- // Every time we add a new pokemon to the list, we reduce the number of pokemons left to add
+		if items == 0 {
+			break // If we can't take more pokemons we finish the cycle
+		}
 	}
 	defer f.Close()
 
@@ -162,7 +172,14 @@ func AddLine(f *os.File, lines [][]string, newPokes *[]model.SinglePokeExternal)
 
 	w := csv.NewWriter(f)
 	for _, pokemon := range *newPokes {
-		w.Write([]string{strconv.Itoa(linesNumber), pokemon.Name, pokemon.URL})
+		err := w.Write([]string{strconv.Itoa(linesNumber), pokemon.Name, pokemon.URL})
+		if err != nil {
+			e := model.Error{
+				Code:    http.StatusInternalServerError,
+				Message: "Something wrong happens, please try again.",
+			}
+			return &e
+		}
 		linesNumber = linesNumber + 1
 	}
 	defer w.Flush()
@@ -201,7 +218,7 @@ func (s *CsvService) GetPokemon(pokemonId int) (model.Pokemon, *model.Error) {
 
 	if tempPokemon == (model.Pokemon{}) { //Check for unexisting pokemon
 		return model.Pokemon{}, &model.Error{
-			Code:    http.StatusAccepted,
+			Code:    http.StatusInternalServerError,
 			Message: "The pokemon does not exists",
 		}
 	}
@@ -238,12 +255,7 @@ func (s *CsvService) SavePokemons(newPokemons *[]model.SinglePokeExternal) *mode
 	lines, _ := ReadAllLines(f)
 	fileOpenAndWrite, _ := OpenAndWrite(pathFile) // Write
 
-	err := AddLine(fileOpenAndWrite, lines, newPokemons)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return AddLine(fileOpenAndWrite, lines, newPokemons)
 }
 
 func (s *CsvService) GetPokemonsConcurrently(typeNumber string, items int,
@@ -259,7 +271,7 @@ func (s *CsvService) GetPokemonsConcurrently(typeNumber string, items int,
 		return nil, &err
 	}
 
-	pokes, errorReading := ReadConcurrently(f, items, itemsPerWorker)
+	pokes, errorReading := ReadConcurrently(f, typeNumber, items, itemsPerWorker)
 
 	if errorReading != nil {
 		errorReading := model.Error{

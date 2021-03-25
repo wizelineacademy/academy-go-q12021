@@ -3,9 +3,11 @@ package csvservice
 import (
 	"net/http"
 	"os"
-	"pokeapi/model"
-	"reflect"
 	"testing"
+
+	"pokeapi/model"
+
+	"github.com/stretchr/testify/assert"
 )
 
 var pokemonsTest = []model.Pokemon{
@@ -64,13 +66,12 @@ func TestOpen(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			_, err := Open(tt.path)
-			if (err != nil) != tt.wantErr && tt.name == success {
-				t.Errorf("Open() error = %v, path %v", err, tt.path)
-				return
+
+			if tt.name == success {
+				assert.Equal(t, err != nil, tt.wantErr)
 			}
-			if (err != nil) != tt.wantErr && tt.name == unsuccess {
-				t.Errorf("Open() error = %v, path %v", err, tt.path)
-				return
+			if tt.name == unsuccess {
+				assert.Equal(t, err != nil, !tt.wantErr)
 			}
 		})
 	}
@@ -98,13 +99,12 @@ func TestOpenAndWrite(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			_, err := OpenAndWrite(tt.path)
-			if (err != nil) != tt.wantErr && tt.name == success {
-				t.Errorf("Open() error = %v, path %v", err, tt.path)
-				return
+
+			if tt.name == success {
+				assert.Equal(t, err != nil, tt.wantErr)
 			}
-			if (err != nil) == tt.wantErr && tt.name == unsuccess {
-				t.Errorf("Open() error = %v, path %v", err, tt.path)
-				return
+			if tt.name == unsuccess {
+				assert.Equal(t, err != nil, !tt.wantErr)
 			}
 		})
 	}
@@ -137,13 +137,10 @@ func TestRead(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, gotErrr := Read(tt.file)
-			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("Read() got = %v, want %v", got, tt.want)
-			}
-			if !reflect.DeepEqual(gotErrr, tt.wantErr) {
-				t.Errorf("Read() got1 = %v, want %v", gotErrr, tt.wantErr)
-			}
+			got, gotErr := Read(tt.file)
+
+			assert.Equal(t, got, tt.want)
+			assert.Equal(t, gotErr, tt.wantErr)
 		})
 	}
 }
@@ -174,13 +171,9 @@ func TestReadAllLines(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, gotErrr := ReadAllLines(tt.file)
-			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("ReadAllLines() got = %v, want %v", got, tt.want)
-			}
-			if !reflect.DeepEqual(gotErrr, tt.wantErr) {
-				t.Errorf("ReadAllLines() got1 = %v, want %v", gotErrr, tt.wantErr)
-			}
+			got, gotErr := ReadAllLines(tt.file)
+			assert.Equal(t, got, tt.want)
+			assert.Equal(t, gotErr, tt.wantErr)
 		})
 	}
 }
@@ -204,9 +197,8 @@ func TestAddLine(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if gotErr := AddLine(tt.file, tt.lines, tt.newPokes); !reflect.DeepEqual(gotErr, tt.wantErr) {
-				t.Errorf("AddLine() = %v, want %v", gotErr, tt.wantErr)
-			}
+			gotErr := AddLine(tt.file, tt.lines, tt.newPokes)
+			assert.Equal(t, gotErr, tt.wantErr)
 		})
 	}
 }

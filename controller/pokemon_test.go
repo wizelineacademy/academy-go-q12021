@@ -3,6 +3,7 @@ package controller
 import (
 	"net/http"
 	"net/http/httptest"
+
 	"pokeapi/model"
 	"pokeapi/usecase"
 	usecasemock "pokeapi/usecase/mock"
@@ -10,6 +11,7 @@ import (
 	"testing"
 
 	"github.com/golang/mock/gomock"
+	"github.com/stretchr/testify/assert"
 )
 
 var pokemonsTest = []model.Pokemon{
@@ -39,14 +41,18 @@ func TestPokemonController_Index(t *testing.T) {
 	recorder := httptest.NewRecorder()
 
 	tests := []struct {
-		name string
-		r    *http.Request
-		rr   *httptest.ResponseRecorder
+		name           string
+		r              *http.Request
+		rr             *httptest.ResponseRecorder
+		want           string
+		wantStatusCode int
 	}{
 		{
-			name: "Succeded Index Http Request",
-			r:    request,
-			rr:   recorder,
+			name:           "Succeded Index Http Request",
+			r:              request,
+			rr:             recorder,
+			want:           `{ "message": "Welcome to my Poke-API" }`,
+			wantStatusCode: http.StatusOK,
 		},
 	}
 	for _, tt := range tests {
@@ -58,17 +64,10 @@ func TestPokemonController_Index(t *testing.T) {
 			handler.ServeHTTP(tt.rr, tt.r)
 
 			// Check the status code is what we expect.
-			if status := tt.rr.Code; status != http.StatusOK {
-				t.Fatalf("handler returned wrong status code: got %v want %v",
-					status, http.StatusOK)
-			}
+			assert.Equal(t, tt.rr.Code, tt.wantStatusCode)
 
 			// Check the response body is what we expect.
-			expected := `{ "message": "Welcome to my Poke-API" }`
-			if tt.rr.Body.String() != expected {
-				t.Fatalf("handler returned unexpected body: got %v want %v",
-					tt.rr.Body.String(), expected)
-			}
+			assert.Equal(t, tt.rr.Body.String(), tt.want)
 		})
 	}
 }
@@ -86,18 +85,20 @@ func TestPokemonController_GetPokemons(t *testing.T) {
 	recorder := httptest.NewRecorder()
 
 	tests := []struct {
-		name    string
-		useCase usecase.NewPokemonUsecase
-		r       *http.Request
-		rr      *httptest.ResponseRecorder
-		want    []model.Pokemon
+		name           string
+		useCase        usecase.NewPokemonUsecase
+		r              *http.Request
+		rr             *httptest.ResponseRecorder
+		want           []model.Pokemon
+		wantStatusCode int
 	}{
 		{
-			name:    "succeded Get Pokemons",
-			useCase: mockUsecasePokemon,
-			r:       request,
-			rr:      recorder,
-			want:    pokemons,
+			name:           "succeded Get Pokemons",
+			useCase:        mockUsecasePokemon,
+			r:              request,
+			rr:             recorder,
+			want:           pokemons,
+			wantStatusCode: http.StatusOK,
 		},
 	}
 	for _, tt := range tests {
@@ -108,10 +109,7 @@ func TestPokemonController_GetPokemons(t *testing.T) {
 			handler := http.HandlerFunc(pc.GetPokemons)
 			handler.ServeHTTP(tt.rr, tt.r)
 
-			if status := tt.rr.Code; status != http.StatusOK {
-				t.Fatalf("handler returned wrong status code: got %v want %v",
-					status, http.StatusOK)
-			}
+			assert.Equal(t, tt.rr.Code, tt.wantStatusCode)
 
 			reflect.DeepEqual(tt.rr.Body, tt.want)
 		})
@@ -141,28 +139,31 @@ func TestPokemonController_GetPokemon(t *testing.T) {
 	recorderSecondTest := httptest.NewRecorder()
 
 	tests := []struct {
-		name      string
-		useCase   usecase.NewPokemonUsecase
-		r         *http.Request
-		rr        *httptest.ResponseRecorder
-		want      model.Pokemon
-		pokemonId int
+		name           string
+		useCase        usecase.NewPokemonUsecase
+		r              *http.Request
+		rr             *httptest.ResponseRecorder
+		want           model.Pokemon
+		wantStatusCode int
+		pokemonId      int
 	}{
 		{
-			name:      "Succeded Get Pokemon Id: 1",
-			useCase:   mockUsecasePokemon,
-			r:         request,
-			rr:        recorder,
-			want:      pokemon,
-			pokemonId: 1,
+			name:           "Succeded Get Pokemon Id: 1",
+			useCase:        mockUsecasePokemon,
+			r:              request,
+			rr:             recorder,
+			want:           pokemon,
+			pokemonId:      1,
+			wantStatusCode: http.StatusOK,
 		},
 		{
-			name:      "Succeded Get Pokemon Id: 3",
-			useCase:   mockUsecasePokemon,
-			r:         requestSecondTest,
-			rr:        recorderSecondTest,
-			want:      pokemonTest,
-			pokemonId: 3,
+			name:           "Succeded Get Pokemon Id: 3",
+			useCase:        mockUsecasePokemon,
+			r:              requestSecondTest,
+			rr:             recorderSecondTest,
+			want:           pokemonTest,
+			pokemonId:      3,
+			wantStatusCode: http.StatusOK,
 		},
 	}
 	for _, tt := range tests {
@@ -174,10 +175,7 @@ func TestPokemonController_GetPokemon(t *testing.T) {
 			handler := http.HandlerFunc(pc.GetPokemon)
 			handler(tt.rr, tt.r)
 
-			if status := tt.rr.Code; status != http.StatusOK {
-				t.Fatalf("handler returned wrong status code: got %v want %v",
-					status, http.StatusOK)
-			}
+			assert.Equal(t, tt.rr.Code, tt.wantStatusCode)
 
 			reflect.DeepEqual(tt.rr.Body, tt.want)
 		})
@@ -196,18 +194,20 @@ func TestPokemonController_GetPokemonsFromExternalAPI(t *testing.T) {
 	recorder := httptest.NewRecorder()
 
 	tests := []struct {
-		name    string
-		useCase usecase.NewPokemonUsecase
-		r       *http.Request
-		rr      *httptest.ResponseRecorder
-		want    *[]model.SinglePokeExternal
+		name           string
+		useCase        usecase.NewPokemonUsecase
+		r              *http.Request
+		rr             *httptest.ResponseRecorder
+		want           *[]model.SinglePokeExternal
+		wantStatusCode int
 	}{
 		{
-			name:    "Succeded Get Pokemon From External API",
-			useCase: mockUsecasePokemon,
-			r:       request,
-			rr:      recorder,
-			want:    newPokemons,
+			name:           "Succeded Get Pokemon From External API",
+			useCase:        mockUsecasePokemon,
+			r:              request,
+			rr:             recorder,
+			want:           newPokemons,
+			wantStatusCode: http.StatusOK,
 		},
 	}
 	for _, tt := range tests {
@@ -219,10 +219,7 @@ func TestPokemonController_GetPokemonsFromExternalAPI(t *testing.T) {
 			handler := http.HandlerFunc(pc.GetPokemon)
 			handler(tt.rr, tt.r)
 
-			if status := tt.rr.Code; status != http.StatusOK {
-				t.Fatalf("handler returned wrong status code: got %v want %v",
-					status, http.StatusOK)
-			}
+			assert.Equal(t, tt.rr.Code, tt.wantStatusCode)
 
 			reflect.DeepEqual(tt.rr.Body, tt.want)
 		})
