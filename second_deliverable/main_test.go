@@ -9,11 +9,11 @@ import (
 )
 
 var Items []Item = []Item{
-	{Id: "1", Title: "Netflix"},
-	{Id: "2", Title: "Dispney+"},
-	{Id: "3", Title: "HBO Max"},
-	{Id: "4", Title: "Paramount+"},
-	{Id: "5", Title: "Universal+"},
+	{Id: "1", Title: "Netflix", Years: "5"},
+	{Id: "2", Title: "Dispney+", Years: "1"},
+	{Id: "3", Title: "HBO Max", Years: "4"},
+	{Id: "4", Title: "Paramount+", Years: "2"},
+	{Id: "5", Title: "Universal+", Years: "4"},
 }
 
 func GetDataFromCSVFile(filePath string) ([][] string)  {
@@ -37,9 +37,10 @@ func ParseCSVDataToItemsList(csvLines [][]string) (listOfItems []Item ) {
 		newItem := Item{
             Id: line[0],
             Title: line[1],
+			Years: line[2],
         }
         listOfItems = append(listOfItems, newItem)
-        log.Println(newItem.Id + " " + newItem.Title + " ")
+        log.Println(newItem.Id + " " + newItem.Title + " " + newItem.Years + " " )
     }
 	return 
 }

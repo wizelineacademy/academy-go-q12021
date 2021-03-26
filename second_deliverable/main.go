@@ -110,7 +110,7 @@ func WriteDataToCSVFile(fileName string, items []Item){
 	var writter *csv.Writer = csv.NewWriter(csvfile)
 
     for _, item := range items {
-		strSlice := []string{item.Id,item.Title}
+		strSlice := []string{item.Id,item.Title,item.Years}
     	fmt.Println(strSlice)
 		writter.Write(strSlice)
 	}		
