@@ -18,6 +18,7 @@ type Response struct {
 type Item struct {
 	Id string `json:"id"`
     Title string `json:"title"`
+	Years string `json:"years"`
 }
 
 func ConvertStructToJSON(obj interface{}) string {
@@ -57,6 +58,7 @@ func ParseCSVDataToItemsList(csvLines [][]string) (listOfItems []Item ) {
 		newItem := Item{
             Id: line[0],
             Title: line[1],
+			Years: line[2],
         }
         listOfItems = append(listOfItems, newItem)
         log.Println(newItem.Id + " " + newItem.Title + " ")
