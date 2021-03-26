@@ -11,14 +11,10 @@ import (
 	"text/template"
 )
 var port string = "3000"
-type ItemJson struct {
-	Id string `json:"id"`
-    Title string `json:"title"`
-}
-
 type Item struct {
 	Id string 
     Title string
+	Years string
 }
 type PageData struct {
     PageTitle string
@@ -30,7 +26,7 @@ func GetItems() (items []Item) {
 	resp, err := http.Get("http://localhost:8080/getLanguages")
 	if err != nil {
 		log.Fatalf(err.Error())
-		items = []Item{{Title: "", Id:""}}
+		items = []Item{{Title: "", Id:"", Years: ""}}
 		defer resp.Body.Close()
 		return
 	} else {
