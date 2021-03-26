@@ -41,28 +41,33 @@ func TestGetData(t *testing.T) {
 				{
 					Id: "0",
 					Title: "javascript",
-					Years: "2",
+					Years: "6",
 				},
 				{
 					Id: "1",
 					Title: "python",
-					Years: "2",
+					Years: "4",
 
 				},
 				{
 					Id: "2",
 					Title: "c++",
-					Years: "2",
+					Years: "1",
 				},
 				{
 					Id: "3",
 					Title: "go",
-					Years: "2",
+					Years: "0",
 				},
 				{
 					Id: "4",
 					Title: "swift",
-					Years: "2",
+					Years: "1",
+				},
+				{
+					Id: "5",
+					Title: "react",
+					Years: "3",
 				},
 			},
 		},
