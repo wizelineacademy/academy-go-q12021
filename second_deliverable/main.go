@@ -47,15 +47,47 @@ func GetData() (items []Item) {
 	return items
 }
 
+func GetDataById(id string) (item Item) {
+	// Get the http reponse from api localhost:8080 (first_deliverable)
+	var url string = "http://localhost:8080/getLanguageById?id=" + id
+	resp, err := http.Get(url)
+	if err != nil {
+		panic(err)
+	}
+	defer resp.Body.Close()
+
+	// Print the HTTP response status.
+	fmt.Println("\n\tResponse status:", resp.Status)
+
+	// Print the first 5 lines of the response body.
+	scanner := bufio.NewScanner(resp.Body)
+	for i := 0; scanner.Scan() && i < 5; i++ {
+    	json.Unmarshal([]byte(scanner.Text()), &item) // items slice
+	}
+	if err := scanner.Err(); err != nil {
+		panic(err)
+	}
+	return item
+}
+
+
 func RenderItem(w http.ResponseWriter, r *http.Request) {
-	// fmt.Fprintf(w, "%v", "List of Programming languages")
-	items := GetData()
+	keys, ok := r.URL.Query()["id"]
+    if !ok || len(keys[0]) < 1 {
+		errorMessage := "Url Param 'id' is missing"
+		log.Println(errorMessage)
+		fmt.Fprintf(w, "%s", errorMessage)
+        return
+    }
+	// Casting the string number to an integer
+    id := keys[0]
+	item := GetDataById(id)
+
 	tmpl := template.Must(template.ParseFiles("html/item.html"))
-    // for _, item := range items {
-	if err := tmpl.Execute(w, items[0]); err != nil {
+
+	if err := tmpl.Execute(w, item); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}	
-	// }
 }
 
 func GetAllItems(w http.ResponseWriter, r *http.Request) {
