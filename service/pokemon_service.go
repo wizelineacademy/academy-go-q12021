@@ -176,6 +176,7 @@ func (pds *PokemonDataService) getPokemonFromAPI(id int, httpSource *data.HttpSo
 		}}
 	defer pds.CsvSource.SetData(&appendPokemon)
 	pds.Data[pokemon.Id] = pokemon
+	pds.setPokemonKeys()
 	return pokemon, nil
 }
 
