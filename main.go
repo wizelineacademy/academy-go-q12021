@@ -9,18 +9,18 @@ import (
 	"github.com/wizelineacademy/academy-go/controller"
 )
 
-var serverPort = config.GetEnvVar(constant.PokemonSourceVarName)
+var serverPort = config.GetEnvVar(constant.ServerPortVarName)
 
 func main() {
 	pokemonCsvPath := config.GetEnvVar(constant.PokemonSourceVarName)
 	pokemonApi := config.GetEnvVar(constant.PokemonServiceVarName)
-	fmt.Println(pokemonCsvPath)
-	fmt.Println(pokemonApi)
 	pokemonController, error := controller.NewPokemonController(pokemonCsvPath, pokemonApi)
 	if error != nil {
 		panic(error)
 	}
 
-	http.HandleFunc("/pokemon", pokemonController.GetPokemons)
-	http.ListenAndServe(":"+serverPort, nil)
+	http.HandleFunc("/pokemons", pokemonController.GetPokemons)
+	serverError := http.ListenAndServe(":"+serverPort, nil)
+	fmt.Println(serverError)
+
 }

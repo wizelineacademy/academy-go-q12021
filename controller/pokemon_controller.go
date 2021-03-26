@@ -23,8 +23,10 @@ func (pc PokemonController) GetPokemons(w http.ResponseWriter, r *http.Request) 
 	if ok {
 		responseGet := pc.DataService.Get(id)
 		if responseGet.Error != nil {
+			printResponse(r.Method, r.URL.Path, http.StatusNotFound, responseGet)
 			http.Error(w, responseGet.Error.Error(), http.StatusNotFound)
 		} else {
+			printResponse(r.Method, r.URL.Path, http.StatusOK, responseGet)
 			json.NewEncoder(w).Encode(responseGet)
 		}
 		return
@@ -35,13 +37,16 @@ func (pc PokemonController) GetPokemons(w http.ResponseWriter, r *http.Request) 
 	page, _ := queryParams["page"]
 	responseList := pc.DataService.List(count, page)
 	if responseList.Error != nil {
-		json.NewEncoder(w).Encode(model.Response{
+		response := model.Response{
 			Result: make([]model.Pokemon, 0),
 			Total:  0,
 			Page:   1,
 			Count:  count,
-		})
+		}
+		printResponse(r.Method, r.URL.Path, http.StatusOK, response)
+		json.NewEncoder(w).Encode(response)
 	} else {
+		printResponse(r.Method, r.URL.Path, http.StatusOK, responseList)
 		json.NewEncoder(w).Encode(responseList)
 	}
 }
@@ -78,6 +83,10 @@ func getPokemonsQueryParamas(r *http.Request) map[string]int {
 	queryParams["page"] = page
 
 	return queryParams
+}
+
+func printResponse(method, path string, statusCode int, response model.Response) {
+	fmt.Printf("%v %v(%v): %v\n", method, path, statusCode, response)
 }
 
 func NewPokemonController(csvPath, apiEndpoint string) (PokemonController, error) {

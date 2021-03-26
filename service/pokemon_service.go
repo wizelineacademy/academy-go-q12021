@@ -34,6 +34,7 @@ type PokemonDataService struct {
 func (pds *PokemonDataService) Init() error {
 	data, err := pds.CsvSource.GetData()
 	if err != nil {
+		fmt.Printf("Error initiating pokemon service: %v\n", err)
 		return err
 	}
 
@@ -61,6 +62,7 @@ func (pds *PokemonDataService) Init() error {
 	}
 
 	pds.setPokemonKeys()
+	fmt.Printf("Pokemon Service initiated: %v\n", *pds)
 	return nil
 }
 
@@ -73,6 +75,7 @@ func (pds *PokemonDataService) Get(id int) model.Response {
 		response := model.Response{Result: pokemons, Total: 1, Count: 1, Page: 1}
 		return response
 	}
+	fmt.Printf("Pokemon %v not found in CSV source\n", id)
 	notFoundError := errs.NotFoundError{Id: id, Datatype: dataType}
 
 	// Look for Pokemon in API
@@ -82,8 +85,10 @@ func (pds *PokemonDataService) Get(id int) model.Response {
 			response := model.Response{Result: []model.Pokemon{pokemon}, Total: len(pds.Data), Count: 1, Page: 1}
 			return response
 		}
+		fmt.Printf("Pokemon %v not found in API source\n", id)
 		notFoundError.TechnicalError = apiError
 	} else {
+		fmt.Println("Error converting HttpSource")
 		notFoundError.TechnicalError = errors.New("Error converting HttpSource")
 	}
 
