@@ -74,6 +74,10 @@ func TestWriteDataToCSVFile(t *testing.T) {
 			if len(listOfItems) != len(Items) { // is the same length
 				t.Errorf("Expected %v items but instead got %v!", len(Items), len(listOfItems))
 			}
+			if listOfItems[0].Id != Items[0].Id || listOfItems[0].Title != Items[0].Title { // has the same content
+				t.Errorf("Expected hardcoded item %v to match stored item on the csv %v!", Items[0], listOfItems[0])
+			}
+
 		})
 	}
 }
