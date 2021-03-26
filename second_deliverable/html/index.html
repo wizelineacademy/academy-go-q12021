@@ -11,7 +11,7 @@
 <ul>
     {{range .Items}}
         {{if .Id}}
-            <li class="done"><a href="/getItem?id={{.Id}}">{{.Id}} {{.Title}}</a></li>
+            <li class="done"><a href="/getItem?id={{.Id}}">{{.Title}}</a></li>
         {{else}}
             <li>{{.Title}}</li>
         {{end}}
