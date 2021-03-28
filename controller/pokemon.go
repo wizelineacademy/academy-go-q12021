@@ -88,15 +88,15 @@ func (pc *PokemonController) GetPokemonsFromExternalAPI(
 func (pc *PokemonController) GetPokemonConcurrently(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	typeNumber := vars["type"]
-	itemsS := r.FormValue("items")
-	itemsPerWorkerS := r.FormValue("items_per_worker")
-
-	items, _ := strconv.Atoi(r.FormValue("items"))
-	itemsPerWorker, _ := strconv.Atoi(r.FormValue("items_per_worker"))
-
-	pokemons, _ := pc.useCase.GetPokemonsConcurrently(typeNumber, items, itemsPerWorker)
 
 	if typeNumber == "even" || typeNumber == "odd" {
+		itemsS := r.FormValue("items")
+		itemsPerWorkerS := r.FormValue("items_per_worker")
+
+		items, _ := strconv.Atoi(r.FormValue("items"))
+		itemsPerWorker, _ := strconv.Atoi(r.FormValue("items_per_worker"))
+
+		pokemons, _ := pc.useCase.GetPokemonsConcurrently(typeNumber, items, itemsPerWorker)
 		w.WriteHeader(http.StatusOK)
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(typeNumber + " " + itemsS + " " + itemsPerWorkerS)

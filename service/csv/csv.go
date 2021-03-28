@@ -22,7 +22,6 @@ type NewCsvService interface {
 	GetPokemons() ([]model.Pokemon, *model.Error)
 	GetPokemon(pokemonId int) (model.Pokemon, *model.Error)
 	SavePokemons(*[]model.SinglePokeExternal) *model.Error
-	GetPokemonsConcurrently(typeNumber string, items int, itemsPerWorker int) ([]model.Pokemon, *model.Error)
 }
 
 func New() *CsvService {
@@ -85,62 +84,6 @@ func Read(f *os.File) ([]model.Pokemon, *model.Error) {
 		}
 
 		pokemons = append(pokemons, tempPokemon)
-	}
-	defer f.Close()
-
-	return pokemons, nil
-}
-
-func ReadConcurrently(f *os.File, typeNumber string, items int, itemsPerWorker int) ([]model.Pokemon, *model.Error) {
-
-	reader := csv.NewReader(f)
-	reader.Comma = ','
-	reader.Comment = '#'
-	reader.FieldsPerRecord = -1
-
-	var pokemons []model.Pokemon = nil
-	for {
-		line, err := reader.Read()
-
-		if err == io.EOF {
-			break
-		}
-
-		if err != nil {
-			err := model.Error{
-				Code:    http.StatusInternalServerError,
-				Message: err.Error(),
-			}
-			return nil, &err
-		}
-
-		tempPokemon := model.Pokemon{
-			Name: line[1],
-			URL:  line[2],
-		}
-
-		if line[0] != "" {
-			id, err := strconv.Atoi(line[0])
-			if err != nil {
-				err := model.Error{
-					Code:    http.StatusInternalServerError,
-					Message: err.Error(),
-				}
-				return nil, &err
-			}
-
-			if id%2 != 0 && typeNumber == "even" || id%2 == 0 && typeNumber == "odd" {
-				continue
-			}
-
-			tempPokemon.ID = id
-		}
-
-		pokemons = append(pokemons, tempPokemon)
-		items-- // Every time we add a new pokemon to the list, we reduce the number of pokemons left to add
-		if items == 0 {
-			break // If we can't take more pokemons we finish the cycle
-		}
 	}
 	defer f.Close()
 
@@ -256,30 +199,4 @@ func (s *CsvService) SavePokemons(newPokemons *[]model.SinglePokeExternal) *mode
 	fileOpenAndWrite, _ := OpenAndWrite(pathFile) // Write
 
 	return AddLine(fileOpenAndWrite, lines, newPokemons)
-}
-
-func (s *CsvService) GetPokemonsConcurrently(typeNumber string, items int,
-	itemsPerWorker int) ([]model.Pokemon, *model.Error) {
-
-	f, err := Open(pathFile)
-
-	if err != nil {
-		err := model.Error{
-			Code:    http.StatusInternalServerError,
-			Message: err,
-		}
-		return nil, &err
-	}
-
-	pokes, errorReading := ReadConcurrently(f, typeNumber, items, itemsPerWorker)
-
-	if errorReading != nil {
-		errorReading := model.Error{
-			Code:    http.StatusInternalServerError,
-			Message: errorReading,
-		}
-		return nil, &errorReading
-	}
-
-	return pokes, nil
 }
