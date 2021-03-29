@@ -2,44 +2,34 @@ package controller
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 
 	"github.com/gorilla/mux"
-	"github.com/joseantoniovz/academy-go-q12021/model"
 	"github.com/joseantoniovz/academy-go-q12021/util"
 )
 
-func loadData() []model.Book {
-	var books, err = util.GetAll()
-
-	if err != nil {
-		//fmt.Println(err)
-		err := model.Error{
-			Code:    http.StatusInternalServerError,
-			Message: err,
-		}
-		fmt.Println(err)
-	}
-	return books
-
-}
-
 func GetBook(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-	var books = loadData()
-	json.NewEncoder(w).Encode(books)
+	var books, err = util.GetAll()
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(err)
+	} else {
+		w.WriteHeader(http.StatusOK)
+		json.NewEncoder(w).Encode(books)
+	}
 }
 
 func GetBookById(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-	var books = loadData()
-	id := mux.Vars(r)["id"]
-	for _, book := range books {
-		if book.Id == id {
-			json.NewEncoder(w).Encode(book)
-			return
-		}
+	var book, err = util.GetById(mux.Vars(r)["id"])
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(err)
+	} else if book.Title != "" {
+		w.WriteHeader(http.StatusOK)
+		json.NewEncoder(w).Encode(book)
+	} else {
+		w.WriteHeader(http.StatusNotFound)
+		json.NewEncoder(w).Encode(nil)
 	}
-	json.NewEncoder(w).Encode(model.Error{Message: "Error find the book", Code: 1})
+
 }

@@ -3,7 +3,6 @@ package util
 import (
 	"encoding/csv"
 	"errors"
-	"fmt"
 	"io"
 	"log"
 	"net/http"
@@ -35,8 +34,18 @@ func GetAll() ([]model.Book, *model.Error) {
 		}
 		return nil, &errorReading
 	}
-	fmt.Println("books: ", books)
 	return books, nil
+}
+
+func GetById(id string) (model.Book, *model.Error) {
+	var books, err = GetAll()
+	var bookResult model.Book
+	for _, book := range books {
+		if book.Id == id {
+			bookResult = book
+		}
+	}
+	return bookResult, err
 }
 
 func Open(path string) (*os.File, error) {
@@ -81,7 +90,6 @@ func ReadCsv(f *os.File) ([]model.Book, *model.Error) {
 
 		if line[4] != "" {
 			price, err := strconv.ParseFloat(line[4], 64)
-			//fmt.Println("error ", err)
 			if err != nil {
 				err := model.Error{
 					Code:    http.StatusInternalServerError,
@@ -93,7 +101,6 @@ func ReadCsv(f *os.File) ([]model.Book, *model.Error) {
 		}
 		books = append(books, tempBook)
 	}
-	fmt.Println("Books", books)
 	defer f.Close()
 	return books, nil
 }
