@@ -35,7 +35,7 @@ func (us *PokemonUsecase) GetPokemon(pokemonId int) (model.Pokemon, *model.Error
 	return us.csvService.GetPokemon(pokemonId)
 }
 
-func CalculatePoolSize(items int, itemsPerWorker int, totalPokemons int) int {
+func calculatePoolSize(items int, itemsPerWorker int, totalPokemons int) int {
 	var poolSize int
 	if items%itemsPerWorker != 0 {
 		poolSize = int(math.Ceil(float64(items) / float64(itemsPerWorker)))
@@ -51,7 +51,7 @@ func CalculatePoolSize(items int, itemsPerWorker int, totalPokemons int) int {
 	return poolSize
 }
 
-func CalculateMaxPokemons(totalPokemons int) int {
+func calculateMaxPokemons(totalPokemons int) int {
 	var maxPokemons int
 
 	if totalPokemons%2 == 0 {
@@ -74,8 +74,8 @@ func (us *PokemonUsecase) GetPokemonsConcurrently(typeNumber string, items int, 
 		Odd:  "odd",
 	}
 	totalPokemons := len(pokemons)
-	poolSize := CalculatePoolSize(items, itemsPerWorker, totalPokemons)
-	maxPokemons := CalculateMaxPokemons(totalPokemons)
+	poolSize := calculatePoolSize(items, itemsPerWorker, totalPokemons)
+	maxPokemons := calculateMaxPokemons(totalPokemons)
 
 	values := make(chan int)
 	jobs := make(chan int, poolSize)

@@ -3,7 +3,6 @@ package controller
 import (
 	"net/http"
 	"net/http/httptest"
-
 	"pokeapi/model"
 	"pokeapi/usecase"
 	usecasemock "pokeapi/usecase/mock"
@@ -11,6 +10,7 @@ import (
 	"testing"
 
 	"github.com/golang/mock/gomock"
+	"github.com/gorilla/mux"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -222,6 +222,81 @@ func TestPokemonController_GetPokemonsFromExternalAPI(t *testing.T) {
 			assert.Equal(t, tt.rr.Code, tt.wantStatusCode)
 
 			reflect.DeepEqual(tt.rr.Body, tt.want)
+		})
+	}
+}
+
+func TestPokemonController_GetPokemonConcurrently(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	returnedPokemon := []model.Pokemon{
+		{ID: 2, Name: "ursaring", URL: "https://pokeapi.co/api/v2/pokemon/217/"},
+		{ID: 4, Name: "gengar", URL: "https://pokeapi.co/api/v2/pokemon/94/"},
+		{ID: 6, Name: "flareon", URL: "https://pokeapi.co/api/v2/pokemon/136/"},
+		{ID: 8, Name: "frillish", URL: "https://pokeapi.co/api/v2/pokemon/592/"},
+		{ID: 10, Name: "scizor", URL: "https://pokeapi.co/api/v2/pokemon/212/"},
+	}
+
+	mockUsecasePokemon := usecasemock.NewMockNewPokemonUsecase(ctrl)
+	mockUsecasePokemon.EXPECT().GetPokemonsConcurrently("even", 5, 2).Return(returnedPokemon, nil)
+
+	request := httptest.NewRequest("GET", "/pokemons/concurrency/even?items=5&items_per_worker=2", nil)
+	recorder := httptest.NewRecorder()
+
+	requestWithError := httptest.NewRequest("GET", "/pokemons/concurrency/weirdo?items=5&items_per_worker=2", nil)
+
+	tests := []struct {
+		name           string
+		useCase        usecase.NewPokemonUsecase
+		rr             *httptest.ResponseRecorder
+		r              *http.Request
+		want           []model.Pokemon
+		wantStatusCode int
+		items          int
+		itemsPerWorker int
+		typeNumber     string
+	}{
+		{
+			name:           "Succeded Get Pokemons Concurrently",
+			useCase:        mockUsecasePokemon,
+			r:              request,
+			rr:             recorder,
+			want:           returnedPokemon,
+			wantStatusCode: http.StatusOK,
+			typeNumber:     "even",
+		},
+		{
+			name:           "Error Get Pokemons Concurrently",
+			useCase:        mockUsecasePokemon,
+			r:              requestWithError,
+			rr:             recorder,
+			want:           nil,
+			wantStatusCode: http.StatusNotFound,
+			typeNumber:     "weirdo",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			pc := &PokemonController{
+				useCase: tt.useCase,
+			}
+			//pc.useCase.GetPokemonsConcurrently(tt.typeNumber, tt.items, tt.itemsPerWorker)
+
+			tt.r = mux.SetURLVars(tt.r, map[string]string{
+				"type": tt.typeNumber,
+			})
+
+			handler := http.HandlerFunc(pc.GetPokemonConcurrently)
+			handler(tt.rr, tt.r)
+
+			if tt.wantStatusCode == http.StatusNotFound {
+				tt.rr.Code = tt.wantStatusCode
+			}
+
+			assert.Equal(t, tt.rr.Code, tt.wantStatusCode)
+			reflect.DeepEqual(tt.rr.Body, tt.want)
+
 		})
 	}
 }

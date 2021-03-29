@@ -93,8 +93,8 @@ func (pc *PokemonController) GetPokemonConcurrently(w http.ResponseWriter, r *ht
 		itemsS := r.FormValue("items")
 		itemsPerWorkerS := r.FormValue("items_per_worker")
 
-		items, _ := strconv.Atoi(r.FormValue("items"))
-		itemsPerWorker, _ := strconv.Atoi(r.FormValue("items_per_worker"))
+		items, _ := strconv.Atoi(itemsS)
+		itemsPerWorker, _ := strconv.Atoi(itemsPerWorkerS)
 
 		pokemons, _ := pc.useCase.GetPokemonsConcurrently(typeNumber, items, itemsPerWorker)
 		w.WriteHeader(http.StatusOK)
@@ -102,7 +102,9 @@ func (pc *PokemonController) GetPokemonConcurrently(w http.ResponseWriter, r *ht
 		json.NewEncoder(w).Encode(typeNumber + " " + itemsS + " " + itemsPerWorkerS)
 		json.NewEncoder(w).Encode(&pokemons)
 	} else {
-		w.WriteHeader(http.StatusInternalServerError)
-		fmt.Fprintln(w, "You only can use \"even\" or \"odd\"")
+		w.WriteHeader(http.StatusNotFound)
+		w.Header().Set("Content-Type", "application/json")
+		fmt.Fprint(w, `{ "message": "You only can use "even" or "odd"" }`)
+		// fmt.Fprintln(w, "You only can use \"even\" or \"odd\"")
 	}
 }
