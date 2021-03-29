@@ -89,8 +89,11 @@ func printResponse(method, path string, statusCode int, response model.Response)
 	fmt.Printf("%v %v(%v): %v\n", method, path, statusCode, response)
 }
 
-func NewPokemonController(csvPath, apiEndpoint string) (PokemonController, error) {
-	dataService := service.NewPokemonDataService(csvPath, apiEndpoint)
+func NewPokemonController() (PokemonController, error) {
+	dataService, serviceError := service.NewPokemonDataService()
+	if serviceError != nil {
+		return PokemonController{}, serviceError
+	}
 	iniErrror := dataService.Init()
 	if iniErrror != nil {
 		return PokemonController{}, iniErrror

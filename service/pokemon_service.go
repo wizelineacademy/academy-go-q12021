@@ -151,8 +151,12 @@ func (pds *PokemonDataService) getPage(count, page int) ([]model.Pokemon, int) {
 }
 
 func (pds *PokemonDataService) getPokemonFromAPI(id int, httpSource *data.HttpSource) (model.Pokemon, error) {
+	domainApi, envError := config.GetEnvVar(constant.PokemonServiceVarName)
+	if envError != nil {
+		return model.Pokemon{}, envError
+	}
 	httpData := model.HttpData{
-		Url:    fmt.Sprintf("%v/%v", config.GetEnvVar(constant.PokemonServiceVarName), id),
+		Url:    fmt.Sprintf("%v/%v", domainApi, id),
 		Method: http.MethodGet,
 	}
 
@@ -188,7 +192,11 @@ func (pis pokemonsIDSorter) Less(i, j int) bool { return pis[i] < pis[j] }
 
 func (pis pokemonsIDSorter) Swap(i, j int) { pis[i], pis[j] = pis[j], pis[i] }
 
-func NewPokemonDataService(csvPath, apiEndpoint string) *PokemonDataService {
+func NewPokemonDataService() (*PokemonDataService, error) {
+	csvPath, csvError := config.GetEnvVar(constant.PokemonSourceVarName)
+	if csvError != nil {
+		return &PokemonDataService{}, csvError
+	}
 	csvSource := data.CsvSource(csvPath)
 	httpSource := data.HttpSource{
 		Client: &http.Client{Timeout: time.Minute},
@@ -198,5 +206,5 @@ func NewPokemonDataService(csvPath, apiEndpoint string) *PokemonDataService {
 		HttpSource: httpSource,
 	}
 
-	return service
+	return service, nil
 }

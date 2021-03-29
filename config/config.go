@@ -14,16 +14,16 @@ var defaultValues = map[string]string{
 }
 
 // GetEnvVar returns the value for any environment variable or panic if a default is not defined
-func GetEnvVar(envVarName string) string {
+func GetEnvVar(envVarName string) (string, error) {
 	envVarValue, ok := os.LookupEnv(envVarName)
 	if ok {
-		return envVarValue
+		return envVarValue, nil
 	}
 
 	defaultValue, ok := defaultValues[envVarName]
 	if ok {
-		return defaultValue
+		return defaultValue, nil
 	}
 
-	panic(errors.New(envVarName + " env var is required"))
+	return "", errors.New(envVarName + " env var is required")
 }

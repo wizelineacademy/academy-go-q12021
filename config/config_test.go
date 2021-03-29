@@ -2,7 +2,6 @@
 package config
 
 import (
-	"fmt"
 	"os"
 	"testing"
 
@@ -39,18 +38,12 @@ var testCases = []envVars{
 
 func TestDefaultConfig(t *testing.T) {
 	for _, testCase := range testCases {
-		if testCase.DefaultValue == "" {
-			defer func() {
-				if error := recover(); error == nil {
-					t.Errorf("It should panic when %v is not defined", testCase.VarName)
-				} else {
-					fmt.Printf("The config has throwed an exception for %v variable\n", testCase.VarName)
-				}
-			}()
-		}
-
-		envVar := GetEnvVar(testCase.VarName)
-		if envVar != testCase.DefaultValue {
+		envVar, envError := GetEnvVar(testCase.VarName)
+		if testCase.DefaultValue == "" && envError == nil {
+			t.Errorf("%v should return an error when it is not defined, got '%v' as variable value and '%v' as error", testCase.VarName, envVar, envError)
+		} else if testCase.DefaultValue != "" && envError != nil {
+			t.Errorf("%v default should return a default value, got '%v' instance of '%v'", testCase.VarName, envVar, testCase.DefaultValue)
+		} else if envVar != testCase.DefaultValue {
 			t.Errorf("%v default should be '%v', got '%v'", testCase.VarName, testCase.DefaultValue, envVar)
 		}
 	}
@@ -60,16 +53,10 @@ func TestAssignedConfig(t *testing.T) {
 	for _, testCase := range testCases {
 		os.Setenv(testCase.VarName, testCase.TestValue)
 
-		if testCase.DefaultValue == "" {
-			defer func() {
-				if r := recover(); r != nil {
-					t.Errorf("%v should not trigger panic", testCase.VarName)
-				}
-			}()
-		}
-
-		envVar := GetEnvVar(testCase.VarName)
-		if envVar != testCase.TestValue {
+		envVar, envError := GetEnvVar(testCase.VarName)
+		if envError != nil {
+			t.Errorf("%v should not return an error, got '%v'", testCase.VarName, envError)
+		} else if envVar != testCase.TestValue {
 			t.Errorf("%v did not change its value, expected '%v', got '%v'", testCase.VarName, testCase.TestValue, envVar)
 		}
 	}
