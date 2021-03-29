@@ -1,6 +1,7 @@
 package router
 
 import (
+	"net/http"
 	"pokeapi/controller"
 
 	"github.com/gorilla/mux"
@@ -20,6 +21,16 @@ func New(c controller.NewPokemonController) *Router {
 
 func (router *Router) InitRouter() *mux.Router {
 	r := mux.NewRouter()
+
+	r.Methods(http.MethodGet).
+		Path("/pokemons/concurrency/{type}").
+		Queries("items_per_worker", "{[0-9]+}").
+		Queries("items", "{[0-9]+}").
+		HandlerFunc(router.controller.GetPokemonConcurrently)
+	r.Methods(http.MethodGet).
+		Path("/pokemons/concurrency/{type}").
+		Queries("items", "{[0-9]+}").
+		HandlerFunc(router.controller.GetPokemonConcurrently)
 	r.HandleFunc("/pokemons/external", router.controller.GetPokemonsFromExternalAPI).Methods("GET")
 	r.HandleFunc("/pokemons/{id}", router.controller.GetPokemon).Methods("GET")
 	r.HandleFunc("/pokemons", router.controller.GetPokemons).Methods("GET")

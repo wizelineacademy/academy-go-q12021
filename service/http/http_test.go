@@ -6,6 +6,14 @@ import (
 	"testing"
 )
 
+var pokemonsFromHttp = []model.SinglePokeExternal{
+	{Name: "delcatty", URL: "https://pokeapi.co/api/v2/pokemon/301/"},
+	{Name: "sableye", URL: "https://pokeapi.co/api/v2/pokemon/302/"},
+	{Name: "mawile", URL: "https://pokeapi.co/api/v2/pokemon/303/"},
+	{Name: "aron", URL: "https://pokeapi.co/api/v2/pokemon/304/"},
+	{Name: "lairon", URL: "https://pokeapi.co/api/v2/pokemon/305/"},
+}
+
 func Test_httpService_GetPokemons(t *testing.T) {
 	tests := []struct {
 		name    string
@@ -14,25 +22,13 @@ func Test_httpService_GetPokemons(t *testing.T) {
 		wantErr *model.Error
 	}{
 		{
-			name: "succeded pokemon retrieved",
-			want: []model.SinglePokeExternal{
-				{Name: "delcatty", URL: "https://pokeapi.co/api/v2/pokemon/301/"},
-				{Name: "sableye", URL: "https://pokeapi.co/api/v2/pokemon/302/"},
-				{Name: "mawile", URL: "https://pokeapi.co/api/v2/pokemon/303/"},
-				{Name: "aron", URL: "https://pokeapi.co/api/v2/pokemon/304/"},
-				{Name: "lairon", URL: "https://pokeapi.co/api/v2/pokemon/305/"},
-			},
+			name:    "succeded pokemon retrieved",
+			want:    pokemonsFromHttp,
 			wantErr: nil,
 		},
 		{
-			name: "succeded pokemon retrieved",
-			want: []model.SinglePokeExternal{
-				{Name: "delcatty", URL: "https://pokeapi.co/api/v2/pokemon/301/"},
-				{Name: "sableye", URL: "https://pokeapi.co/api/v2/pokemon/302/"},
-				{Name: "mawile", URL: "https://pokeapi.co/api/v2/pokemon/303/"},
-				{Name: "aron", URL: "https://pokeapi.co/api/v2/pokemon/304/"},
-				{Name: "lairon", URL: "https://pokeapi.co/api/v2/pokemon/305/"},
-			},
+			name:    "succeded pokemon retrieved",
+			want:    pokemonsFromHttp,
 			wantErr: nil,
 		},
 	}

@@ -1,5 +1,7 @@
 package httpservice
 
+// go:generate mockgen -source=service/http/http.go -destination=service/mock/http_mock.go -package=mock
+
 import (
 	"encoding/json"
 	"io/ioutil"

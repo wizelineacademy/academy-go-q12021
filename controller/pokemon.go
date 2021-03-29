@@ -1,9 +1,10 @@
 package controller
 
+// go:generate mockgen -source=controller/pokemon.go -destination=controller/mock/pokemon_controller.go -package=mock
+
 import (
 	"encoding/json"
 	"fmt"
-	"io"
 	"net/http"
 	"strconv"
 
@@ -21,6 +22,7 @@ type NewPokemonController interface {
 	GetPokemons(w http.ResponseWriter, r *http.Request)
 	GetPokemon(w http.ResponseWriter, r *http.Request)
 	GetPokemonsFromExternalAPI(w http.ResponseWriter, r *http.Request)
+	GetPokemonConcurrently(w http.ResponseWriter, r *http.Request)
 }
 
 func New(pc usecase.NewPokemonUsecase) *PokemonController {
@@ -30,7 +32,7 @@ func New(pc usecase.NewPokemonUsecase) *PokemonController {
 func (pc *PokemonController) Index(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	w.Header().Set("Content-Type", "application/json")
-	io.WriteString(w, `{ "message": "Welcome to my Poke-API" }`)
+	fmt.Fprint(w, `{ "message": "Welcome to my Poke-API" }`)
 }
 
 func (pc *PokemonController) GetPokemons(w http.ResponseWriter, r *http.Request) {
@@ -81,4 +83,28 @@ func (pc *PokemonController) GetPokemonsFromExternalAPI(
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(response)
 
+}
+
+func (pc *PokemonController) GetPokemonConcurrently(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	typeNumber := vars["type"]
+
+	if typeNumber == "even" || typeNumber == "odd" {
+		itemsS := r.FormValue("items")
+		itemsPerWorkerS := r.FormValue("items_per_worker")
+
+		items, _ := strconv.Atoi(itemsS)
+		itemsPerWorker, _ := strconv.Atoi(itemsPerWorkerS)
+
+		pokemons, _ := pc.useCase.GetPokemonsConcurrently(typeNumber, items, itemsPerWorker)
+		w.WriteHeader(http.StatusOK)
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(typeNumber + " " + itemsS + " " + itemsPerWorkerS)
+		json.NewEncoder(w).Encode(&pokemons)
+	} else {
+		w.WriteHeader(http.StatusNotFound)
+		w.Header().Set("Content-Type", "application/json")
+		fmt.Fprint(w, `{ "message": "You only can use "even" or "odd"" }`)
+		// fmt.Fprintln(w, "You only can use \"even\" or \"odd\"")
+	}
 }

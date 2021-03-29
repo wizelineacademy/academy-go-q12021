@@ -1,5 +1,6 @@
-// go:generate mockgen -source=csv.go -destination=mock/csv_mock.go -package mock
 package csvservice
+
+// go:generate mockgen -source=service/csv/csv.go -destination=service/mock/csv_mock.go -package=mock
 
 import (
 	"encoding/csv"
@@ -16,6 +17,7 @@ const pathFile = "./csv/pokemon.csv"
 
 type CsvService struct{}
 
+// mockgen -source=service/csv/csv.go -destination=service/mock/csv_mock.go -package=mock
 type NewCsvService interface {
 	GetPokemons() ([]model.Pokemon, *model.Error)
 	GetPokemon(pokemonId int) (model.Pokemon, *model.Error)
@@ -113,7 +115,14 @@ func AddLine(f *os.File, lines [][]string, newPokes *[]model.SinglePokeExternal)
 
 	w := csv.NewWriter(f)
 	for _, pokemon := range *newPokes {
-		w.Write([]string{strconv.Itoa(linesNumber), pokemon.Name, pokemon.URL})
+		err := w.Write([]string{strconv.Itoa(linesNumber), pokemon.Name, pokemon.URL})
+		if err != nil {
+			e := model.Error{
+				Code:    http.StatusInternalServerError,
+				Message: "Something wrong happens, please try again.",
+			}
+			return &e
+		}
 		linesNumber = linesNumber + 1
 	}
 	defer w.Flush()
@@ -152,7 +161,7 @@ func (s *CsvService) GetPokemon(pokemonId int) (model.Pokemon, *model.Error) {
 
 	if tempPokemon == (model.Pokemon{}) { //Check for unexisting pokemon
 		return model.Pokemon{}, &model.Error{
-			Code:    http.StatusAccepted,
+			Code:    http.StatusInternalServerError,
 			Message: "The pokemon does not exists",
 		}
 	}
@@ -189,10 +198,5 @@ func (s *CsvService) SavePokemons(newPokemons *[]model.SinglePokeExternal) *mode
 	lines, _ := ReadAllLines(f)
 	fileOpenAndWrite, _ := OpenAndWrite(pathFile) // Write
 
-	err := AddLine(fileOpenAndWrite, lines, newPokemons)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return AddLine(fileOpenAndWrite, lines, newPokemons)
 }
