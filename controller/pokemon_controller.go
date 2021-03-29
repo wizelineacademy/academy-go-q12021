@@ -2,6 +2,7 @@ package controller
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -9,6 +10,38 @@ import (
 	"github.com/wizelineacademy/academy-go/model"
 	"github.com/wizelineacademy/academy-go/service"
 )
+
+var intConvertion = func(value []string) (int, error) {
+	if len(value) == 0 || value[0] == "" {
+		return 0, errors.New("Empty value cannot be converted to int")
+	}
+
+	num, err := strconv.Atoi(value[0])
+	if err == nil {
+		return num, nil
+	}
+
+	return 0, err
+}
+
+type queryParams struct {
+	Name    string
+	Default int
+}
+
+var queryParamsList = []queryParams{
+	{
+		Name: "id",
+	},
+	{
+		Name:    "count",
+		Default: 10,
+	},
+	{
+		Name:    "page",
+		Default: 1,
+	},
+}
 
 type PokemonController struct {
 	DataService service.DataService
@@ -53,34 +86,16 @@ func (pc PokemonController) GetPokemons(w http.ResponseWriter, r *http.Request) 
 
 func getPokemonsQueryParamas(r *http.Request) map[string]int {
 	queryParams := make(map[string]int, 3)
+	query := r.URL.Query()
 
-	queryID, ok := r.URL.Query()["id"]
-	if ok && len(queryID[0]) > 0 {
-		id, err := strconv.Atoi(queryID[0])
-		if err == nil {
-			queryParams["id"] = id
+	for _, nameParam := range queryParamsList {
+		valueParam, ok := query[nameParam.Name]
+		if convValue, convError := intConvertion(valueParam); ok && convError == nil {
+			queryParams[nameParam.Name] = convValue
+		} else if nameParam.Default != 0 {
+			queryParams[nameParam.Name] = nameParam.Default
 		}
 	}
-
-	count := 10
-	queryCount, ok := r.URL.Query()["count"]
-	if ok && len(queryCount[0]) > 0 {
-		convCount, err := strconv.Atoi(queryCount[0])
-		if err == nil {
-			count = convCount
-		}
-	}
-	queryParams["count"] = count
-
-	page := 1
-	queryPage, ok := r.URL.Query()["page"]
-	if ok && len(queryPage[0]) > 0 {
-		convPage, err := strconv.Atoi(queryPage[0])
-		if err == nil {
-			page = convPage
-		}
-	}
-	queryParams["page"] = page
 
 	return queryParams
 }
