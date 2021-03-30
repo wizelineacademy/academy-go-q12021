@@ -11,4 +11,5 @@ import (
 func SetRoutes(r *mux.Router) {
 	r.HandleFunc("/book", controller.GetBook).Methods(http.MethodGet)
 	r.HandleFunc("/book/{id}", controller.GetBookById).Methods(http.MethodGet)
+	r.HandleFunc("/books/consume", controller.ConsumeAPI).Methods(http.MethodGet)
 }

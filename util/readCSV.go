@@ -7,46 +7,10 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"strconv"
 
+	"github.com/fatih/structs"
 	"github.com/joseantoniovz/academy-go-q12021/model"
 )
-
-const pathFile = "./booklist.csv"
-
-func GetAll() ([]model.Book, *model.Error) {
-	f, err := Open(pathFile)
-
-	if err != nil {
-		err := model.Error{
-			Code:    http.StatusInternalServerError,
-			Message: err,
-		}
-		return nil, &err
-	}
-
-	books, errorReading := ReadCsv(f)
-
-	if errorReading != nil {
-		errorReading := model.Error{
-			Code:    http.StatusInternalServerError,
-			Message: errorReading,
-		}
-		return nil, &errorReading
-	}
-	return books, nil
-}
-
-func GetById(id string) (model.Book, *model.Error) {
-	var books, err = GetAll()
-	var bookResult model.Book
-	for _, book := range books {
-		if book.Id == id {
-			bookResult = book
-		}
-	}
-	return bookResult, err
-}
 
 func Open(path string) (*os.File, error) {
 	f, err := os.Open(path)
@@ -87,20 +51,30 @@ func ReadCsv(f *os.File) ([]model.Book, *model.Error) {
 			Author: line[2],
 			Format: line[3],
 		}
-
-		if line[4] != "" {
-			price, err := strconv.ParseFloat(line[4], 64)
-			if err != nil {
-				err := model.Error{
-					Code:    http.StatusInternalServerError,
-					Message: err.Error(),
-				}
-				return nil, &err
-			}
-			tempBook.Price = price
-		}
 		books = append(books, tempBook)
 	}
 	defer f.Close()
 	return books, nil
+}
+
+func WriteInCSV(model model.Book, pathfile string) (*os.File, error) {
+
+	s := make([]string, 0)
+	f, err := os.OpenFile(pathfile, os.O_APPEND|os.O_WRONLY, 0600)
+
+	if err != nil {
+		return nil, errors.New("There was an error opening the file")
+	}
+
+	defer f.Close()
+
+	writer := csv.NewWriter(f)
+	for _, v := range structs.Values(model) {
+		s = append(s, v.(string))
+	}
+
+	writer.Write(s)
+	writer.Flush()
+	return f, nil
+
 }

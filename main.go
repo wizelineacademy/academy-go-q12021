@@ -6,8 +6,6 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/joseantoniovz/academy-go-q12021/router"
-	// "github.com/joseantoniovz/academy-go-q12021/controller"
-	// "github.com/joseantoniovz/academy-go-q12021/router"
 )
 
 func main() {
