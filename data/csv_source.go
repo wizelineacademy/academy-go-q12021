@@ -6,8 +6,8 @@ import (
 	"os"
 	"strings"
 
-	"github.com/wizelineacademy/academy-go/model"
-	"github.com/wizelineacademy/academy-go/model/errs"
+	"github.com/grethelBello/academy-go-q12021/model"
+	"github.com/grethelBello/academy-go-q12021/model/errs"
 )
 
 // CsvSource is a module to get information from a CSV file. To init, indicate the path to the file

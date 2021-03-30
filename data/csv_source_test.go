@@ -7,7 +7,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/wizelineacademy/academy-go/model"
+	"github.com/grethelBello/academy-go-q12021/model"
 )
 
 const correctFile = "./testdata/pokemons_test.csv"

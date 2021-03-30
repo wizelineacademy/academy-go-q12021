@@ -7,8 +7,8 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/wizelineacademy/academy-go/model"
-	"github.com/wizelineacademy/academy-go/service"
+	"github.com/grethelBello/academy-go-q12021/model"
+	"github.com/grethelBello/academy-go-q12021/service"
 )
 
 var intConvertion = func(value []string) (int, error) {

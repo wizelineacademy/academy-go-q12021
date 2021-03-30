@@ -7,9 +7,9 @@ import (
 	"net/http"
 	"testing"
 
-	"github.com/wizelineacademy/academy-go/data"
-	"github.com/wizelineacademy/academy-go/model"
-	"github.com/wizelineacademy/academy-go/model/errs"
+	"github.com/grethelBello/academy-go-q12021/data"
+	"github.com/grethelBello/academy-go-q12021/model"
+	"github.com/grethelBello/academy-go-q12021/model/errs"
 )
 
 type csvSourceMock string

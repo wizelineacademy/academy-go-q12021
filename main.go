@@ -5,9 +5,9 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/wizelineacademy/academy-go/config"
-	"github.com/wizelineacademy/academy-go/constant"
-	"github.com/wizelineacademy/academy-go/controller"
+	"github.com/grethelBello/academy-go-q12021/config"
+	"github.com/grethelBello/academy-go-q12021/constant"
+	"github.com/grethelBello/academy-go-q12021/controller"
 )
 
 func main() {

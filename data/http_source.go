@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/wizelineacademy/academy-go/model"
-	"github.com/wizelineacademy/academy-go/model/errs"
+	"github.com/grethelBello/academy-go-q12021/model"
+	"github.com/grethelBello/academy-go-q12021/model/errs"
 )
 
 type HttpClient interface {

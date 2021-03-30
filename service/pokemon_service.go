@@ -11,11 +11,11 @@ import (
 	"strings"
 	"time"
 
-	"github.com/wizelineacademy/academy-go/config"
-	"github.com/wizelineacademy/academy-go/constant"
-	"github.com/wizelineacademy/academy-go/data"
-	"github.com/wizelineacademy/academy-go/model"
-	"github.com/wizelineacademy/academy-go/model/errs"
+	"github.com/grethelBello/academy-go-q12021/config"
+	"github.com/grethelBello/academy-go-q12021/constant"
+	"github.com/grethelBello/academy-go-q12021/data"
+	"github.com/grethelBello/academy-go-q12021/model"
+	"github.com/grethelBello/academy-go-q12021/model/errs"
 )
 
 const dataType = "pokemon"

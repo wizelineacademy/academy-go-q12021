@@ -4,7 +4,7 @@ import (
 	"errors"
 	"os"
 
-	"github.com/wizelineacademy/academy-go/constant"
+	"github.com/grethelBello/academy-go-q12021/constant"
 )
 
 var defaultValues = map[string]string{

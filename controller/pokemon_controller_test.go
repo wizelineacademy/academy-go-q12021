@@ -7,7 +7,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/wizelineacademy/academy-go/model"
+	"github.com/grethelBello/academy-go-q12021/model"
 )
 
 type pokemonDataServiceMock string
