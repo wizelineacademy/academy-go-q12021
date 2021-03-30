@@ -23,7 +23,7 @@ func (pdsm pokemonDataServiceMock) Get(id int) model.Response {
 	return getPokemonSuccess
 }
 func (pdsm pokemonDataServiceMock) List(typeFilter model.TypeFilter, items, itemsPerWorker int) model.Response {
-	if typeFilter.isOdd() {
+	if !typeFilter.IsOdd() {
 		return errorResponse
 	}
 

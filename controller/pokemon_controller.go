@@ -33,11 +33,11 @@ var convertionFunctions = map[string]func([]string) (interface{}, error){
 		}
 
 		typeFilter := model.TypeFilter(value[0])
-		if typeFilter.isValid() {
+		if typeFilter.IsValid() {
 			return typeFilter, nil
 		}
 
-		return model.TypeFilter(""), errors.New("Type value not valid: '%v'", typeFilter)
+		return model.TypeFilter(""), errors.New("Type value not valid: '" + typeFilter.GetVal() + "'")
 	},
 }
 

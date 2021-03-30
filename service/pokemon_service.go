@@ -175,7 +175,7 @@ func (pds *PokemonDataService) List(typeFilter model.TypeFilter, items, itemsPer
 	}
 
 	filterData := &filterData{
-		isOdd:          typeFilter.isOdd(),
+		isOdd:          typeFilter.IsOdd(),
 		totalItems:     items,
 		itemsPerWorker: itemsPerWorker,
 	}
