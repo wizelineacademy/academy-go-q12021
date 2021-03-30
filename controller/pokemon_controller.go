@@ -117,9 +117,10 @@ func getPokemonsQueryParamas(r *http.Request) map[string]interface{} {
 	for _, param := range queryParamsList {
 		valueParam, ok := query[param.name]
 		if !ok && param.defaultVal != "" {
-			valueParam[0] = param.defaultVal
+			valueParam = []string{param.defaultVal}
 		}
-		if convValue, convError := param.convertion(valueParam); ok && convError == nil {
+
+		if convValue, convError := param.convertion(valueParam); convError == nil {
 			queryParams[param.name] = convValue
 		}
 	}

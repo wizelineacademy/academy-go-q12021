@@ -87,14 +87,14 @@ var pokemonControllerCases = []testCases{
 		ExpectedResponseBody: fmt.Sprint("Testing\n"),
 	},
 	{
-		Name:                 "List all pokemons sucessfully",
-		RequestPath:          "/pokemons?page=2",
+		Name:                 "List all pokemons sucessfully using default values",
+		RequestPath:          "/pokemons",
 		ExpectedResponseCode: http.StatusOK,
 		ExpectedResponseBody: fmt.Sprint(listPokemonSuccess),
 	},
 	{
 		Name:                 "List all pokemons when there is not data or an error was triggered",
-		RequestPath:          "/pokemons",
+		RequestPath:          "/pokemons?type=even&items=4&items_per_worker=1",
 		ExpectedResponseCode: http.StatusOK,
 		ExpectedResponseBody: fmt.Sprint(emptyResponseList),
 	},
