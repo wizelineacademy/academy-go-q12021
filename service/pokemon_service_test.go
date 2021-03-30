@@ -12,6 +12,19 @@ import (
 	"github.com/grethelBello/academy-go-q12021/model/errs"
 )
 
+var csvData = [][]string{
+	{"ID", "Name"},
+	{"2", "ivysaur"},
+	{"", ""},
+	{"1", " bulbasaur"},
+	{"4", "charmander"},
+	{"7", "squirtle"},
+	{"3", "venusaur"},
+	{"5", "charmeleon"},
+	{"6", "charizard"},
+	{"100", " "},
+}
+
 type csvSourceMock string
 
 func (csm csvSourceMock) GetData(csvConfig ...*model.SourceConfig) (*model.Data, error) {
@@ -51,79 +64,44 @@ func TestFailedInit(t *testing.T) {
 	}
 }
 
-func TestInitWithHeaders(t *testing.T) {
-	csvGetDataMock = func(csvConfig ...*model.SourceConfig) (*model.Data, error) {
-		csvData := [][]string{
-			{"ID", "Name"},
-			{"1", " bulbasaur"},
-		}
-		data := model.NewCsvData(csvData)
-		return data, nil
+func TestInitDirtyData(t *testing.T) {
+	pokemonSource := initPokemonSource(t, mockResponseData{}, csvData)
+	if len(pokemonSource.Data) != 7 {
+		t.Errorf("PokemonDataService expects 7 element, got '%v'", pokemonSource.Data)
 	}
 
-	pokemonSource := initPokemonSource(t, mockResponseData{})
-	if len(pokemonSource.Data) != 1 {
-		t.Errorf("PokemonDataService expects 1 element, got '%v'", pokemonSource.Data)
-	} else if len(pokemonSource.keys) != 1 {
-		t.Errorf("PokemonDataService expects 1 element, got '%v'", pokemonSource.keys)
-	}
 	pokemon := pokemonSource.Data[1]
 	if len(pokemon.Name) > 9 {
 		t.Errorf("Pokemon name expects to not have spaces, got '%v'", pokemon.Name)
 	}
 }
 
-func TestInitWithEmptyLine(t *testing.T) {
-	csvGetDataMock = func(csvConfig ...*model.SourceConfig) (*model.Data, error) {
-		csvData := [][]string{
-			{"2 ", "Pikachu"},
-			{"", ""},
-			{"1", "bulbasaur"},
-		}
-		data := model.NewCsvData(csvData)
-		return data, nil
-	}
-
-	pokemonSource := initPokemonSource(t, mockResponseData{})
-	if len(pokemonSource.Data) != 2 {
-		t.Errorf("PokemonDataService expects 2 element, got '%v'", pokemonSource)
-	} else if len(pokemonSource.keys) != 2 {
-		t.Errorf("PokemonDataService expects 2 element, got '%v'", pokemonSource.keys)
-	}
-}
-
-func TestInitEmptyField(t *testing.T) {
-	csvGetDataMock = func(csvConfig ...*model.SourceConfig) (*model.Data, error) {
-		csvData := [][]string{
-			{"2 ", "Pikachu"},
-			{"1", " "},
-		}
-		data := model.NewCsvData(csvData)
-		return data, nil
-	}
-
-	pokemonSource := initPokemonSource(t, mockResponseData{})
-	if len(pokemonSource.Data) != 1 {
-		t.Errorf("PokemonDataService expects 1 element, got '%v'", pokemonSource)
-	} else if len(pokemonSource.keys) != 1 {
-		t.Errorf("PokemonDataService expects 1 element, got '%v'", pokemonSource.keys)
-	}
-}
-
 func TestGetFromApiSuccess(t *testing.T) {
-	csvGetDataMock = func(csvConfig ...*model.SourceConfig) (*model.Data, error) {
-		csvData := [][]string{}
-		data := model.NewCsvData(csvData)
-		return data, nil
-	}
-
 	pokemonSource := initPokemonSource(t, mockResponseData{
 		Body:       getTestPokemon(),
 		StatusCode: http.StatusOK,
-	})
+	}, [][]string{})
 	response := pokemonSource.Get(1)
 	if response.Error != nil {
 		t.Errorf("PokemonSource should return an empty error when there is not pokemons, got '%v'", response.Error)
+	}
+
+	pokemon := response.Result[0]
+	if pokemon.Id != 1 || pokemon.Name != "bulbasaur" {
+		t.Errorf("PokemonSource should return a correct pokemon successfully, got '%v'", pokemon)
+	}
+}
+
+func TestGetFromCsvSuccess(t *testing.T) {
+	csvGetDataMock = func(csvConfig ...*model.SourceConfig) (*model.Data, error) {
+		data := model.NewCsvData(csvData)
+		return data, nil
+	}
+
+	pokemonSource := initPokemonSource(t, mockResponseData{}, csvData)
+	response := pokemonSource.Get(1)
+	if response.Error != nil {
+		t.Errorf("PokemonSource should return a pokemon successfully, got '%v'", response.Error)
 	}
 
 	pokemon := response.Result[0]
@@ -132,122 +110,50 @@ func TestGetFromApiSuccess(t *testing.T) {
 	}
 }
 
-func TestGetFromCsvSuccess(t *testing.T) {
-	csvGetDataMock = func(csvConfig ...*model.SourceConfig) (*model.Data, error) {
-		csvData := [][]string{
-			{"1", "pikachu"},
-			{"2", "charmander"},
-		}
-		data := model.NewCsvData(csvData)
-		return data, nil
-	}
-
-	pokemonSource := initPokemonSource(t, mockResponseData{})
-	response := pokemonSource.Get(1)
-	if response.Error != nil {
-		t.Errorf("PokemonSource should return a pokemon successfully, got '%v'", response.Error)
-	}
-
-	pokemon := response.Result[0]
-	if pokemon.Id != 1 && pokemon.Name != "pikachu" {
-		t.Errorf("PokemonSource should return a correct pokemon successfully, got '%v'", pokemon)
-	}
-}
-
 func TestGetNotFoundError(t *testing.T) {
-	csvGetDataMock = func(csvConfig ...*model.SourceConfig) (*model.Data, error) {
-		csvData := [][]string{
-			{"1", "pikachu"},
-		}
-		data := model.NewCsvData(csvData)
-		return data, nil
-	}
-
 	pokemonSource := initPokemonSource(t, mockResponseData{
 		StatusCode: http.StatusNotFound,
 		Body:       "",
-	})
-	response := pokemonSource.Get(2)
-	if response.Error == nil || response.Error.Error() != "The pokemon with 2 ID was not found" {
+	}, csvData)
+	response := pokemonSource.Get(2000)
+	if response.Error == nil || response.Error.Error() != "The pokemon with 2000 ID was not found" {
 		t.Errorf("PokemonSource should return an error when the ID does not exist, got '%v'", response.Error)
 	}
 }
 
 func TestListEmptyError(t *testing.T) {
-	csvGetDataMock = func(csvConfig ...*model.SourceConfig) (*model.Data, error) {
-		csvData := [][]string{}
-		data := model.NewCsvData(csvData)
-		return data, nil
-	}
-
-	pokemonSource := initPokemonSource(t, mockResponseData{})
-	response := pokemonSource.List(10, 1)
+	pokemonSource := initPokemonSource(t, mockResponseData{}, [][]string{})
+	response := pokemonSource.List(model.TypeFilter("odd"), 4, 3)
 	if response.Error == nil || response.Error.Error() != "There are not any pokemons" {
 		t.Errorf("PokemonSource should return an empty error when the ID does not exist, got '%v'", response.Error)
 	}
 }
 
-func TestListCountOutOfLimit(t *testing.T) {
-	csvGetDataMock = func(csvConfig ...*model.SourceConfig) (*model.Data, error) {
-		csvData := [][]string{
-			{"2", "pikachu"},
-			{"1", "charmander"},
-		}
-		data := model.NewCsvData(csvData)
-		return data, nil
-	}
-
-	pokemonSource := initPokemonSource(t, mockResponseData{})
-	response := pokemonSource.List(3, 1)
+func TestListItemsGraterThanData(t *testing.T) {
+	pokemonSource := initPokemonSource(t, mockResponseData{}, csvData)
+	response := pokemonSource.List(model.TypeFilter("odd"), 5, 3)
 	if response.Error != nil {
 		t.Errorf("PokemonSource should return a pokemons list successfully, got '%v'", response.Error)
-	} else if len(response.Result) != 2 || response.Page > 1 {
-		t.Errorf("PokemonSource should return the maximum of pokemons in one page when the count exceds the total, got '%v'", response.Result)
+	} else if len(response.Result) != 4 {
+		t.Errorf("PokemonSource should return all the odd Pokemon's IDs in data without repetition, got '%v'", response.Result)
 	}
 }
 
-func TestListPageOutOfLimit(t *testing.T) {
-	csvGetDataMock = func(csvConfig ...*model.SourceConfig) (*model.Data, error) {
-		csvData := [][]string{
-			{"2", "pikachu"},
-			{"1", "charmander"},
-		}
-		data := model.NewCsvData(csvData)
-		return data, nil
-	}
-
-	pokemonSource := initPokemonSource(t, mockResponseData{})
-	response := pokemonSource.List(1, 3)
+func TestListItemsPerWorkEqualsToAllData(t *testing.T) {
+	pokemonSource := initPokemonSource(t, mockResponseData{}, csvData)
+	response := pokemonSource.List(model.TypeFilter("even"), 5, 7)
 	if response.Error != nil {
 		t.Errorf("PokemonSource should return a pokemons list successfully, got '%v'", response.Error)
-	} else if len(response.Result) != 1 || response.Page > 2 {
-		t.Errorf("PokemonSource should return the maximum of pokemons in one page when the count exceds the total, got '%v'", response.Result)
+	} else if len(response.Result) != 4 {
+		t.Errorf("PokemonSource should return all the even Pokemon's IDs in data without repetition, got '%v'", response.Result)
 	}
 }
 
-func TestListSuccess(t *testing.T) {
+func initPokemonSource(t *testing.T, response mockResponseData, csvDataRespone [][]string) *PokemonDataService {
 	csvGetDataMock = func(csvConfig ...*model.SourceConfig) (*model.Data, error) {
-		csvData := [][]string{
-			{"2", "pikachu"},
-			{"1", "charmander"},
-		}
-		data := model.NewCsvData(csvData)
+		data := model.NewCsvData(csvDataRespone)
 		return data, nil
 	}
-
-	pokemonSource := initPokemonSource(t, mockResponseData{})
-	response := pokemonSource.List(1, 1)
-	if response.Error != nil {
-		t.Errorf("PokemonSource should return a pokemons list successfully, got '%v'", response.Error)
-	}
-
-	pokemon := response.Result[0]
-	if len(response.Result) != 1 && pokemon.Id != 1 {
-		t.Errorf("PokemonSource should list pokemons in ascendence order successfully, got '%v'", response.Result)
-	}
-}
-
-func initPokemonSource(t *testing.T, response mockResponseData) *PokemonDataService {
 	doMock = func(req *http.Request) (*http.Response, error) {
 		if response.ErrorResponse != "" {
 			return nil, fmt.Errorf(response.ErrorResponse)

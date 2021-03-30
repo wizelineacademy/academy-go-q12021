@@ -22,8 +22,8 @@ func (pdsm pokemonDataServiceMock) Get(id int) model.Response {
 
 	return getPokemonSuccess
 }
-func (pdsm pokemonDataServiceMock) List(count, page int) model.Response {
-	if page == 1 {
+func (pdsm pokemonDataServiceMock) List(typeFilter model.TypeFilter, items, itemsPerWorker int) model.Response {
+	if typeFilter.isOdd() {
 		return errorResponse
 	}
 
@@ -38,13 +38,12 @@ var getPokemonSuccess = model.Response{
 		},
 	},
 	Total: 2,
-	Page:  1,
-	Count: 1,
+	Items: 1,
 }
 var listPokemonSuccess = model.Response{
 	Result: []model.Pokemon{
 		{
-			Id:   1,
+			Id:   4,
 			Name: "bulbasaur",
 		},
 		{
@@ -53,15 +52,13 @@ var listPokemonSuccess = model.Response{
 		},
 	},
 	Total: 2,
-	Page:  2,
-	Count: 10,
+	Items: 2,
 }
 var errorResponse = model.Response{Error: fmt.Errorf("Testing")}
 var emptyResponseList = model.Response{
-	Result: make([]model.Pokemon, 0),
+	Result: []model.Pokemon{},
 	Total:  0,
-	Page:   1,
-	Count:  10,
+	Items:  0,
 }
 
 var controller = PokemonController{

@@ -21,11 +21,83 @@ import (
 const dataType = "pokemon"
 
 var isDigit = regexp.MustCompile(`\d+`)
+var isOdd = func(value int) bool {
+	return value%2 > 0
+}
+var isEven = func(value int) bool {
+	return value%2 == 0
+}
+var lookForPokemons = func(data jobInfo, isOddFlag bool) {
+	var evaluation func(value int) bool = isEven
+	if isOddFlag {
+		evaluation = isOdd
+	}
+
+	foundKeys := 0
+	for _, key := range data.keys {
+		if foundKeys < data.items && evaluation(key) {
+			fmt.Printf("%v found %v\n", data.name, key)
+			foundKeys++
+			*data.results <- key
+		} else if foundKeys >= data.items {
+			break
+		}
+	}
+
+	*data.shutdownChannel <- data.name
+	return
+}
+
+type filterData struct {
+	totalItems     int
+	itemsPerWorker int
+	numJobs        int
+	segmentSize    int
+	isOdd          bool
+}
+
+func (fd *filterData) getSegments(data map[int]model.Pokemon) [][]int {
+	total := len(data)
+	if fd.totalItems > total {
+		fd.totalItems = total
+	}
+
+	if fd.itemsPerWorker > fd.totalItems {
+		fd.itemsPerWorker = fd.totalItems
+	}
+
+	fd.numJobs = fd.totalItems / fd.itemsPerWorker
+	fd.segmentSize = total / fd.numJobs
+	if cover := fd.numJobs * fd.segmentSize; cover < total {
+		fd.numJobs++
+	}
+
+	segments := make([][]int, fd.numJobs)
+	jobIndex := 0
+	for key := range data {
+		jobData := len(segments[jobIndex])
+		if jobData == fd.segmentSize {
+			jobIndex++
+			jobData = 0
+		}
+
+		segments[jobIndex][jobData] = key
+	}
+
+	return segments
+}
+
+type jobInfo struct {
+	name            string
+	items           int
+	results         *chan int
+	shutdownChannel *chan string
+	keys            []int
+}
 
 // PokemonDataService is a service layer to work with the data (list, filter, etc.)
 type PokemonDataService struct {
 	Data       map[int]model.Pokemon
-	keys       pokemonsIDSorter
 	CsvSource  data.Source
 	HttpSource data.Source
 }
@@ -61,18 +133,18 @@ func (pds *PokemonDataService) Init() error {
 		pds.Data[convID] = pokemon
 	}
 
-	pds.setPokemonKeys()
 	fmt.Printf("Pokemon Service initiated: %v\n", *pds)
 	return nil
 }
 
 // Get returns a pokemon by ID
 func (pds *PokemonDataService) Get(id int) model.Response {
+	total := len(pds.Data)
 	// Look for Pokemon in CSV Data
 	pokemon, ok := pds.Data[id]
 	if ok {
 		pokemons := []model.Pokemon{pokemon}
-		response := model.Response{Result: pokemons, Total: 1, Count: 1, Page: 1}
+		response := model.Response{Result: pokemons, Total: total, Items: 1}
 		return response
 	}
 	fmt.Printf("Pokemon %v not found in CSV source\n", id)
@@ -82,7 +154,7 @@ func (pds *PokemonDataService) Get(id int) model.Response {
 	if httpsource, ok := pds.HttpSource.(data.HttpSource); ok {
 		pokemon, apiError := pds.getPokemonFromAPI(id, &httpsource)
 		if apiError == nil {
-			response := model.Response{Result: []model.Pokemon{pokemon}, Total: len(pds.Data), Count: 1, Page: 1}
+			response := model.Response{Result: []model.Pokemon{pokemon}, Total: total, Items: 1}
 			return response
 		}
 		fmt.Printf("Pokemon %v not found in API source\n", id)
@@ -96,58 +168,59 @@ func (pds *PokemonDataService) Get(id int) model.Response {
 }
 
 // List returns all the pokemons by page
-func (pds *PokemonDataService) List(count, page int) model.Response {
+func (pds *PokemonDataService) List(typeFilter model.TypeFilter, items, itemsPerWorker int) model.Response {
 	if pds.Data == nil || len(pds.Data) == 0 {
 		emptyError := errs.EmptyDataError(dataType)
 		return model.Response{Error: emptyError}
 	}
 
-	pokemons, page := pds.getPage(count, page)
-	return model.Response{Result: pokemons, Total: len(pds.Data), Page: page, Count: count}
+	filterData := &filterData{
+		isOdd:          typeFilter.isOdd(),
+		totalItems:     items,
+		itemsPerWorker: itemsPerWorker,
+	}
+	keys := pds.filterPokemons(filterData)
+	sorter := pokemonsIDSorter(keys)
+	sort.Sort(sorter)
+
+	pokemons := make([]model.Pokemon, len(keys))
+	for index, key := range keys {
+		pokemons[index] = pds.Data[key]
+	}
+	return model.Response{Result: pokemons, Total: len(pds.Data), Items: len(pokemons)}
 }
 
-func (pds *PokemonDataService) setPokemonKeys() {
-	keys := make([]int, len(pds.Data))
-	index := 0
-	for key := range pds.Data {
-		keys[index] = key
-		index++
-	}
+func (pds *PokemonDataService) filterPokemons(data *filterData) []int {
+	segments := data.getSegments(pds.Data)
+	shutdown := make(chan string, data.numJobs)
+	results := make(chan int, data.numJobs)
 
-	pds.keys = pokemonsIDSorter(keys)
-	sort.Sort(pds.keys)
-}
-
-func (pds *PokemonDataService) getPage(count, page int) ([]model.Pokemon, int) {
-	total := len(pds.keys)
-	if count > total {
-		count = total
-	}
-
-	if count*page > total {
-		page = total / count
-	}
-
-	startFrom := count*page - count
-	endAt := count * page
-	index := 0
-	resultList := make([]model.Pokemon, count)
-
-	for pokeKeyIndex, pokemonKey := range pds.keys {
-		if pokeKeyIndex >= startFrom && pokeKeyIndex < endAt {
-			pokemon, ok := pds.Data[pokemonKey]
-			if ok {
-				resultList[index] = pokemon
-				index++
-			}
+	for index := 0; index < data.numJobs; index++ {
+		jobInfo := jobInfo{
+			name:            fmt.Sprintf("Job %v", index+1),
+			items:           data.itemsPerWorker,
+			keys:            segments[index],
+			results:         &results,
+			shutdownChannel: &shutdown,
 		}
+		go lookForPokemons(jobInfo, data.isOdd)
+	}
 
-		if pokeKeyIndex == endAt {
-			break
+	ids := make([]int, data.totalItems)
+	finishedJobs := 0
+	for finishedJobs < data.numJobs {
+		select {
+		case <-shutdown:
+			finishedJobs++
+		case key := <-results:
+			currentKey := len(ids)
+			ids[currentKey] = key
 		}
 	}
+	close(results)
+	close(shutdown)
 
-	return resultList, page
+	return ids
 }
 
 func (pds *PokemonDataService) getPokemonFromAPI(id int, httpSource *data.HttpSource) (model.Pokemon, error) {
@@ -180,7 +253,6 @@ func (pds *PokemonDataService) getPokemonFromAPI(id int, httpSource *data.HttpSo
 		}}
 	defer pds.CsvSource.SetData(&appendPokemon)
 	pds.Data[pokemon.Id] = pokemon
-	pds.setPokemonKeys()
 	return pokemon, nil
 }
 

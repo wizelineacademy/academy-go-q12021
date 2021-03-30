@@ -11,35 +11,61 @@ import (
 	"github.com/grethelBello/academy-go-q12021/service"
 )
 
-var intConvertion = func(value []string) (int, error) {
-	if len(value) == 0 || value[0] == "" {
-		return 0, errors.New("Empty value cannot be converted to int")
-	}
+const intKey = "int"
+const typeKey = "typeFilter"
 
-	num, err := strconv.Atoi(value[0])
-	if err == nil {
-		return num, nil
-	}
+var convertionFunctions = map[string]func([]string) (interface{}, error){
+	intKey: func(value []string) (interface{}, error) {
+		if len(value) == 0 || value[0] == "" {
+			return 0, errors.New("Empty value cannot be converted to int")
+		}
 
-	return 0, err
+		num, err := strconv.Atoi(value[0])
+		if err == nil {
+			return num, nil
+		}
+
+		return 0, err
+	},
+	typeKey: func(value []string) (interface{}, error) {
+		if len(value) == 0 || value[0] == "" {
+			return model.TypeFilter(""), errors.New("Empty value cannot be converted to model.TypeFilter")
+		}
+
+		typeFilter := model.TypeFilter(value[0])
+		if typeFilter.isValid() {
+			return typeFilter, nil
+		}
+
+		return model.TypeFilter(""), errors.New("Type value not valid: '%v'", typeFilter)
+	},
 }
 
 type queryParams struct {
-	Name    string
-	Default int
+	name       string
+	defaultVal string
+	convertion func([]string) (interface{}, error)
 }
 
 var queryParamsList = []queryParams{
 	{
-		Name: "id",
+		name:       "id",
+		convertion: convertionFunctions[intKey],
 	},
 	{
-		Name:    "count",
-		Default: 10,
+		name:       "items",
+		defaultVal: "10",
+		convertion: convertionFunctions[intKey],
 	},
 	{
-		Name:    "page",
-		Default: 1,
+		name:       "items_per_worker",
+		defaultVal: "10",
+		convertion: convertionFunctions[intKey],
+	},
+	{
+		name:       "type",
+		defaultVal: model.Odd(),
+		convertion: convertionFunctions[typeKey],
 	},
 }
 
@@ -52,9 +78,9 @@ func (pc PokemonController) GetPokemons(w http.ResponseWriter, r *http.Request) 
 	fmt.Printf("%v %v: %v\n", r.Method, r.URL.Path, queryParams)
 
 	// Return just one pokemon by ID
-	id, ok := queryParams["id"]
+	id, ok := queryParams[queryParamsList[0].name]
 	if ok {
-		responseGet := pc.DataService.Get(id)
+		responseGet := pc.DataService.Get(id.(int))
 		if responseGet.Error != nil {
 			printResponse(r.Method, r.URL.Path, http.StatusNotFound, responseGet)
 			http.Error(w, responseGet.Error.Error(), http.StatusNotFound)
@@ -65,16 +91,16 @@ func (pc PokemonController) GetPokemons(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	// List all pokemons
-	count, _ := queryParams["count"]
-	page, _ := queryParams["page"]
-	responseList := pc.DataService.List(count, page)
+	// Filter pokemons
+	typeFilter, _ := queryParams[queryParamsList[3].name]
+	responseItems, _ := queryParams[queryParamsList[1].name]
+	itemsPerWorker, _ := queryParams[queryParamsList[2].name]
+	responseList := pc.DataService.List(typeFilter.(model.TypeFilter), responseItems.(int), itemsPerWorker.(int))
 	if responseList.Error != nil {
 		response := model.Response{
-			Result: make([]model.Pokemon, 0),
+			Result: []model.Pokemon{},
 			Total:  0,
-			Page:   1,
-			Count:  count,
+			Items:  0,
 		}
 		printResponse(r.Method, r.URL.Path, http.StatusOK, response)
 		json.NewEncoder(w).Encode(response)
@@ -84,16 +110,17 @@ func (pc PokemonController) GetPokemons(w http.ResponseWriter, r *http.Request) 
 	}
 }
 
-func getPokemonsQueryParamas(r *http.Request) map[string]int {
-	queryParams := make(map[string]int, 3)
+func getPokemonsQueryParamas(r *http.Request) map[string]interface{} {
+	queryParams := make(map[string]interface{}, 3)
 	query := r.URL.Query()
 
-	for _, nameParam := range queryParamsList {
-		valueParam, ok := query[nameParam.Name]
-		if convValue, convError := intConvertion(valueParam); ok && convError == nil {
-			queryParams[nameParam.Name] = convValue
-		} else if nameParam.Default != 0 {
-			queryParams[nameParam.Name] = nameParam.Default
+	for _, param := range queryParamsList {
+		valueParam, ok := query[param.name]
+		if !ok && param.defaultVal != "" {
+			valueParam[0] = param.defaultVal
+		}
+		if convValue, convError := param.convertion(valueParam); ok && convError == nil {
+			queryParams[param.name] = convValue
 		}
 	}
 
