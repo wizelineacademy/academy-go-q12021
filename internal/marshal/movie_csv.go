@@ -20,7 +20,10 @@ func UnmarshalMovieCSV(movie *aggregate.Movie, records ...string) (err error) {
 	movie.ID = valueobject.MovieID(records[0])
 	movie.DisplayName = valueobject.DisplayName(records[1])
 	movie.Directors = unmarshalMovieDirectors(movieDirectorsDelimiterPatternCSV, records[2])
-	year, _ := strconv.Atoi(records[3])
+	year, err := strconv.Atoi(records[3])
+	if err != nil {
+		return err
+	}
 	movie.ReleaseYear, err = valueobject.NewReleaseYear(year) // avoid integer overflow at runtime
 	if err != nil {
 		return err

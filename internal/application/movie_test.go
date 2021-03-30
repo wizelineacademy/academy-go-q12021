@@ -9,6 +9,7 @@ import (
 	"github.com/maestre3d/academy-go-q12021/internal/persistence"
 	"github.com/maestre3d/academy-go-q12021/internal/repository"
 	"github.com/maestre3d/academy-go-q12021/internal/valueobject"
+
 	"github.com/stretchr/testify/assert"
 )
 

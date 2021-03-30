@@ -7,9 +7,10 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/maestre3d/academy-go-q12021/internal/infrastructure"
+
 	muxhandlers "github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
-	"github.com/maestre3d/academy-go-q12021/internal/infrastructure"
 	"go.uber.org/fx"
 	"go.uber.org/zap"
 )

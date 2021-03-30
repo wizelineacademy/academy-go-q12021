@@ -3,12 +3,13 @@ package controller
 import (
 	"net/http"
 
-	"github.com/google/uuid"
-	"github.com/gorilla/mux"
 	"github.com/maestre3d/academy-go-q12021/internal/application"
 	"github.com/maestre3d/academy-go-q12021/internal/command"
 	"github.com/maestre3d/academy-go-q12021/internal/query"
 	"github.com/maestre3d/academy-go-q12021/pkg/httputil"
+
+	"github.com/google/uuid"
+	"github.com/gorilla/mux"
 )
 
 // MovieHTTP Movie's HTTP controller used to expose Movie use cases through an HTTP server

@@ -3,6 +3,7 @@ package controller
 import (
 	"github.com/maestre3d/academy-go-q12021/internal/module"
 	"github.com/maestre3d/academy-go-q12021/pkg/httputil"
+
 	"go.uber.org/fx"
 )
 

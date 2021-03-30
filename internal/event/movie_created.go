@@ -15,6 +15,7 @@ type MovieCreated struct {
 	CreateTime  time.Time `json:"create_time"`
 }
 
+// NewMovieCreated allocates a MovieCreated event
 func NewMovieCreated(id valueobject.MovieID, name valueobject.DisplayName,
 	year valueobject.ReleaseYear, directors ...valueobject.DisplayName) MovieCreated {
 	return MovieCreated{
@@ -26,10 +27,12 @@ func NewMovieCreated(id valueobject.MovieID, name valueobject.DisplayName,
 	}
 }
 
+// Kind returns the Event key
 func (c MovieCreated) Kind() string {
-	return "movie-created"
+	return "movie.created"
 }
 
+// AggregateID returns the aggregate ID from the current aggregage whose state was modified
 func (c MovieCreated) AggregateID() string {
 	return c.ID
 }

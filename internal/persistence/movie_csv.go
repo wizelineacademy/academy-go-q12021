@@ -176,17 +176,19 @@ func (m *MovieCSV) searchMoviesOnFile(r *csv.Reader, criteria repository.Criteri
 	allowFetch := false
 	movies := make([]*aggregate.Movie, 0)
 	nextPageToken := ""
+csvTraverse:
 	for {
 		record, err := r.Read()
-		if err == io.EOF {
-			break
-		} else if err != nil {
+		switch {
+		case err == io.EOF:
+			break csvTraverse
+		case err != nil:
 			return nil, "", err
-		} else if isHeader {
+		case isHeader:
 			isHeader = false
-			continue
-		} else if criteria.NextPage != "" && record[0] != criteria.NextPage && allowFetch == false {
-			continue
+			continue csvTraverse
+		case criteria.NextPage != "" && record[0] != criteria.NextPage && allowFetch == false:
+			continue csvTraverse
 		}
 
 		movie := aggregate.NewEmptyMovie()

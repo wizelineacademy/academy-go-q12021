@@ -21,7 +21,10 @@ type MovieOmdb struct {
 func UnmarshalMovieOmdb(movieOmdb MovieOmdb, movie *aggregate.Movie) (err error) {
 	movie.DisplayName = valueobject.DisplayName(movieOmdb.Title)
 	movie.Directors = unmarshalMovieDirectors(movieDirectorDelimeterPatternOmdb, movieOmdb.Director)
-	year, _ := strconv.Atoi(movieOmdb.Year)
+	year, err := strconv.Atoi(movieOmdb.Year)
+	if err != nil {
+		return err
+	}
 	movie.ReleaseYear, err = valueobject.NewReleaseYear(year) // avoid integer overflow at runtime
 	if err != nil {
 		return err
