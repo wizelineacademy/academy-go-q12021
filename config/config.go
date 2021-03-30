@@ -11,6 +11,8 @@ var defaultValues = map[string]string{
 	constant.EnvironmentVarName:    constant.DefaultEnvironment,
 	constant.PokemonServiceVarName: constant.DefaultPokemonService,
 	constant.ServerPortVarName:     constant.DefaultServerPort,
+	constant.CsvMaxRetryVarName:    constant.DefaultMaxRetries,
+	constant.CsvTimeRetryVarName:   constant.DefaultTimeRetries,
 }
 
 // GetEnvVar returns the value for any environment variable or panic if a default is not defined

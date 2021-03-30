@@ -5,13 +5,18 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strconv"
 	"strings"
+	"time"
 
+	"github.com/grethelBello/academy-go-q12021/config"
+	"github.com/grethelBello/academy-go-q12021/constant"
 	"github.com/grethelBello/academy-go-q12021/model"
 	"github.com/grethelBello/academy-go-q12021/model/errs"
 )
 
 var retriesCache = make(map[string]int)
+var maxRetry, timeRetry int
 
 // CsvSource is a module to get information from a CSV file. To init, indicate the path to the file
 type CsvSource string
@@ -56,7 +61,15 @@ func (source CsvSource) SetData(generalData *model.Data) error {
 	}
 
 	if len(retriesCache) > 0 {
-		go source.retrySetData()
+		if timeRetry == 0 {
+			timeRetry = convertEnvVar(constant.CsvTimeRetryVarName)
+		}
+
+		go func() {
+			time.Sleep(time.Second * time.Duration(timeRetry))
+			source.retrySetData()
+			return
+		}()
 	}
 	return nil
 }
@@ -71,17 +84,19 @@ func (source CsvSource) retrySetData() {
 	}
 	csvData := model.NewCsvData(dataRaw)
 	source.SetData(csvData)
-	return
 }
 
 func checkRetries(cacheKey, file string, err error) {
+	if maxRetry == 0 {
+		maxRetry = convertEnvVar(constant.CsvMaxRetryVarName)
+	}
 	counter, ok := retriesCache[cacheKey]
 
 	if err != nil {
-		if !ok || counter < 10 {
+		if !ok || counter < maxRetry {
 			retriesCache[cacheKey] = counter + 1
 			log.Printf("Error writing '%v' in '%v' file: %v, retry: %v", cacheKey, file, err, counter+1)
-		} else if counter >= 10 {
+		} else if counter >= maxRetry {
 			log.Printf("Last retry writing '%v' in '%v' file: %v\n", cacheKey, file, err)
 			delete(retriesCache, cacheKey)
 		}
@@ -89,4 +104,16 @@ func checkRetries(cacheKey, file string, err error) {
 		log.Printf("Success writing '%v' in '%v' file, retry: %v\n", cacheKey, file, counter)
 		delete(retriesCache, cacheKey)
 	}
+}
+
+func convertEnvVar(envName string) int {
+	envVar, getEnvError := config.GetEnvVar(envName)
+	if getEnvError != nil {
+		envVar = constant.DefaultMaxRetries
+	}
+	if convVal, convError := strconv.Atoi(envVar); convError == nil {
+		return convVal
+	}
+
+	return 0
 }
