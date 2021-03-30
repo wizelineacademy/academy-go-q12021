@@ -1,5 +1,22 @@
 # Golang Bootcamp
 
+## Installation and Run
+In order to run this application, you must comply with the following requirements:
+- Go 1.15 or newer.
+- OMDb API Key.
+
+Before running the application, one must add the OMDb API Key in the (_"/configs/movies.yaml"_) if `Movie Crawling feature` is desired.
+
+Run the following command:
+
+```console
+go run cmd/http-api/main.go
+```
+
+Open your preferred HTTP client (Postman, Insomnia, ...) and make desired calls to `http://localhost:8081/v1/movies` and `http://localhost:8081/v1/sync/movies`
+
+_Note: If you don't want to get your own OMDb API Key, please send a message to @aruizea on Keybase_
+
 ## Introduction
 
 Thank you for participating in the Golang Bootcamp course!
@@ -117,7 +134,7 @@ items_per_workers: Is an Int and is the amount of valid items the worker should 
 
 For submitting your work, you should follow these steps:
 
-1. Create a pull request with your code, targeting the master branch of your fork.
+1. Create a pull request with your code, targeting the master branch of the repository academy-go-q12021.
 2. Fill this [form](https://forms.gle/Kf9dvnth3hPe3Azg9) including the PR’s url
 3. Stay tune for feedback
 4. Do the changes according to the reviewer's comments
