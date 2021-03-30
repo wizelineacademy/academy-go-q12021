@@ -57,32 +57,37 @@ type filterData struct {
 	isOdd          bool
 }
 
-func (fd *filterData) getSegments(data map[int]model.Pokemon) [][]int {
+func (fd *filterData) getSegments(data map[int]model.Pokemon) model.Segment {
 	total := len(data)
 	if fd.totalItems > total {
 		fd.totalItems = total
 	}
+	log.Printf("items: %v\n", fd.totalItems)
 
 	if fd.itemsPerWorker > fd.totalItems {
 		fd.itemsPerWorker = fd.totalItems
 	}
+	log.Printf("itemsPerWorker: %v\n", fd.itemsPerWorker)
 
 	fd.numJobs = fd.totalItems / fd.itemsPerWorker
 	fd.segmentSize = total / fd.numJobs
+	log.Printf("num jobs: %v, segment size: %v\n", fd.numJobs, fd.segmentSize)
 	if cover := fd.numJobs * fd.segmentSize; cover < total {
-		fd.numJobs++
+		fd.numJobs += (total-cover)/fd.segmentSize + 1
+		log.Printf("num jobs: %v, segment size: %v\n", fd.numJobs, fd.segmentSize)
 	}
 
-	segments := make([][]int, fd.numJobs)
+	segments := model.NewSegment(fd.numJobs, fd.segmentSize)
 	jobIndex := 0
+	jobData := 0
 	for key := range data {
-		jobData := len(segments[jobIndex])
 		if jobData == fd.segmentSize {
 			jobIndex++
 			jobData = 0
 		}
 
 		segments[jobIndex][jobData] = key
+		jobData++
 	}
 
 	return segments
@@ -185,8 +190,12 @@ func (pds *PokemonDataService) List(typeFilter model.TypeFilter, items, itemsPer
 	sort.Sort(sorter)
 
 	pokemons := make([]model.Pokemon, len(keys))
-	for index, key := range keys {
-		pokemons[index] = pds.Data[key]
+	keyIndex := 0
+	for _, key := range keys {
+		if key != 0 {
+			pokemons[keyIndex] = pds.Data[key]
+			keyIndex++
+		}
 	}
 	return model.Response{Result: pokemons, Total: len(pds.Data), Items: len(pokemons)}
 }
@@ -209,19 +218,22 @@ func (pds *PokemonDataService) filterPokemons(data *filterData) []int {
 
 	ids := make([]int, data.totalItems)
 	finishedJobs := 0
+	keyIndex := 0
 	for finishedJobs < data.numJobs {
 		select {
-		case <-shutdown:
+		case job := <-shutdown:
+			log.Printf("%v finished\n", job)
 			finishedJobs++
 		case key := <-results:
-			currentKey := len(ids)
-			ids[currentKey] = key
+			log.Printf("Received %v in position %v\n", key, keyIndex)
+			ids[keyIndex] = key
+			keyIndex++
 		}
 	}
 	close(results)
 	close(shutdown)
 
-	return ids
+	return ids[:keyIndex]
 }
 
 func (pds *PokemonDataService) getPokemonFromAPI(id int, httpSource *data.HttpSource) (model.Pokemon, error) {

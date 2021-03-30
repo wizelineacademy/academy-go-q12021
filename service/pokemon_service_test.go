@@ -132,7 +132,7 @@ func TestListEmptyError(t *testing.T) {
 
 func TestListItemsGraterThanData(t *testing.T) {
 	pokemonSource := initPokemonSource(t, mockResponseData{}, csvData)
-	response := pokemonSource.List(model.TypeFilter("odd"), 5, 3)
+	response := pokemonSource.List(model.TypeFilter("odd"), 10, 2)
 	if response.Error != nil {
 		t.Errorf("PokemonSource should return a pokemons list successfully, got '%v'", response.Error)
 	} else if len(response.Result) != 4 {
@@ -145,7 +145,7 @@ func TestListItemsPerWorkEqualsToAllData(t *testing.T) {
 	response := pokemonSource.List(model.TypeFilter("even"), 5, 7)
 	if response.Error != nil {
 		t.Errorf("PokemonSource should return a pokemons list successfully, got '%v'", response.Error)
-	} else if len(response.Result) != 4 {
+	} else if len(response.Result) != 3 {
 		t.Errorf("PokemonSource should return all the even Pokemon's IDs in data without repetition, got '%v'", response.Result)
 	}
 }
