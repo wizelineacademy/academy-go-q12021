@@ -7,14 +7,17 @@ import (
 	"fmt"
 )
 
+// jokeRepository struct for SQL DB
 type jokeRepository struct {
 	db *sql.DB
 }
 
+// NewJokeRepository returns a JokeRepository
 func NewJokeRepository(db *sql.DB) repository.JokeRepository {
 	return &jokeRepository{db}
 }
 
+// GetAll return all jokes fro third party REST endpoint
 func (jr *jokeRepository) GetAll(jokes []*model.Joke) ([]*model.Joke, error) {
 
 	c := NewJokeClient()

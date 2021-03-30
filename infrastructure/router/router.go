@@ -6,6 +6,7 @@ import (
 	"github.com/labstack/echo/middleware"
 )
 
+// NewRouter sets up the Echo routing
 func NewRouter(e *echo.Echo, c controller.AppController) *echo.Echo {
 
 	e.Use(middleware.Logger())

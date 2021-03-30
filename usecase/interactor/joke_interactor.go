@@ -6,21 +6,25 @@ import (
 	"bootcamp/usecase/repository"
 )
 
+// jokeInteractor struct for connecting layers
 type jokeInteractor struct {
 	JokeRepository repository.JokeRepository
-	JokePresenter presenter.JokerPesenter
-	DBRpository repository.DBRepository
+	JokePresenter  presenter.JokePresenter
+	DBRepository   repository.DBRepository
 }
 
+// JokeInteractor interface with main functions
 type JokeInteractor interface {
+	// Get return all jokes
 	Get(jokes []*model.Joke) ([]*model.Joke, error)
 }
 
-func NewJokeInteractor(jr repository.JokeRepository, jp presenter.JokerPesenter, db repository.DBRepository) JokeInteractor {
+// NewJokeInteractor returns a new struct interactor
+func NewJokeInteractor(jr repository.JokeRepository, jp presenter.JokePresenter, db repository.DBRepository) JokeInteractor {
 	return &jokeInteractor{jr,jp,db}
 }
 
-// Get: get all jokes from datastore and format it in the presenter layer
+// Get func get all jokes from datastore and format they in the presenter layer
 func (ji *jokeInteractor) Get(jokes []*model.Joke) ([]*model.Joke, error) {
 	jks, err := ji.JokeRepository.GetAll(jokes)
 	if err != nil {

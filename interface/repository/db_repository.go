@@ -7,14 +7,17 @@ import (
 	"log"
 )
 
+// dbRepository struct for SQL DB
 type dbRepository struct {
 	db *sql.DB
 }
 
+// NewDBRepository returns a DBRepository.
 func NewDBRepository(db *sql.DB) repository.DBRepository {
 	return &dbRepository{db}
 }
 
+// Transaction func to execute an SQL transaction
 func (r *dbRepository) Transaction(txFunc func(interface{}) (interface{}, error)) (data interface{}, err error) {
 	tx, err := r.db.Begin()
 	if !errors.Is(err, nil) {

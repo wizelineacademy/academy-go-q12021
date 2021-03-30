@@ -8,14 +8,17 @@ import (
 	"strings"
 )
 
+// itemRepository struct to SQL DB
 type itemRepository struct {
 	db *sql.DB
 }
 
+// NewItemRepository returns an ItemRepository
 func NewItemRepository(db *sql.DB) repository.ItemRepository {
 	return &itemRepository{db}
 }
 
+// FindAll returns all Items stored in the datastore.
 func (ir *itemRepository) FindAll(items []*model.Item) ([]*model.Item, error) {
 
 	fmt.Println("lenght=== %s", len(items))
@@ -54,7 +57,7 @@ func (ir *itemRepository) FindAll(items []*model.Item) ([]*model.Item, error) {
 
 }
 
-
+// Create adds a new Item in the datastore and return it.
 func (ir *itemRepository) Create(item *model.Item) (*model.Item, error) {
 
 

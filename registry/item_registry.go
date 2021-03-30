@@ -1,26 +1,31 @@
 package registry
 
 import (
-	"bootcamp/interface/controller"
+	ic "bootcamp/interface/controller"
 	ip "bootcamp/interface/presenter"
-	"bootcamp/usecase/interactor"
+	ir "bootcamp/interface/repository"
+	ui "bootcamp/usecase/interactor"
 	up "bootcamp/usecase/presenter"
 	ur "bootcamp/usecase/repository"
-	ir "bootcamp/interface/repository"
 )
 
-func (r *registry) NewItemController() controller.ItemController {
-	return controller.NewItemController(r.NewItemInteractor())
+// NewItemController attached func to Registry for interfacing Controller and Interactor.
+// Returns a ItemController.
+func (r *registry) NewItemController() ic.ItemController {
+	return ic.NewItemController(r.NewItemInteractor())
 }
 
-func (r *registry) NewItemInteractor() interactor.ItemInteractor {
-	return interactor.NewItemInteractor(r.NewItemRepository(), r.NewItemPresenter(), ir.NewDBRepository(r.db))
+// NewItemInteractor returns an ItemInteractor.
+func (r *registry) NewItemInteractor() ui.ItemInteractor {
+	return ui.NewItemInteractor(r.NewItemRepository(), r.NewItemPresenter(), ir.NewDBRepository(r.db))
 }
 
+// NewItemRepository returns an ItemRepository.
 func (r *registry) NewItemRepository() ur.ItemRepository {
 	return ir.NewItemRepository(r.db)
 }
 
+// NewItemPresenter returns an ItemPresenter.
 func (r *registry) NewItemPresenter() up.ItemPresenter {
 	return ip.NewItemPresenter()
 }

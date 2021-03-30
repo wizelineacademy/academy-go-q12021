@@ -11,11 +11,13 @@ import (
 
 const BaseURL = "https://icanhazdadjoke.com/"
 
+// jokeClient struct for REST client
 type JokeClient struct {
 	BaseURL string
 	HTTPClient *http.Client
 }
 
+// NewJokeClient exported constructor
 func NewJokeClient() *JokeClient {
 	return &JokeClient{
 		BaseURL: BaseURL,
@@ -25,6 +27,7 @@ func NewJokeClient() *JokeClient {
 	}
 }
 
+// GetJoke exported function to get al jokes from third party REST endpoint
 func (c *JokeClient) GetJoke() ([]*model.Joke, error) {
 
 	req, err := http.NewRequest("GET", BaseURL, nil)
@@ -43,6 +46,7 @@ func (c *JokeClient) GetJoke() ([]*model.Joke, error) {
 
 }
 
+// sendRequest sends and handles response
 func (c *JokeClient) sendRequest(req *http.Request) ([]*model.Joke, error) {
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Accept", "application/json")

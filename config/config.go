@@ -8,6 +8,7 @@ import (
 	"github.com/spf13/viper"
 )
 
+// config struct for config settings
 type config struct {
 	Database struct {
 		Repository string
@@ -18,8 +19,10 @@ type config struct {
 	}
 }
 
+// C is exported variable for the entire project/app
 var C config
 
+// ReadConfig reads configuration settings from yaml file.
 func ReadConfig() {
 	Config := &C
 

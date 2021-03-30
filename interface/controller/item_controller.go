@@ -10,20 +10,24 @@ import (
 	"strconv"
 )
 
+// itemController struct for ItemInteractor
 type itemController struct {
 	itemIterator interactor.ItemInteractor
 }
 
+// ItemController interface
 type ItemController interface {
 	GetItems(c Context) error
 	GetItem(c echo.Context) error
 	CreateItem(c Context) error
 }
 
+// NewItemController return an ItemController
 func NewItemController(us interactor.ItemInteractor) ItemController {
 	return &itemController{us}
 }
 
+// GetItems return an array of Item
 func (ic *itemController) GetItems(c Context) error {
 	var i []*model.Item
 
@@ -35,6 +39,7 @@ func (ic *itemController) GetItems(c Context) error {
 	return c.JSON(http.StatusOK, i)
 }
 
+// GetItem return an Item
 func (ic *itemController) GetItem(c echo.Context) error {
 	var i []*model.Item
 
@@ -51,6 +56,7 @@ func (ic *itemController) GetItem(c echo.Context) error {
 	return c.JSON(http.StatusOK, i)
 }
 
+// CreateItem creates an item in the data store
 func (ic *itemController) CreateItem(c Context) error {
 	var params model.Item
 

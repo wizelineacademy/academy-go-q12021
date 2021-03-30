@@ -5,12 +5,15 @@ import (
 	"bootcamp/usecase/presenter"
 )
 
+// jokePresenter struct for JokePresenter
 type jokePresenter struct {}
 
-func NewJokePresenter() presenter.JokerPesenter {
+// NewJokePresenter return a JokePresenter
+func NewJokePresenter() presenter.JokePresenter {
 	return &jokePresenter{}
 }
 
+// ResponseJokes return an array of Jokes
 func (jp *jokePresenter) ResponseJokes(jokes []*model.Joke) []*model.Joke {
 
 	for _, joke := range jokes {
