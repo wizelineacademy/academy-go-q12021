@@ -11,6 +11,8 @@ import (
 	"github.com/grethelBello/academy-go-q12021/model/errs"
 )
 
+var retriesCache = make(map[string]int)
+
 // CsvSource is a module to get information from a CSV file. To init, indicate the path to the file
 type CsvSource string
 
@@ -49,10 +51,42 @@ func (source CsvSource) SetData(generalData *model.Data) error {
 	csvData := generalData.CsvData
 	for _, row := range csvData {
 		line := strings.Join(row, ",")
-		if _, err := file.WriteString(fmt.Sprintf("%v\n", line)); err != nil {
-			log.Printf("Error writing '%v' in '%v' file: %v", line, string(source), err)
-		}
+		_, err := file.WriteString(fmt.Sprintf("%v\n", line))
+		checkRetries(line, string(source), err)
 	}
 
+	if len(retriesCache) > 0 {
+		go source.retrySetData()
+	}
 	return nil
+}
+
+func (source CsvSource) retrySetData() {
+	dataRaw := make([][]string, len(retriesCache))
+	dataIndex := 0
+	for cacheKey := range retriesCache {
+		line := strings.Split(cacheKey, ",")
+		dataRaw[dataIndex] = line
+		dataIndex++
+	}
+	csvData := model.NewCsvData(dataRaw)
+	source.SetData(csvData)
+	return
+}
+
+func checkRetries(cacheKey, file string, err error) {
+	counter, ok := retriesCache[cacheKey]
+
+	if err != nil {
+		if !ok || counter < 10 {
+			retriesCache[cacheKey] = counter + 1
+			log.Printf("Error writing '%v' in '%v' file: %v, retry: %v", cacheKey, file, err, counter+1)
+		} else if counter >= 10 {
+			log.Printf("Last retry writing '%v' in '%v' file: %v\n", cacheKey, file, err)
+			delete(retriesCache, cacheKey)
+		}
+	} else if ok {
+		log.Printf("Success writing '%v' in '%v' file, retry: %v\n", cacheKey, file, counter)
+		delete(retriesCache, cacheKey)
+	}
 }
