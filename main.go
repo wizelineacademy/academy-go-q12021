@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 
@@ -13,7 +12,7 @@ import (
 func main() {
 	pokemonController, error := controller.NewPokemonController()
 	if error != nil {
-		panic(error)
+		log.Fatal(error)
 	}
 	http.HandleFunc("/pokemons", pokemonController.GetPokemons)
 
@@ -22,6 +21,6 @@ func main() {
 		log.Fatal(serverError)
 	}
 	initError := http.ListenAndServe(":"+serverPort, nil)
-	fmt.Println(initError)
+	log.Println(initError)
 
 }

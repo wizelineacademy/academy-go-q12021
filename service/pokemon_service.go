@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"log"
 	"net/http"
 	"regexp"
 	"sort"
@@ -36,7 +37,7 @@ var lookForPokemons = func(data jobInfo, isOddFlag bool) {
 	foundKeys := 0
 	for _, key := range data.keys {
 		if foundKeys < data.items && evaluation(key) {
-			fmt.Printf("%v found %v\n", data.name, key)
+			log.Printf("%v found %v\n", data.name, key)
 			foundKeys++
 			*data.results <- key
 		} else if foundKeys >= data.items {
@@ -106,7 +107,7 @@ type PokemonDataService struct {
 func (pds *PokemonDataService) Init() error {
 	data, err := pds.CsvSource.GetData()
 	if err != nil {
-		fmt.Printf("Error initiating pokemon service: %v\n", err)
+		log.Printf("Error initiating pokemon service: %v\n", err)
 		return err
 	}
 
@@ -119,13 +120,13 @@ func (pds *PokemonDataService) Init() error {
 		name := strings.Trim(line[1], " ")
 
 		if !isDigit.MatchString(id) || len(name) == 0 {
-			fmt.Println("Header is present")
+			log.Println("Header is present")
 			continue
 		}
 
 		convID, err := strconv.Atoi(id)
 		if err != nil {
-			fmt.Println(err)
+			log.Printf("Error parsing %v: '%v'\n", id, err)
 			continue
 		}
 
@@ -133,7 +134,7 @@ func (pds *PokemonDataService) Init() error {
 		pds.Data[convID] = pokemon
 	}
 
-	fmt.Printf("Pokemon Service initiated: %v\n", *pds)
+	log.Printf("Pokemon Service initiated: %v\n", *pds)
 	return nil
 }
 
@@ -147,7 +148,7 @@ func (pds *PokemonDataService) Get(id int) model.Response {
 		response := model.Response{Result: pokemons, Total: total, Items: 1}
 		return response
 	}
-	fmt.Printf("Pokemon %v not found in CSV source\n", id)
+	log.Printf("Pokemon %v not found in CSV source\n", id)
 	notFoundError := errs.NotFoundError{Id: id, Datatype: dataType}
 
 	// Look for Pokemon in API
@@ -157,10 +158,10 @@ func (pds *PokemonDataService) Get(id int) model.Response {
 			response := model.Response{Result: []model.Pokemon{pokemon}, Total: total, Items: 1}
 			return response
 		}
-		fmt.Printf("Pokemon %v not found in API source\n", id)
+		log.Printf("Pokemon %v not found in API source\n", id)
 		notFoundError.TechnicalError = apiError
 	} else {
-		fmt.Println("Error converting HttpSource")
+		log.Println("Error converting HttpSource")
 		notFoundError.TechnicalError = errors.New("Error converting HttpSource")
 	}
 

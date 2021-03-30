@@ -2,6 +2,7 @@ package service
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -52,7 +53,7 @@ var csvGetDataMock func(...*model.SourceConfig) (*model.Data, error)
 
 func TestFailedInit(t *testing.T) {
 	csvGetDataMock = func(csvConfig ...*model.SourceConfig) (*model.Data, error) {
-		return &model.Data{}, errs.StorageError{TechnicalError: fmt.Errorf("testing")}
+		return &model.Data{}, errs.StorageError{TechnicalError: errors.New("testing")}
 	}
 
 	pokemonSource := PokemonDataService{CsvSource: csvSourceMock("")}

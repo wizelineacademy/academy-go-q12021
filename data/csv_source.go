@@ -3,6 +3,7 @@ package data
 import (
 	"encoding/csv"
 	"fmt"
+	"log"
 	"os"
 	"strings"
 
@@ -49,7 +50,7 @@ func (source CsvSource) SetData(generalData *model.Data) error {
 	for _, row := range csvData {
 		line := strings.Join(row, ",")
 		if _, err := file.WriteString(fmt.Sprintf("%v\n", line)); err != nil {
-			fmt.Printf("Error writing '%v' in '%v' file: %v", line, string(source), err)
+			log.Printf("Error writing '%v' in '%v' file: %v", line, string(source), err)
 		}
 	}
 

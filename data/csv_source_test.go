@@ -1,7 +1,6 @@
 package data
 
 import (
-	"fmt"
 	"io/ioutil"
 	"os"
 	"strings"
@@ -36,7 +35,6 @@ func TestCsvDataSourceGetDataError(t *testing.T) {
 	txtSource := CsvSource("./testdata/not_csv_file.csv")
 	_, err2 := txtSource.GetData()
 	if err2 == nil {
-		fmt.Println(err2)
 		t.Errorf("Initiating CSV datasource should fail")
 	}
 }

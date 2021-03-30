@@ -2,7 +2,7 @@ package data
 
 import (
 	"bytes"
-	"fmt"
+	"errors"
 	"io/ioutil"
 	"net/http"
 	"strings"
@@ -78,7 +78,7 @@ func TestHttpSourceSuccessResponse(t *testing.T) {
 func initSource(method, url string, response mockResponseData) *HttpSource {
 	doMock = func(req *http.Request) (*http.Response, error) {
 		if response.ErrorResponse != "" {
-			return nil, fmt.Errorf(response.ErrorResponse)
+			return nil, errors.New(response.ErrorResponse)
 		}
 
 		bodyMock := ioutil.NopCloser(bytes.NewReader([]byte(response.Body)))

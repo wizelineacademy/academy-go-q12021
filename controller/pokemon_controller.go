@@ -3,7 +3,7 @@ package controller
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
+	"log"
 	"net/http"
 	"strconv"
 
@@ -75,7 +75,7 @@ type PokemonController struct {
 
 func (pc PokemonController) GetPokemons(w http.ResponseWriter, r *http.Request) {
 	queryParams := getPokemonsQueryParamas(r)
-	fmt.Printf("%v %v: %v\n", r.Method, r.URL.Path, queryParams)
+	log.Printf("%v %v: %v\n", r.Method, r.URL.Path, queryParams)
 
 	// Return just one pokemon by ID
 	id, ok := queryParams[queryParamsList[0].name]
@@ -128,7 +128,7 @@ func getPokemonsQueryParamas(r *http.Request) map[string]interface{} {
 }
 
 func printResponse(method, path string, statusCode int, response model.Response) {
-	fmt.Printf("%v %v(%v): %v\n", method, path, statusCode, response)
+	log.Printf("%v %v(%v): %v\n", method, path, statusCode, response)
 }
 
 func NewPokemonController() (PokemonController, error) {
