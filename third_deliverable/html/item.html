@@ -8,12 +8,30 @@
 </head>
 <div class="container" style="margin: 2rem" >
     <a class="btn btn-primary" href="/" role="button">Go Back</a>
-    {{if .Id}}
+    {{if .ImdbTitleId}}
         <div class="card" style="width: 18rem;">
         <div class="card-body">
             <h5 class="card-title">{{.Title}}</h5>
-            <h6 class="card-subtitle mb-2 text-muted">ID: {{.Id}}</h6>
-            <p class="card-text">Years of Experience: {{.Years}} </p>
+            <h6 class="card-subtitle mb-2 text-muted">ID: {{.ImdbTitleId}}</h6>
+            <p class="card-text">Year: {{.Year}} </p>
+            <p class="card-text">Date Published: {{.DatePublished}} </p>
+            <p class="card-text">Genre: {{.Genre}} </p>
+            <p class="card-text">Duration: {{.Duration}} </p>
+            <p class="card-text">Country: {{.Country}} </p>
+            <p class="card-text">Language: {{.Language}} </p>
+            <p class="card-text">Director: {{.Director}} </p>
+            <p class="card-text">Writer: {{.Writer}} </p>
+            <p class="card-text">ProductionCompany: {{.ProductionCompany}} </p>
+            <p class="card-text">Actors: {{.Actors}} </p>
+            <p class="card-text">Description: {{.Description}} </p>
+            <p class="card-text">Average Vote: {{.AvgVote}} </p>
+            <p class="card-text">Votes: {{.Votes}} </p>
+            <p class="card-text">Budget: {{.Budget}} </p>
+            <p class="card-text">USA Gross Income: {{.UsaGrossIncome}} </p>
+            <p class="card-text">World Wide Gross Income: {{.WorlwideGrossIncome}} </p>
+            <p class="card-text">Meta Score: {{.Metascore}} </p>
+            <p class="card-text">Reviews From Users: {{.ReviewsFromUsers}} </p>
+            <p class="card-text">Reviews From Critics: {{.ReviewsFromCritics}} </p>
             <!-- <a href="#" class="card-link">Another link</a> -->
         </div>
         </div>
