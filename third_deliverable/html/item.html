@@ -15,9 +15,15 @@
     <title>{{.Title}}</title>
 </head>
 <style>
+    .accent {
+        background-color: #F5C518;
+        border-color: #F5C518;
+    }
+    .primary {
+        background-color: #252525;
+    }
     body {
-        /* background-color: rgb(11,17,35); */
-        background-color: rgb(229 228 239);
+        background-color: rgb(251,251,251);
         font-family: Roboto;
     }
     .main {
@@ -27,17 +33,14 @@
         margin: 1rem;
     }
     .wrapper {
-        /* background-color: #00036b;  */
-        background-color:  #3c42f3;
         color: whitesmoke;
         display: flex;
         flex-direction: column;
     }
     .image-container {
-        background-color: #fbcf4c;
         display: flex;
         justify-content: center;
-        align-items: center;
+        align-items: flex-start;
         padding: 1rem;
     }
     .body-container {
@@ -46,39 +49,58 @@
         flex-direction: column;
     }
     .poster {
-        height: fit-content;
+        /* height: fit-content;
         min-width: fit-content;
-        max-height: 400px;
+        max-height: 400px; */
+        background-color: rgb(11,17,35);
+    }
+    .primaryColor { background-color: #151a9c; }
+    .secondaryColor { background-color:  #3c42f3; }
+    .terciaryColor { background-color: #252525; }
+    .accentColor { background-color: #F5C518; }
+
+    .information {
+        border-radius: 1rem;
+        color: black;
+        padding: 3rem;
     }
     .pattern {
         background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAATklEQVQoU2O0O3X+PwMDA8MhM0NGEI0LMBKtEJsJD27YgW1R0DgEtwWrdUQrxGYLY8V5iDUdhghrKFOITfenmXFgW/jSF+H3DNEKsdkCAO99IAvXcD3VAAAAAElFTkSuQmCC)
             repeat;
     }
     .header {
-        background-color: #151a9c;
         display: flex;
+        color: black;
+
     }
     .content {
-        display: block;
+        display: flex;
+        flex-direction: column;
         padding: 3rem;
+        margin-top: 1rem;
+
     }
     .shadow {
         -webkit-box-shadow: 9px 10px 42px -3px rgba(0, 0, 0, 0.57);
         -moz-box-shadow: 9px 10px 42px -3px rgba(0, 0, 0, 0.57);
         box-shadow: 9px 10px 42px -3px rgba(0, 0, 0, 0.57);
     }
+    .badge {
+        margin-top: 4px;
+        margin-bottom: 2px;
+    }
 </style>
 
 <div class="container-fluid main">
     <div class="button-container">
-        <a class="btn btn-primary" href="/" role="button">Go Back</a>
+        <a class="btn btn-primary accent" href="/" role="button">Go Back</a>
     </div>
     {{if .ImdbTitleId}}
     <div class="wrapper container">
         <div class="row header">
-            <div class="col-12 col-md-12 col-lg-4 image-container pattern">
+            <div class="col-12 col-md-6 col-lg-4 image-container">
                 {{if .Poster}}
-                <img class="poster" src="{{.Poster}}" />
+                <img class="poster shadow" src="{{.Poster}}" />
                 {{else}}
                 <img
                     class="poster shadow"
@@ -86,21 +108,38 @@
                 />
                 {{end}}
             </div>
-            <div class="col-12 col-md-12 col-lg-8 container">
+            <div class="col-12 col-md-6 col-lg-8 container information shadow">
+                <!-- Most important information -->
                 <h1 class="display-4">{{.OriginalTitle}}</h1>
-                <h6 class="card-text">ID: {{.ImdbTitleId}}</h6>
+                <h6 class="card-text ">ID: {{.ImdbTitleId}}</h6>
                 <p class="lead">{{.Description}}</p>
-                <p class="card-text">Year: {{.Year}}</p>
-                <p class="card-text">Genre: {{.Genre}}</p>
-                <p class="card-text">Duration: {{.Duration}}</p>
                 <p class="card-text">Actors: {{.Actors}}</p>
-                <p class="card-text">Director: {{.Director}}</p>
 
-                <!-- maybe graphics -->
-                <p class="card-text">Average Vote: {{.AvgVote}}</p>
+                <!-- Info with chips -->
+                <span class="badge badge-pill badge-primary">Country: {{.Country}}</span>
+                <span class="badge badge-pill primaryColor badge-primary">Language: {{.Language}}</span>
+                <span class="badge badge-pill secondaryColor badge-primary">{{.Genre}}</span>
+                <span class="badge badge-pill terciaryColor badge-primary">Dufration: {{.Duration}}</span>
+                <span class="badge badge-pill accent ">Year: {{.Year}}</span>
+                <span class="badge badge-pill primaryColor badge-primary">Director: {{.Director}}</span>
+
+                <span class="badge badge-pill badge-primary">Average Vote: {{.AvgVote}}</span>
+                <span class="badge badge-pill primaryColor badge-primary">Date Published: {{.DatePublished}}</span>
+                <span class="badge badge-pill secondaryColor badge-primary">ProductionCompany: {{.ProductionCompany}}</span>
+                <span class="badge badge-pill terciaryColor badge-primary">Writer: {{.Writer}}</span>
+                <span class="badge badge-pill accent">Votes: {{.Votes}}</span>
+                <span class="badge badge-pill primaryColor badge-primary">Budget: {{.Budget}}</span>
+
+                <span class="badge badge-pill badge-primary">USA Gross Income: {{.UsaGrossIncome}}</span>
+                <span class="badge badge-pill accent">World Wide Gross Income: {{.WorlwideGrossIncome}}</span>
+                <span class="badge badge-pill secondaryColor badge-primary">Budget: {{.Budget}}</span>
+
+                <span class="badge badge-pill terciaryColor badge-primary">Meta Score: {{.Metascore}}</span>
+                <span class="badge badge-pill accent">WorlReviews From Users: {{.ReviewsFromUsers}}</span>
+                <span class="badge badge-pill primaryColor badge-primary">Reviews From Critics: {{.ReviewsFromCritics}}</span>
             </div>
         </div>
-        <div class="row container content">
+        <!-- <div class="row content primary">
             <p class="card-text">Country: {{.Country}}</p>
             <p class="card-text">Language: {{.Language}}</p>
             <p class="card-text">Date Published: {{.DatePublished}}</p>
@@ -112,14 +151,13 @@
             <p class="card-text">
                 World Wide Gross Income: {{.WorlwideGrossIncome}}
             </p>
-            <!-- reviews and scores -->
             <p class="card-text">Meta Score: {{.Metascore}}</p>
             <p class="card-text">Reviews From Users: {{.ReviewsFromUsers}}</p>
             <p class="card-text">
                 Reviews From Critics: {{.ReviewsFromCritics}}
             </p>
-            <!-- <a href="#" class="card-link">Another link</a> -->
-        </div>
+             <a href="#" class="card-link">Another link</a>
+        </div> -->
     </div>
     {{end}}
 </div>
