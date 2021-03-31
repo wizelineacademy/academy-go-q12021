@@ -59,12 +59,12 @@ type filterData struct {
 
 func (fd *filterData) getSegments(data map[int]model.Pokemon) model.Segment {
 	total := len(data)
-	if fd.totalItems > total {
+	if fd.totalItems > total || fd.totalItems <= 0 {
 		fd.totalItems = total
 	}
 	log.Printf("items: %v\n", fd.totalItems)
 
-	if fd.itemsPerWorker > fd.totalItems {
+	if fd.itemsPerWorker > fd.totalItems || fd.itemsPerWorker <= 0 {
 		fd.itemsPerWorker = fd.totalItems
 	}
 	log.Printf("itemsPerWorker: %v\n", fd.itemsPerWorker)

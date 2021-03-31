@@ -150,6 +150,16 @@ func TestListItemsPerWorkEqualsToAllData(t *testing.T) {
 	}
 }
 
+func TestListBadParameters(t *testing.T) {
+	pokemonSource := initPokemonSource(t, mockResponseData{}, csvData)
+	response := pokemonSource.List(model.TypeFilter("even"), -5, -7)
+	if response.Error != nil {
+		t.Errorf("PokemonSource should return a pokemons list successfully, got '%v'", response.Error)
+	} else if len(response.Result) != 3 {
+		t.Errorf("PokemonSource should return all the even Pokemon's IDs in data without repetition, got '%v'", response.Result)
+	}
+}
+
 func initPokemonSource(t *testing.T, response mockResponseData, csvDataRespone [][]string) *PokemonDataService {
 	csvGetDataMock = func(csvConfig ...*model.SourceConfig) (*model.Data, error) {
 		data := model.NewCsvData(csvDataRespone)
