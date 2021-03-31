@@ -1,9 +1,10 @@
-To run the first_deliverable:
-1. First you need to go to academy-go-q12021/first_deliverable/
-2. Compile with go build 
-3. execute the binary with ./academy-go-q12021
+To run iCinema (the third_deliverable):
 
-To verify unit test:
-1. Make sure the project is running on port 8080
-2. Compile with go build 
-3. execute test with go test command
+Run backend server first
+1. First you need to navigate to the directory academy-go-q12021/third_deliverable/backend
+2. Run with 'go run main.go'
+
+Run frontend client:
+1. Make sure the backend server is running on port 8080
+2. Run with 'go run main.go'
+3. The frontend client will be running on port 3000
