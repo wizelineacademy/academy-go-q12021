@@ -3,22 +3,18 @@ package main
 // dataset gathered from: https://www.kaggle.com/stefanoleone992/imdb-extensive-dataset
 
 import (
-	"encoding/csv"
+	"bufio"
 	"encoding/json"
-	"fmt"
 	"log"
-	"math/rand"
 	"net/http"
 	"os"
+	"strings"
+	"sync"
+	"text/template"
 	"time"
 )
 
 /* Generic functions and structure */
-type Response struct {
-	Title string `json:"title"`
-	Message string `json:"message"`
-}
-
 type Movie struct {
 	ImdbTitleId string `json:"imdb_title_id"`
     Title string `json:"title"`
@@ -43,6 +39,15 @@ type Movie struct {
 	// reviews_from_users string
 	// reviews_from_critics string
 }
+type PageData struct {
+    PageTitle string
+    Movies     []Movie
+}
+type Response struct {
+	Title string `json:"title"`
+	Message string `json:"message"`
+}
+
 
 var movie Movie = Movie{
 	ImdbTitleId: "1",
@@ -50,38 +55,6 @@ var movie Movie = Movie{
 	OriginalTitle: "Catching Fire",
 	Year: "1996",
 }
-
-// func displayError(w http.ResponseWriter, message string) {
-//     log.Println(message)
-// 	fmt.Fprintf(w, "%s", ConvertStructToJSON(Response{Title: "Error", Message: message}))
-
-// }
-
-// func getMovieById(w http.ResponseWriter, r *http.Request) {
-// 	csvLines := GetDataFromCSVFile("IMDb_movies.csv")
-// 	listOfMovies :=  ParseCSVDataToMovieList(csvLines)   
-// 	// Obtain the query param id number from URL
-// 	keys, ok := r.URL.Query()["id"]
-//     if !ok || len(keys[0]) < 1 {
-// 		displayError(w, "Url Param 'id' is missing!")
-//         return
-//     }
-// 	// Casting the string number to an integer
-//     id, err := strconv.Atoi(keys[0])
-// 	if err != nil {
-// 		displayError(w, "The Id provided is wrong, please check it!")
-// 		return
-// 	}
-// 	// Validations: number is positive and that exists as index in the slice 
-// 	if (id >= len(listOfMovies) || id < 0) {
-// 		displayError(w, "The Id doesn't seem to exist!")
-// 		return
-// 	}
-// 	// Get the object from slice using the id as index
-// 	obj := listOfMovies[id]
-//     fmt.Fprintf(w, "%s", ConvertStructToJSON(obj))
-// }
-
 
 func ConvertStructToJSON(obj interface{}) string {
     e, err := json.Marshal(obj)
@@ -91,75 +64,87 @@ func ConvertStructToJSON(obj interface{}) string {
     return string(e)
 }
 
-func GetDataFromCSVFile(filePath string) ([][] string)  {
-	csvFile, err := os.Open(filePath)
-	if err != nil {
-		fmt.Println("\n- An error ocurred while reading the file. \n", err)
-	} else {
-		fmt.Println("\nSuccessfully Opened CSV file") 
-	}
-	csvLines, err := csv.NewReader(csvFile).ReadAll()
+func worker(jobs <-chan string, results chan<- Movie, wg *sync.WaitGroup) {
+  // Decreasing internal counter for wait-group as soon as goroutine finishes
+  defer wg.Done()
+  // eventually I want to have a []string channel to work on a chunk of lines not just one line of text
+  for line := range jobs {
+    items := strings.Split(line, ",")
+    newMovie := Movie{
+        ImdbTitleId: items[0],
+        Title: items[1],
+        OriginalTitle: items[2],
+        Year: items[3],
+    }
+    results <- newMovie
+  }
+}
+var movies []Movie
+
+func GetMoviesConcurrently() {
+    file, err := os.Open("IMDb_movies_short.csv")
     if err != nil {
-		log.Println("\n- An error ocurred while reading the file. \n", err)
-		return nil
+      log.Fatal(err)
     }
-	return csvLines
-}
-
-func ParseCSVDataToMovieList(csvLines [][]string) (listOfMovies []Movie ) { 
-	// Convert csv lines to a movie structure and append them to the array of items
-    for _, line := range csvLines {
-		newMovie := Movie{
-            ImdbTitleId: line[0],
-            Title: line[1],
-			OriginalTitle: line[2],
-			Year: line[3],
-        }
-        listOfMovies = append(listOfMovies, newMovie)
-        log.Println(newMovie.ImdbTitleId + " " + newMovie.Title)
+    defer file.Close()
+  
+    jobs := make(chan string)
+    results := make(chan Movie)
+  
+    wg := new(sync.WaitGroup)
+  
+    // start workers
+    const workers = 1
+    for w := 1; w <= workers; w++ {
+      wg.Add(1)
+      go worker(jobs, results, wg)
     }
-	return 
-}
-
-
-func worker(ID int, jobs <-chan Movie, results chan<- Movie) {
-	for job := range jobs {
-		fmt.Println("Worker ", ID, " is working on job ", job)
-		duration := time.Duration(rand.Intn(1e3)) * time.Millisecond
-		time.Sleep(duration)
-		fmt.Println("Worker ", ID, " completed work on job ", job, " within ", duration)
-		results <- movie
-	}
-}
-
-func WorkerPool() {
-	jobs := make(chan Movie)
-	results := make(chan Movie)
-	// 3 Workers
-	for x := 1; x <= 3; x++ {
-		go worker(x, jobs, results)
-	}
-	// Give them jobs
-	for j := 1; j <= 6; j++ {
-		jobs <- movie
-	}
-	close(jobs)
-	// Wait for the results
-	for r := 1; r <= 6; r++ {
-		fmt.Println("Result received from worker: ", <-results)
-	}
+  
+    // scan the file into the string channel
+    go func() {
+      scanner := bufio.NewScanner(file)
+      for scanner.Scan() {
+        // Later I want to create a buffer of lines, not just line-by-line here ...
+        jobs <- scanner.Text()
+      }
+      close(jobs)
+    }()
+  
+    // Collect all the results,  make sure we close the result channel when everything was processed
+    go func() {
+      wg.Wait()
+      close(results)
+    }()
+  
+    // Convert channel to slice of Movie and send
+    for movie := range results {
+		movies = append(movies,movie)
+    }
 }
 
 func getMovies(w http.ResponseWriter, r *http.Request) {
-	go WorkerPool()
-	// csvLines := GetDataFromCSVFile("IMDb_movies.csv")
-	// listOfMovies :=  ParseCSVDataToMovieList(csvLines)   
-	// fmt.Fprintf(w, "%s", ConvertStructToJSON(listOfMovies))
+	tmpl := template.Must(template.ParseFiles("html/index.html"))
+
+	start := time.Now() 
+	GetMoviesConcurrently()
+
+	log.Println(" \t Movies Parsed: ", len(movies), " Movies:", movies)
+	func () {
+		data := PageData{
+			PageTitle: "IMDb Movies",
+			Movies: movies,
+		}
+		tmpl.Execute(w, data)
+	}()
+
+	log.Println(" \t TIME: " ,time.Since(start).Microseconds(), " Microseconds.")	
 }
 
 func main() {
-    http.HandleFunc("/getMovies", getMovies)
-	// http.HandleFunc("/getMovieById", getMovieById)
-	log.Println("Server running succesfully on port 8080!")
-    log.Fatal(http.ListenAndServe(":8080", nil))
+  http.HandleFunc("/", getMovies)
+  //http.HandleFunc("/getMovie", getMovies)
+  log.Println("Server running succesfully on port 8080!")
+  log.Fatal(http.ListenAndServe(":8080", nil))
 }
+
+
