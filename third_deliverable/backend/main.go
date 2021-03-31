@@ -10,8 +10,8 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"strconv"
 	"sync"
-	"text/template"
 	"time"
 )
 
@@ -44,15 +44,23 @@ type Movie struct {
 	Poster string `json:"poster"`
 }
 
-type PageData struct {
-    PageTitle string
-    Movies     []Movie
-}
 type Response struct {
 	Title string `json:"title"`
 	Message string `json:"message"`
+	Results int `json:"results"`
+	Data []Movie `json:"data"`
 }
 
+// const (  // iota is reset to 0
+// 	odd = iota  // c0 == 0
+// 	even = iota  // c1 == 1
+// )
+
+type QueryParameters struct {
+	ItemPerWorkers string `json:"item_per_workers"`
+    Items int `json:"items"`
+    Type string `json:"type"`
+}
 var movies []Movie
 
 func ConvertStructToJSON(obj interface{}) string {
@@ -84,42 +92,77 @@ func SplitAtCommas(s string) []string {
     return append(res, s[beg:])
 }
 
-func worker(jobs <-chan string, results chan<- Movie, wg *sync.WaitGroup) {
-  // Decreasing internal counter for wait-group as soon as goroutine finishes
-  defer wg.Done()
-  // eventually I want to have a []string channel to work on a chunk of lines not just one line of text
-  for line := range jobs {
-    items := SplitAtCommas(line)
-    newMovie := Movie{
-        ImdbTitleId: items[0],
-        Title: items[1],
-        OriginalTitle: items[2],
-        Year: items[3],
-		DatePublished: items[4],
-		Genre: items[5],
-		Duration: items[6],
-		Country: items[7],
-		Language: items[8],
-		Director: items[9],
-		Writer: items[10],
-		ProductionCompany: items[11],
-		Actors: items[12],
-		Description: items[13],
-		AvgVote: items[14],
-		Votes: items[15],
-		Budget: items[16],
-		UsaGrossIncome: items[17],
-		WorlwideGrossIncome: items[18],
-		Metascore: items[19],
-		ReviewsFromUsers: items[20],
-		ReviewsFromCritics: items[21],
-    }
-    results <- newMovie
-  }
+func worker(jobs <-chan string, results chan<- Movie, wg *sync.WaitGroup, queryParams QueryParameters) {
+	itemsToDisplay := queryParams.Items
+	// itemsPerWorkers := queryParams.ItemPerWorkers
+	numberType := queryParams.Type
+	log.Println("\nItems per response: ", itemsToDisplay, "\nItems per worker: ", 0,"\nType: ", numberType,)
+
+	// Decreasing internal counter for wait-group as soon as goroutine finishes
+	defer wg.Done()
+	// eventually I want to have a []string channel to work on a chunk of lines not just one line of text
+	moviesAddedCounter := 0
+	for line := range jobs {
+		items := SplitAtCommas(line)
+		newMovie := Movie{
+			ImdbTitleId: items[0],
+			Title: items[1],
+			OriginalTitle: items[2],
+			Year: items[3],
+			DatePublished: items[4],
+			Genre: items[5],
+			Duration: items[6],
+			Country: items[7],
+			Language: items[8],
+			Director: items[9],
+			Writer: items[10],
+			ProductionCompany: items[11],
+			Actors: items[12],
+			Description: items[13],
+			AvgVote: items[14],
+			Votes: items[15],
+			Budget: items[16],
+			UsaGrossIncome: items[17],
+			WorlwideGrossIncome: items[18],
+			Metascore: items[19],
+			ReviewsFromUsers: items[20],
+			ReviewsFromCritics: items[21],
+		}
+		inputFmt := newMovie.ImdbTitleId[2:len(newMovie.ImdbTitleId)] // get substring of id
+		id, err := strconv.Atoi(inputFmt) // parse substring to int
+		if err != nil {
+			log.Fatal("The Id provided is wrong, please check it!")
+			return
+		}
+		if numberType ==  "all" && moviesAddedCounter < itemsToDisplay {
+			moviesAddedCounter++
+			results <- newMovie
+		} else if numberType ==  "odd" && Odd(id) && moviesAddedCounter < itemsToDisplay {
+			log.Println("The Id is Odd: ", id)
+			moviesAddedCounter++
+			results <- newMovie
+		} else if numberType ==  "even" && Even(id) && moviesAddedCounter < itemsToDisplay {
+			log.Println("The Id is Even: ", id)
+			moviesAddedCounter++
+			results <- newMovie
+		}
+		
+	}
 }
 
-func GetMoviesConcurrently() {
-    file, err := os.Open("IMDb_movies.csv")
+func Even(number int) bool {
+    return number%2 == 0
+}
+
+func Odd(number int) bool {
+    return !Even(number)
+}
+
+
+func GetMoviesConcurrently(queryParams QueryParameters) {
+
+
+    file, err := os.Open("IMDb_movies_short.csv")
     if err != nil {
       log.Fatal(err)
     }
@@ -134,7 +177,7 @@ func GetMoviesConcurrently() {
     const workers = 1
     for w := 1; w <= workers; w++ {
       wg.Add(1)
-      go worker(jobs, results, wg)
+      go worker(jobs, results, wg, queryParams)
     }
   
     // scan the file into the string channel
@@ -142,7 +185,7 @@ func GetMoviesConcurrently() {
       scanner := bufio.NewScanner(file)
       for scanner.Scan() {
         // Later I want to create a buffer of lines, not just line-by-line here ...
-        jobs <- scanner.Text()
+		jobs <- scanner.Text()
       }
       close(jobs)
     }()
@@ -160,28 +203,49 @@ func GetMoviesConcurrently() {
     }
 }
 
-func GetMovies(w http.ResponseWriter, r *http.Request) {
-	// Get query params
-	// keys, ok := r.URL.Query()["type"]
-    // if !ok || len(keys[0]) < 1 {
-	// 	errorMessage := "Url Param 'type' is missing"
-	// 	log.Println(errorMessage)
-	// 	fmt.Fprintf(w, "%s", errorMessage)
-    //     return
-    // }
 
+
+func GetMovies(w http.ResponseWriter, r *http.Request) {
 	start := time.Now() 
-	tmpl := template.Must(template.ParseFiles("html/index.html"))
-	GetMoviesConcurrently()
-	log.Println(" \t Number of Parsed Movies: ", len(movies))
-	func () {
-		data := PageData{
-			PageTitle: "IMDb Movies",
-			Movies: movies,
-		}
-		tmpl.Execute(w, data)
-	}()
-	log.Println(" \t TIME: " ,time.Since(start).Microseconds(), " Microseconds.")	
+
+	// GET QUERY PARAMS AND VALIDATE
+	keys := r.URL.Query()
+	var queryParams QueryParameters
+
+	if val, ok := keys["type"]; ok {
+		log.Println("Type available")
+		queryParams.Type = val[0]
+	} else {
+		queryParams.Type = "all"
+		log.Println("Type not available")
+	}
+
+	if val, ok := keys["item_per_workers"]; ok {
+		log.Println("item_per_workers available")
+		queryParams.ItemPerWorkers = val[0]
+	} else {
+		log.Println("item_per_workers not available")
+	}
+
+	if val, ok := keys["items"]; ok {
+		log.Println("items available")
+		itemsInteger, _ := strconv.Atoi(val[0]) // parse substring to int
+		queryParams.Items = itemsInteger
+	} else {
+		log.Println("items not available")
+	}
+
+	GetMoviesConcurrently(queryParams)
+
+	jsonObject := Response{ 
+		Title: "Response", 
+		Results: len(movies),
+		Message: "Data",
+		Data: movies,
+	}
+	jsonResult := ConvertStructToJSON(jsonObject)
+	fmt.Fprintf(w, "%s", jsonResult)
+	log.Println(" \t Number of Parsed Movies: ", len(movies), " \t TIME: " ,time.Since(start).Microseconds(), " Microseconds.")	
 }
 
 func RenderMovie(w http.ResponseWriter, r *http.Request) {
@@ -193,14 +257,10 @@ func RenderMovie(w http.ResponseWriter, r *http.Request) {
         return
     }
 	// Casting the string number to an integer
-	id := keys[0]
-	item := GetMovieById(id)
 
-	tmpl := template.Must(template.ParseFiles("html/item.html"))
-
-	if err := tmpl.Execute(w, item); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-	}	
+	// if err := tmpl.Execute(w, item); err != nil {
+	// 	http.Error(w, err.Error(), http.StatusInternalServerError)
+	// }	
 }
 
 func GetMovieById(id string) Movie {
@@ -279,9 +339,8 @@ func GetMoviePoster(title string, year string) (imageUrl string) {
 }
 
 func main() {
-  http.HandleFunc("/", GetMovies)
+  http.HandleFunc("/getMovies", GetMovies)
   http.HandleFunc("/getMovieById", RenderMovie)
-
   log.Println("Server running succesfully on port 8080!")
   log.Fatal(http.ListenAndServe(":8080", nil))
 }
