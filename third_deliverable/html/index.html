@@ -11,9 +11,7 @@
 <ul>
     {{range .Movies}}
         {{if .ImdbTitleId}}
-            <li class="done"><a href="/getMovieById?id={{.ImdbTitleId}}">{{.ImdbTitleId}}</a></li>
-            <li>{{.Title}}</li>
-            <li>{{.Year}}</li>
+            <li class="done"><a href="/getMovieById?id={{.ImdbTitleId}}"> {{.Year}} - {{.Title}} </a></li>
         {{else}}
             <li>Error</li>
             <li>{{.Title}}</li>
