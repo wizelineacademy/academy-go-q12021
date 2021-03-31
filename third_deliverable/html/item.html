@@ -16,14 +16,14 @@
 </head>
 <style>
     .accent {
-        background-color: #F5C518;
-        border-color: #F5C518;
+        background-color: #f5c518;
+        border-color: #f5c518;
     }
     .primary {
         background-color: #252525;
     }
     body {
-        background-color: rgb(251,251,251);
+        background-color: rgb(251, 251, 251);
         font-family: Roboto;
     }
     .main {
@@ -52,12 +52,21 @@
         /* height: fit-content;
         min-width: fit-content;
         max-height: 400px; */
-        background-color: rgb(11,17,35);
+        background-color: rgb(11, 17, 35);
     }
-    .primaryColor { background-color: #151a9c; }
-    .secondaryColor { background-color:  #3c42f3; }
-    .terciaryColor { background-color: #252525; }
-    .accentColor { background-color: #F5C518; }
+    .primaryColor {
+        background-color: #151a9c;
+    }
+    .secondaryColor {
+        background-color: #3c42f3;
+    }
+    .terciaryColor {
+        background-color: #252525;
+    }
+    .accentColor {
+        background-color: #f5c518;
+        color: black !important;
+    }
 
     .information {
         border-radius: 1rem;
@@ -71,14 +80,12 @@
     .header {
         display: flex;
         color: black;
-
     }
     .content {
         display: flex;
         flex-direction: column;
         padding: 3rem;
         margin-top: 1rem;
-
     }
     .shadow {
         -webkit-box-shadow: 9px 10px 42px -3px rgba(0, 0, 0, 0.57);
@@ -88,6 +95,12 @@
     .badge {
         margin-top: 4px;
         margin-bottom: 2px;
+        font-size: medium;
+        color: white;
+    }
+    .subsection {
+        display: flex;
+        flex-direction: column;
     }
 </style>
 
@@ -111,53 +124,72 @@
             <div class="col-12 col-md-6 col-lg-8 container information shadow">
                 <!-- Most important information -->
                 <h1 class="display-4">{{.OriginalTitle}}</h1>
-                <h6 class="card-text ">ID: {{.ImdbTitleId}}</h6>
+                <h6 class="card-text">ID: {{.ImdbTitleId}}</h6>
                 <p class="lead">{{.Description}}</p>
                 <p class="card-text">Actors: {{.Actors}}</p>
 
+                <div class="">
+                    <div class="row">
+                        <p class="col-6 card-text"><b>Genre:</b> {{.Genre}}</p>
+                        <p class="col-6 card-text">
+                            <b>Duration:</b>
+                            {{.Duration}}
+                        </p>
+                    </div>
+                    <div class="row">
+                        <p class="col-6 card-text"><b>Year:</b> {{.Year}}</p>
+                        <p class="col-6 card-text">
+                            <b>Director:</b> {{.Director}}
+                        </p>
+                    </div>
+                    <div class="row">
+                        <p class="col-6 card-text">
+                            <b>Country:</b> {{.Country}}
+                        </p>
+                        <p class="col-6 card-text">
+                            <b>Language:</b> {{.Language}}
+                        </p>
+                    </div>
+                    <div class="row">
+                        <p class="col-6 card-text">
+                            <b>Average Vote:</b> {{.AvgVote}}
+                        </p>
+                        <p class="col-6 card-text">
+                            <b>Date Published:</b> {{.DatePublished}}
+                        </p>
+                    </div>
+                </div>
+                
                 <!-- Info with chips -->
-                <span class="badge badge-pill badge-primary">Country: {{.Country}}</span>
-                <span class="badge badge-pill primaryColor badge-primary">Language: {{.Language}}</span>
-                <span class="badge badge-pill secondaryColor badge-primary">{{.Genre}}</span>
-                <span class="badge badge-pill terciaryColor badge-primary">Dufration: {{.Duration}}</span>
-                <span class="badge badge-pill accent ">Year: {{.Year}}</span>
-                <span class="badge badge-pill primaryColor badge-primary">Director: {{.Director}}</span>
-
-                <span class="badge badge-pill badge-primary">Average Vote: {{.AvgVote}}</span>
-                <span class="badge badge-pill primaryColor badge-primary">Date Published: {{.DatePublished}}</span>
-                <span class="badge badge-pill secondaryColor badge-primary">ProductionCompany: {{.ProductionCompany}}</span>
-                <span class="badge badge-pill terciaryColor badge-primary">Writer: {{.Writer}}</span>
-                <span class="badge badge-pill accent">Votes: {{.Votes}}</span>
-                <span class="badge badge-pill primaryColor badge-primary">Budget: {{.Budget}}</span>
-
-                <span class="badge badge-pill badge-primary">USA Gross Income: {{.UsaGrossIncome}}</span>
-                <span class="badge badge-pill accent">World Wide Gross Income: {{.WorlwideGrossIncome}}</span>
-                <span class="badge badge-pill secondaryColor badge-primary">Budget: {{.Budget}}</span>
-
-                <span class="badge badge-pill terciaryColor badge-primary">Meta Score: {{.Metascore}}</span>
-                <span class="badge badge-pill accent">WorlReviews From Users: {{.ReviewsFromUsers}}</span>
-                <span class="badge badge-pill primaryColor badge-primary">Reviews From Critics: {{.ReviewsFromCritics}}</span>
+                <span class="badge badge-pill primaryColor"
+                    >Production: {{.ProductionCompany}}</span
+                >
+                <span class="badge badge-pill secondaryColor"
+                    >Writer: {{.Writer}}</span
+                >
+                <span class="badge badge-pill terciaryColor"
+                    >Budget: {{.Budget}}</span
+                >
+                <span class="badge badge-pill accentColor"
+                    >Votes: {{.Votes}}</span
+                >
+                <span class="badge badge-pill primaryColor"
+                    >USA Gross Income: {{.UsaGrossIncome}}</span
+                >
+                <span class="badge badge-pill secondaryColor"
+                    >World Wide Gross Income: {{.WorlwideGrossIncome}}</span
+                >
+                <span class="badge badge-pill accentColor"
+                    >Meta Score: {{.Metascore}}</span
+                >
+                <span class="badge badge-pill primaryColor"
+                    >WorlReviews From Users: {{.ReviewsFromUsers}}</span
+                >
+                <span class="badge badge-pill secondaryColor"
+                    >Reviews From Critics: {{.ReviewsFromCritics}}</span
+                >
             </div>
         </div>
-        <!-- <div class="row content primary">
-            <p class="card-text">Country: {{.Country}}</p>
-            <p class="card-text">Language: {{.Language}}</p>
-            <p class="card-text">Date Published: {{.DatePublished}}</p>
-            <p class="card-text">ProductionCompany: {{.ProductionCompany}}</p>
-            <p class="card-text">Writer: {{.Writer}}</p>
-            <p class="card-text">Votes: {{.Votes}}</p>
-            <p class="card-text">Budget: {{.Budget}}</p>
-            <p class="card-text">USA Gross Income: {{.UsaGrossIncome}}</p>
-            <p class="card-text">
-                World Wide Gross Income: {{.WorlwideGrossIncome}}
-            </p>
-            <p class="card-text">Meta Score: {{.Metascore}}</p>
-            <p class="card-text">Reviews From Users: {{.ReviewsFromUsers}}</p>
-            <p class="card-text">
-                Reviews From Critics: {{.ReviewsFromCritics}}
-            </p>
-             <a href="#" class="card-link">Another link</a>
-        </div> -->
     </div>
     {{end}}
 </div>
