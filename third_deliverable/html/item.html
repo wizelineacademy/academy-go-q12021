@@ -1,39 +1,125 @@
 <head>
     <!-- Required meta tags -->
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta charset="utf-8" />
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
     <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <link
+        rel="stylesheet"
+        href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+        integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm"
+        crossorigin="anonymous"
+    />
     <title>{{.Title}}</title>
 </head>
-<div class="container" style="margin: 2rem" >
-    <a class="btn btn-primary" href="/" role="button">Go Back</a>
+<style>
+    body {
+        /* background-color: rgb(11,17,35); */
+        background-color: rgb(229 228 239);
+        font-family: Roboto;
+    }
+    .main {
+        padding: 2rem;
+    }
+    .button-container {
+        margin: 1rem;
+    }
+    .wrapper {
+        /* background-color: #00036b;  */
+        background-color:  #3c42f3;
+        color: whitesmoke;
+        display: flex;
+        flex-direction: column;
+    }
+    .image-container {
+        background-color: #fbcf4c;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 1rem;
+    }
+    .body-container {
+        display: flex;
+        flex-grow: 1;
+        flex-direction: column;
+    }
+    .poster {
+        height: fit-content;
+        min-width: fit-content;
+        max-height: 400px;
+    }
+    .pattern {
+        background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAATklEQVQoU2O0O3X+PwMDA8MhM0NGEI0LMBKtEJsJD27YgW1R0DgEtwWrdUQrxGYLY8V5iDUdhghrKFOITfenmXFgW/jSF+H3DNEKsdkCAO99IAvXcD3VAAAAAElFTkSuQmCC)
+            repeat;
+    }
+    .header {
+        background-color: #151a9c;
+        display: flex;
+    }
+    .content {
+        display: block;
+        padding: 3rem;
+    }
+    .shadow {
+        -webkit-box-shadow: 9px 10px 42px -3px rgba(0, 0, 0, 0.57);
+        -moz-box-shadow: 9px 10px 42px -3px rgba(0, 0, 0, 0.57);
+        box-shadow: 9px 10px 42px -3px rgba(0, 0, 0, 0.57);
+    }
+</style>
+
+<div class="container-fluid main">
+    <div class="button-container">
+        <a class="btn btn-primary" href="/" role="button">Go Back</a>
+    </div>
     {{if .ImdbTitleId}}
-        <div class="card" style="width: 18rem;">
-        <div class="card-body">
-            <h5 class="card-title">{{.Title}}</h5>
-            <h6 class="card-subtitle mb-2 text-muted">ID: {{.ImdbTitleId}}</h6>
-            <p class="card-text">Year: {{.Year}} </p>
-            <p class="card-text">Date Published: {{.DatePublished}} </p>
-            <p class="card-text">Genre: {{.Genre}} </p>
-            <p class="card-text">Duration: {{.Duration}} </p>
-            <p class="card-text">Country: {{.Country}} </p>
-            <p class="card-text">Language: {{.Language}} </p>
-            <p class="card-text">Director: {{.Director}} </p>
-            <p class="card-text">Writer: {{.Writer}} </p>
-            <p class="card-text">ProductionCompany: {{.ProductionCompany}} </p>
-            <p class="card-text">Actors: {{.Actors}} </p>
-            <p class="card-text">Description: {{.Description}} </p>
-            <p class="card-text">Average Vote: {{.AvgVote}} </p>
-            <p class="card-text">Votes: {{.Votes}} </p>
-            <p class="card-text">Budget: {{.Budget}} </p>
-            <p class="card-text">USA Gross Income: {{.UsaGrossIncome}} </p>
-            <p class="card-text">World Wide Gross Income: {{.WorlwideGrossIncome}} </p>
-            <p class="card-text">Meta Score: {{.Metascore}} </p>
-            <p class="card-text">Reviews From Users: {{.ReviewsFromUsers}} </p>
-            <p class="card-text">Reviews From Critics: {{.ReviewsFromCritics}} </p>
+    <div class="wrapper container">
+        <div class="row header">
+            <div class="col-12 col-md-12 col-lg-4 image-container pattern">
+                {{if .Poster}}
+                <img class="poster" src="{{.Poster}}" />
+                {{else}}
+                <img
+                    class="poster shadow"
+                    src="https://i.pinimg.com/474x/d3/e4/8e/d3e48efc9fb9830d437972cc2f0514b2.jpg"
+                />
+                {{end}}
+            </div>
+            <div class="col-12 col-md-12 col-lg-8 container">
+                <h1 class="display-4">{{.OriginalTitle}}</h1>
+                <h6 class="card-text">ID: {{.ImdbTitleId}}</h6>
+                <p class="lead">{{.Description}}</p>
+                <p class="card-text">Year: {{.Year}}</p>
+                <p class="card-text">Genre: {{.Genre}}</p>
+                <p class="card-text">Duration: {{.Duration}}</p>
+                <p class="card-text">Actors: {{.Actors}}</p>
+                <p class="card-text">Director: {{.Director}}</p>
+
+                <!-- maybe graphics -->
+                <p class="card-text">Average Vote: {{.AvgVote}}</p>
+            </div>
+        </div>
+        <div class="row container content">
+            <p class="card-text">Country: {{.Country}}</p>
+            <p class="card-text">Language: {{.Language}}</p>
+            <p class="card-text">Date Published: {{.DatePublished}}</p>
+            <p class="card-text">ProductionCompany: {{.ProductionCompany}}</p>
+            <p class="card-text">Writer: {{.Writer}}</p>
+            <p class="card-text">Votes: {{.Votes}}</p>
+            <p class="card-text">Budget: {{.Budget}}</p>
+            <p class="card-text">USA Gross Income: {{.UsaGrossIncome}}</p>
+            <p class="card-text">
+                World Wide Gross Income: {{.WorlwideGrossIncome}}
+            </p>
+            <!-- reviews and scores -->
+            <p class="card-text">Meta Score: {{.Metascore}}</p>
+            <p class="card-text">Reviews From Users: {{.ReviewsFromUsers}}</p>
+            <p class="card-text">
+                Reviews From Critics: {{.ReviewsFromCritics}}
+            </p>
             <!-- <a href="#" class="card-link">Another link</a> -->
         </div>
-        </div>
+    </div>
     {{end}}
 </div>

@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"net/url"
 	"os"
 	"sync"
 	"text/template"
@@ -15,6 +16,8 @@ import (
 )
 
 /* Generic functions and structure */
+
+
 type Movie struct {
 	ImdbTitleId string `json:"imdb_title_id"`
     Title string `json:"title"`
@@ -38,6 +41,7 @@ type Movie struct {
 	Metascore string `json:"metascore"`
 	ReviewsFromUsers string `json:"reviews_from_users"`
 	ReviewsFromCritics string `json:"reviews_from_critics"`
+	Poster string `json:"poster"`
 }
 type PageData struct {
     PageTitle string
@@ -114,7 +118,7 @@ func worker(jobs <-chan string, results chan<- Movie, wg *sync.WaitGroup) {
 }
 
 func GetMoviesConcurrently() {
-    file, err := os.Open("IMDb_movies_short.csv")
+    file, err := os.Open("IMDb_movies.csv")
     if err != nil {
       log.Fatal(err)
     }
@@ -217,13 +221,57 @@ func GetMovieById(id string) Movie {
 			break
 		}
 	}	
+	imgUrl := GetMoviePoster(selectedMovie.OriginalTitle, selectedMovie.Year)
+
+
+	selectedMovie.Poster = imgUrl
 	return selectedMovie
 }
 
+func GetMoviePoster(title string, year string) (imageUrl string) {
+	// Consume the api of omdbapi
+	// urlSlice := []string{"http://www.omdbapi.com/?apikey=", "43502af4","&t=", title, "&y=", year }
+	// var url string = strings.Join(urlSlice, "")
+	// log.Println("url: ", url)
+
+	Url, err := url.Parse("http://www.omdbapi.com/")
+    if err != nil {
+        panic("boom")
+    }
+    parameters := url.Values{}
+    parameters.Add("apikey", "43502af4")
+    parameters.Add("t", title)
+    parameters.Add("y", year)
+    Url.RawQuery = parameters.Encode()
+    fmt.Printf("Encoded URL is %q\n", Url.String())
+
+	resp, err := http.Get(Url.String())
+	if err != nil {
+		panic(err)
+	}
+	defer resp.Body.Close()
+
+	// Print the HTTP response status.
+	fmt.Println("\n\tResponse status:", resp.Status)
+
+	// Print the first 5 lines of the response body.
+	scanner := bufio.NewScanner(resp.Body)
+	for i := 0; scanner.Scan() && i < 5; i++ {
+		var movie Movie
+    	json.Unmarshal([]byte(scanner.Text()), &movie) 
+		imageUrl = movie.Poster
+		log.Println("Movie Found on OMDBAPI: ", movie)
+	}
+	if err := scanner.Err(); err != nil {
+		panic(err)
+	}
+	return imageUrl
+}
 
 func main() {
   http.HandleFunc("/", GetMovies)
   http.HandleFunc("/getMovieById", RenderMovie)
+
   log.Println("Server running succesfully on port 8080!")
   log.Fatal(http.ListenAndServe(":8080", nil))
 }
