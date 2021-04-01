@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bufio"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -50,21 +49,35 @@ type Movie struct {
 	Poster string `json:"poster"`
 }
 
-type Response struct {
+type Response_All struct {
 	Title string `json:"title"`
 	Message string `json:"message"`
 	Results int `json:"results"`
-	Data []Movie `json:"data"`
+	Data []ShortMovie `json:"data"`
+	Errors []string `json:"errors"`
+	ExecutionTime string `json:"execution_time"`
+}
+type Response_Single struct {
+	Title string `json:"title"`
+	Message string `json:"message"`
+	Results int `json:"results"`
+	Data Movie `json:"data"`
 	Errors []string `json:"errors"`
 	ExecutionTime string `json:"execution_time"`
 }
 
-type PageData struct {
+
+type Page_AllMovies struct {
     PageTitle string
-    Movies     []Movie
+    Movies []ShortMovie
 }
 
-func GetMovies(queryParams QueryParameters) (response Response) {
+type Page_MovieDetails struct {
+    PageTitle string
+    Movie Movie
+}
+
+func GetMovies(queryParams QueryParameters) (response Response_All) {
 	// Get the http reponse from api localhost:8080 backend
 	Url, err := url.Parse("http://localhost:8080/getMovies")
 	if err != nil {
@@ -86,7 +99,7 @@ func GetMovies(queryParams QueryParameters) (response Response) {
 	if err != nil {
 		defer resp.Body.Close()
 		log.Fatalf(err.Error())
-		var response Response
+		var response Response_All
 		return response
 	} 
 
@@ -94,20 +107,14 @@ func GetMovies(queryParams QueryParameters) (response Response) {
 
 	// Print the HTTP response status.
 	fmt.Println("\n\tResponse status:", resp.Status, resp.Body)
-
-	// Print the first 5 lines of the response body.
-	scanner := bufio.NewScanner(resp.Body)
-	for i := 0; scanner.Scan() && i < 5; i++ {
-		json.Unmarshal([]byte(scanner.Text()), &response) // items slice
-	}
-	if err := scanner.Err(); err != nil {
+	err = json.NewDecoder(resp.Body).Decode(&response)
+	if err != nil { 
 		panic(err)
 	}
-	return response
-	 
+	return response	 
 }
 
-func GetMoviesById(id string) (response Response) {
+func GetMoviesById(id string) (response Response_Single) {
 	// Get the http reponse from api localhost:8080 backend
 	Url, err := url.Parse("http://localhost:8080/getMovieById")
 	if err != nil {
@@ -126,18 +133,12 @@ func GetMoviesById(id string) (response Response) {
 	defer resp.Body.Close()
 	
 	// Print the HTTP response status.
-	fmt.Println("\n\tResponse status:", resp.Status)
-
-	// Print the first 5 lines of the response body.
-	// bufio.Reader.ReadLine
-	scanner := bufio.NewScanner(resp.Body)
-	for i := 0; scanner.Scan() && i < 5; i++ {
-    	json.Unmarshal([]byte(scanner.Text()), &response) // items slice
-	}
-	if err := scanner.Err(); err != nil {
+	fmt.Println("\n\tResponse status:", resp.Status, resp.Body)
+	err = json.NewDecoder(resp.Body).Decode(&response)
+	if err != nil { 
 		panic(err)
 	}
-	return response
+	return response	 
 }
 
 func GetQueryParams(r *http.Request) (queryParams QueryParameters) {
@@ -185,7 +186,7 @@ func RenderMovies(w http.ResponseWriter, r *http.Request) {
 	
 
 	tmpl := template.Must(template.ParseFiles("html/index.html"))
-	data := PageData{
+	data := Page_AllMovies{
 		PageTitle: "IMDb Movies",
 		Movies: response.Data,
 	}
@@ -207,16 +208,15 @@ func RenderMovieById(w http.ResponseWriter, r *http.Request) {
 	response := GetMoviesById(id)
 
 	tmpl := template.Must(template.ParseFiles("html/item.html"))
-	data := PageData{
+	data := Page_MovieDetails{
 		PageTitle: "IMDb Movie",
-		Movies: response.Data,
+		Movie: response.Data,
 	}
 	if err := tmpl.Execute(w, data); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}	
 
-
-	if err := tmpl.Execute(w, response.Data[0]); err != nil {
+	if err := tmpl.Execute(w, response.Data); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}	
 }
