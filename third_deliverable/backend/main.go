@@ -1,7 +1,5 @@
 package main
 
-// dataset gathered from: https://www.kaggle.com/stefanoleone992/imdb-extensive-dataset
-
 import (
 	"bufio"
 	"encoding/json"
@@ -14,8 +12,6 @@ import (
 	"sync"
 	"time"
 )
-
-/* Generic functions and structure */
 
 const MaxUint64 = ^uint64(0) 
 type Movie struct {
@@ -134,7 +130,8 @@ func worker(jobs <-chan string, results chan<- Movie, wg *sync.WaitGroup, queryP
 			Metascore: lineItems[19],
 			ReviewsFromUsers: lineItems[20],
 			ReviewsFromCritics: lineItems[21],
-		}
+			Poster: GetMoviePosterFromOmdbApi(lineItems[2], lineItems[3]),
+		}		
 		// get id from Movie struct and parse the string to a number
 		inputFmt := newMovie.ImdbTitleId[2:len(newMovie.ImdbTitleId)] // get substring of id
 		id, err := strconv.Atoi(inputFmt) // parse substring to int
@@ -171,7 +168,8 @@ func GetMoviesFromFileConcurrently(queryParams QueryParameters) {
 		requestErrors = append(requestErrors, err.Error())
 		log.Println(err.Error())
 	}
-
+	
+	// dataset gathered from: https://www.kaggle.com/stefanoleone992/imdb-extensive-dataset
     file, err := os.Open("IMDb_movies_short.csv")
     if err != nil {
 		requestErrors = append(requestErrors, err.Error())
