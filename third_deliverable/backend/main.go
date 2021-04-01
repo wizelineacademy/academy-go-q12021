@@ -122,7 +122,7 @@ func SplitAtCommas(s string) []string {
 
 func worker(jobs <-chan string, results chan<- Movie, wg *sync.WaitGroup, queryParams QueryParameters, complete bool, id string) {
 	itemsToDisplay := queryParams.Items
-	// numberType := queryParams.Type
+	numberType := queryParams.Type
 	// log.Println("\nItems per response: ", itemsToDisplay, "\nItems per worker: ", 0,"\nType: ", numberType,)
 
 	defer wg.Done()
@@ -163,7 +163,22 @@ func worker(jobs <-chan string, results chan<- Movie, wg *sync.WaitGroup, queryP
 			}
 			results <- newMovie
 			moviesAddedCounter++	
-		} else if !complete {
+		} 
+		if !complete {		
+			// get id from Movie struct and parse the string to a number
+			idOfCurrentMovie := lineItems[0] // get id of current movie
+			substringOfId := idOfCurrentMovie[2:] // convert to only string numbers
+			integerId, _ := strconv.Atoi(substringOfId) // parse substring to int
+			
+			// if numberType is supposed to be odd and it is not, then continue to next line wihtout adding it to the list
+			if numberType ==  "odd" && !Odd(integerId) {
+				continue
+			}
+			// if numberType is supposed to be even and it is not, then continue to next line wihtout adding it to the list
+			if numberType ==  "even" && !Even(integerId) {
+				continue
+			}
+			// if it got to this point add it to the list
 			newMovie = Movie{
 				ImdbTitleId: lineItems[0],
 				OriginalTitle: lineItems[2],
@@ -172,33 +187,7 @@ func worker(jobs <-chan string, results chan<- Movie, wg *sync.WaitGroup, queryP
 			}	
 			results <- newMovie
 			moviesAddedCounter++	
-		}
-
-		// get id from Movie struct and parse the string to a number
-		// inputFmt := newMovie.ImdbTitleId[2:len(newMovie.ImdbTitleId)] // get substring of id
-		// id, err := strconv.Atoi(inputFmt) // parse substring to int
-
-		// log.Println(moviesAddedCounter < itemsToDisplay, moviesAddedCounter, itemsToDisplay)
-		// if err != nil {
-		// 	requestErrors = append(requestErrors, err.Error())
-		// 	return
-		// }	else if moviesAddedCounter < itemsToDisplay {
-		// 	if numberType ==  "odd" && Odd(id) {
-		// 		log.Println("The Id is Odd: ", id)
-		// 		moviesAddedCounter++
-		// 		results <- newMovie
-		// 	}
-		// 	if numberType ==  "even" && Even(id) {
-		// 		log.Println("The Id is Odd: ", id)
-		// 		moviesAddedCounter++
-		// 		results <- newMovie
-		// 	}
-		// 	if numberType !=  "even" && numberType !=  "odd" {
-		// 		log.Println("Display both even and odd numbers")
-		// 		moviesAddedCounter++
-		// 		results <- newMovie
-		// 	}
-		// }
+		}	
 	}
 	log.Println("Added a total of ", moviesAddedCounter)
 }
@@ -250,6 +239,7 @@ func GetMoviesFromFileConcurrently(queryParams QueryParameters, complete bool, i
     // Convert channel to slice of Movie and send
 	
     for movie := range results {
+		fmt.Println("Movie: ", movie)
 		if complete {
 			movies = append(movies, movie)
 		} else {
@@ -318,6 +308,8 @@ func GetMovies(w http.ResponseWriter, r *http.Request) {
 	GetMoviesFromFileConcurrently(queryParams, false, "")
 
 	totalTime :=  fmt.Sprintf("%d%s", time.Since(start).Milliseconds(), " Milliseconds.")
+
+	fmt.Println("summaryMovies", summaryMovies)
 
 	jsonObject := Response_All{ 
 		Title: "Response", 
