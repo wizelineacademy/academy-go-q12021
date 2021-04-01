@@ -85,9 +85,24 @@
         padding: 1rem;
         margin: 1rem;
     }
+    .logo {
+        width: 40px;
+        height: 40px;
+    }
+    .navBar {
+        justify-content: space-between;
+        padding-left: 3rem;
+        padding-right: 3rem;
+    }
 </style>
-<div class="wrapper">
+<div class="wrapper navBar">
     <h1>{{.PageTitle}}</h1>
+    <a href="https://academy.wizeline.com/">
+        <img
+            class="logo"
+            src="https://avatars.githubusercontent.com/u/6192875?s=200&v=4"
+        />
+    </a>
 </div>
 <div class="wrapper">
     <h4>Show up to:</h4>
@@ -134,7 +149,11 @@
         <a href="/getMovieById?id={{.ImdbTitleId}}">
             <div class="itemContainer">
                 {{if .Poster}}
-                <img class="poster shadow" src="{{.Poster}}" onerror="this.onerror=null;this.src='https://i.pinimg.com/474x/d3/e4/8e/d3e48efc9fb9830d437972cc2f0514b2.jpg'"/>
+                <img
+                    class="poster shadow"
+                    src="{{.Poster}}"
+                    onerror="this.onerror=null;this.src='https://i.pinimg.com/474x/d3/e4/8e/d3e48efc9fb9830d437972cc2f0514b2.jpg'"
+                />
                 {{else}}
                 <img
                     class="poster shadow"
