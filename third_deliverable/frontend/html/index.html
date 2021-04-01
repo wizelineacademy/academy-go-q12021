@@ -106,29 +106,37 @@
     }
 </style>
 <script>
-    $(document).ready(function () {
-        var selectedItemValue = localStorage.getItem('selectedItemValue');
-        $('#' + selectedItemValue).addClass('active');
+    $(document).ready(function () {    
+        const itemsDefault = "15";
+        const typeDefault = "all";
 
-        var selectedIdType = localStorage.getItem('selectedIdType');
-        $('#' + selectedIdType).addClass('active');
+        $("button[name='itemButton'][value='"+localStorage.getItem('items')+"']").addClass('active');
+        $("button[name='typeButton'][value='"+localStorage.getItem('type')+"']").addClass('active');
 
-        var pageItem = $('.itemsPagination li');
-        pageItem.click(function (a) {
-            pageItem.removeClass('active');
-            $(this).addClass('active');
-            var id = $(this).attr('id');
-            localStorage.setItem('selectedItemValue', id);
+        $('button[name="itemButton"]').click(function() { 
+            var itemsValue = $(this).attr("value");
+            localStorage.setItem('items', itemsValue);
+            var typeValue = localStorage.getItem('type') | typeDefault;
+            var url = "http://localhost:3000/?items=" + itemsValue + "&type=" + typeValue;
+            window.location.href = url;
         });
-        var selectedIdType = localStorage.getItem('selectedIdType');
-        $('#' + selectedItemValue).addClass('active');
 
-        var idTypeItem = $('.typePagination li');
-        idTypeItem.click(function (a) {
-            idTypeItem.removeClass('active');
+        $('button[name="typeButton"]').click(function() { 
+            var typeValue = $(this).attr("value");
+            localStorage.setItem('type', typeValue);
+            var itemsValue = localStorage.getItem('items') | itemsDefault;
+            var url = "http://localhost:3000/?items=" + itemsValue + "&type=" + typeValue;
+            window.location.href = url;
+        }); 
+        
+        $('.btn-group button[name="itemButton"]').click(function (a) {
+            $('.btn-group-itemButton .active').removeClass('active');
             $(this).addClass('active');
-            var id = $(this).attr('id');
-            localStorage.setItem('selectedIdType', id);
+        });
+
+        $('.btn-group button[name="typeButton"]').click(function (a) {
+            $('.btn-group-typeButton .active').removeClass('active');
+            $(this).addClass('active');
         });
     });
 </script>
@@ -144,49 +152,20 @@
 <div class="wrapper">
     <div class="container">
         <h4>Display results:</h4>
-        <nav aria-label="...">
-            <ul class="itemsPagination pagination">
-                <li id="15" class="page-item">
-                    <a class="page-link" href="http://localhost:3000/?items=15"
-                        >15</a
-                    >
-                </li>
-                <li id="100" class="page-item">
-                    <a class="page-link" href="http://localhost:3000/?items=100"
-                        >100</a
-                    >
-                </li>
-                <li id="500" class="page-item">
-                    <a class="page-link" href="http://localhost:3000/?items=500"
-                        >500</a
-                    >
-                </li>
-                <li id="All" class="page-item">
-                    <a
-                        class="page-link"
-                        href="http://localhost:3000/?items=10000"
-                        >All</a
-                    >
-                </li>
-            </ul>
-        </nav>
+        <div class="btn-group btn-group-itemButton" role="group" aria-label="Basic example">
+            <button name="itemButton" type="button" class="btn btn-secondary " value="15">15</button>
+            <button name="itemButton" type="button" class="btn btn-secondary" value="100">100</button>
+            <button name="itemButton" type="button" class="btn btn-secondary" value="500">500</button>
+            <button name="itemButton" type="button" class="btn btn-secondary" value="100000">All</button>
+          </div>
     </div>
     <div class="container">
         <h4>ID type:</h4>
-        <nav aria-label="...">
-            <ul class="typePagination pagination">
-                <li id="Odd" class="page-item">
-                    <a class="page-link" href="http://localhost:3000/?type=odd"
-                        >Odd</a
-                    >
-                </li>
-                <li id="Even" class="page-item">
-                    <a class="page-link" href="http://localhost:3000/?type=even"
-                        >Even</a
-                    >
-                </li>
-            </ul>
-        </nav>
+        <div class="btn-group btn-group-typeButton" role="group" aria-label="Basic example">
+            <button name="typeButton" type="button" class="btn btn-secondary " value="all">All</button>
+            <button name="typeButton" type="button" class="btn btn-secondary" value="odd">Odd</button>
+            <button name="typeButton" type="button" class="btn btn-secondary" value="even">even</button>
+        </div>
     </div>
 </div>
 

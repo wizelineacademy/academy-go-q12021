@@ -143,10 +143,6 @@ func GetMoviesById(id string) (response Response_Single) {
 
 func GetQueryParams(r *http.Request) (queryParams QueryParameters) {
 	keys := r.URL.Query()
-
-	if val, ok := keys["type"]; ok {
-		queryParams.Type = val[0]
-	}
 	
 	// if val, ok := keys["item_per_workers"]; ok {
 	// 	IntItemPerWorkers, err := strconv.Atoi(val[0]) // parse string to int
@@ -159,6 +155,10 @@ func GetQueryParams(r *http.Request) (queryParams QueryParameters) {
 	// } else {
 	// 	log.Println("item_per_workers not provided as query param")
 	// }
+
+	if val, ok := keys["type"]; ok {
+		queryParams.Type = val[0]
+	}
 	if val, ok := keys["items"]; ok {
 		IntItems, err := strconv.Atoi(val[0]) // parse string to int
 		if err != nil {
