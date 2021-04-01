@@ -1,20 +1,103 @@
 <!-- Latest compiled and minified CSS -->
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
-
-<!-- Optional theme -->
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
 
 <!-- Latest compiled and minified JavaScript -->
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
+<style>
+    body {
+        background-color: rgb(251, 251, 251);
+        font-family: Roboto;
+    }
+    a {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100%;
+        color: #252525;
+    }
+    .shadow {
+        -webkit-box-shadow: 9px 10px 42px -3px rgba(0, 0, 0, 0.57);
+        -moz-box-shadow: 9px 10px 42px -3px rgba(0, 0, 0, 0.57);
+        box-shadow: 9px 10px 42px -3px rgba(0, 0, 0, 0.57);
+    }
+    .itemContainer {
+        display: flex;
+        flex-direction: column;
+        max-width: fit-content;
+        padding: 1rem;
+    }
+    .poster {
+        background-color: rgb(11, 17, 35);
+        height: 300px;
+        width: 200px;
+    }
+    .wrapper {
+        flex-wrap: wrap;
+        display: flex;
+        padding: 1rem;
+        justify-content: center;
+        align-items: center;
+    }
+    .item {
+        padding: 1rem;
+        margin: 1rem;
+    }
+</style>
 
 <h1>{{.PageTitle}}</h1>
-<ul>
-    {{range .Movies}}
-        {{if .ImdbTitleId}}
-            <li class="done"><a href="/getMovieById?id={{.ImdbTitleId}}"> {{.Year}} - {{.OriginalTitle}} </a></li>
-        {{else}}
-            <li>Error</li>
-            <li>{{.Title}}</li>
-        {{end}}
-    {{end}}
-</ul>
+<br />
+<div class="wrapper">
+    <h4>Show up to:</h4>
+    <div
+        class="btn-group"
+        role="group"
+        aria-label="Button group with nested dropdown"
+    >
+        <a class="btn btn-secondary" href="http://localhost:3000/?items=100">100</a>
+        <a class="btn btn-secondary" href="http://localhost:3000/?items=500">500</a>
+        <a class="btn btn-secondary" href="http://localhost:3000/?items=5000">5000</a>
+        <a class="btn btn-secondary" href="http://localhost:3000/?items=100000000">All</a>
+
+        <!-- <div class="btn-group" role="group">
+            <button
+                id="btnGroupDrop1"
+                type="button"
+                class="btn btn-secondary dropdown-toggle"
+                data-toggle="dropdown"
+                aria-haspopup="true"
+                aria-expanded="false"
+            >
+                Dropdown
+            </button>
+            <div class="dropdown-menu" aria-labelledby="btnGroupDrop1">
+                <a class="dropdown-item" href="#">Dropdown link</a>
+                <a class="dropdown-item" href="#">Dropdown link</a>
+            </div>
+        </div> -->
+    </div>
+</div>
+
+<div class="wrapper">
+    {{range .Movies}} {{if .ImdbTitleId}}
+    <div class="item">
+        <a href="/getMovieById?id={{.ImdbTitleId}}">
+            <div class="itemContainer">
+                {{if .Poster}}
+                <img class="poster shadow" src="{{.Poster}}" />
+                {{else}}
+                <img
+                    class="poster shadow"
+                    src="https://i.pinimg.com/474x/d3/e4/8e/d3e48efc9fb9830d437972cc2f0514b2.jpg"
+                />
+                {{end}}
+                <h4>{{.Year}} - {{.OriginalTitle}}</h4>
+            </div>
+        </a>
+    </div>
+    {{else}}
+    <p>Error</p>
+    <p>{{.Title}}</p>
+    {{end}} {{end}}
+</div>
