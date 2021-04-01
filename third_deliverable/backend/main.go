@@ -50,7 +50,7 @@ type Response struct {
 }
 
 type QueryParameters struct {
-	ItemPerWorkers string `json:"item_per_workers"`
+	ItemPerWorkers int `json:"item_per_workers"`
     Items uint64 `json:"items"`
     Type string `json:"type"`
 }
@@ -163,11 +163,6 @@ func worker(jobs <-chan string, results chan<- Movie, wg *sync.WaitGroup, queryP
 
 
 func GetMoviesFromFileConcurrently(queryParams QueryParameters) {
-	itemsPerWorkers, err := strconv.Atoi(queryParams.ItemPerWorkers) // parse substring to int
-	if err != nil {
-		requestErrors = append(requestErrors, err.Error())
-		log.Println(err.Error())
-	}
 	
 	// dataset gathered from: https://www.kaggle.com/stefanoleone992/imdb-extensive-dataset
     file, err := os.Open("IMDb_movies_short.csv")
@@ -183,7 +178,8 @@ func GetMoviesFromFileConcurrently(queryParams QueryParameters) {
     wg := new(sync.WaitGroup)
   
     // start workers
-    var workers = itemsPerWorkers
+    var workers = queryParams.ItemPerWorkers
+
 
     for w := 1; w <= workers; w++ {
       wg.Add(1)
@@ -232,8 +228,14 @@ func GetMovies(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if val, ok := keys["item_per_workers"]; ok {
-		log.Println("item_per_workers query provided")
-		queryParams.ItemPerWorkers = val[0]
+		uIntItemPerWorkers, err := strconv.Atoi(val[0]) // parse string to int
+		if err != nil {
+			requestErrors = append(requestErrors, err.Error())
+			queryParams.ItemPerWorkers = 1
+		} else {
+			log.Println("item_per_workers query provided")
+			queryParams.ItemPerWorkers = uIntItemPerWorkers	
+		}
 	} else {
 		requestErrors = append(requestErrors, "`items_per_workers` was not provided as query param.")
 		log.Println("item_per_workers not provided as query param")
@@ -253,7 +255,12 @@ func GetMovies(w http.ResponseWriter, r *http.Request) {
 		queryParams.Items = MaxUint64
 	}
 
-	GetMoviesFromFileConcurrently(queryParams)
+	if len(movies) == 0 {
+		log.Println("No movies stored locally, will fetch them from file.")
+		GetMoviesFromFileConcurrently(queryParams)
+	}
+
+	
 
 	totalTime :=  fmt.Sprintf("%d%s", time.Since(start).Microseconds(), " Microseconds.")
 
@@ -274,12 +281,53 @@ func GetMovies(w http.ResponseWriter, r *http.Request) {
 
 
 func GetMovieById(w http.ResponseWriter, r *http.Request) {
+	start := time.Now() 
+	w.Header().Set("Content-Type", "application/json")
+
 	keys, ok := r.URL.Query()["id"]
 	if !ok || len(keys) <= 0 {
 		requestErrors = append(requestErrors, "Id query param is required but missing")
 		log.Println("Id query param is required but missing")
 	}
+	id := keys[0]
+
+	var selectedMovie []Movie
+
+
+	if len(movies) == 0 {
+		log.Println(movies, id)
+		GetMoviesFromFileConcurrently(QueryParameters{	
+			ItemPerWorkers: 1,
+			Items: MaxUint64,
+			Type: "",
+		})
+	}
+
+
+	for i := range movies {
+		if movies[i].ImdbTitleId == id {
+			selectedMovie = append(selectedMovie, movies[i])
+			break
+		}
+	}
+
+	totalTime :=  fmt.Sprintf("%d%s", time.Since(start).Microseconds(), " Microseconds.")
+
+	jsonObject := Response{ 
+		Title: "Response", 
+		Results: len(movies),
+		Message: "Data",
+		Data: selectedMovie,
+		Errors: requestErrors,
+		ExecutionTime: totalTime,
+	}
+	jsonResult := ConvertStructToJSON(jsonObject)
+
+	fmt.Fprintf(w, "%s", jsonResult)
+	log.Println(" \t Number of Movies: ", jsonObject.Results, " \t TIME: " ,totalTime)	
+	requestErrors = nil
 }
+
 
 func GetMoviePosterFromOmdbApi(title string, year string) (imageUrl string) {
 	// Consume the api of omdbapi

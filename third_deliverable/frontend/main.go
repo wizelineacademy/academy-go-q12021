@@ -91,15 +91,15 @@ func GetMovies() (response Response) {
 	 
 }
 
-func GetMoviesById(id string) (movie Movie) {
+func GetMoviesById(id string) (response Response) {
 	// Get the http reponse from api localhost:8080 backend
-	Url, err := url.Parse("http://localhost:8080")
+	Url, err := url.Parse("http://localhost:8080/getMovieById")
 	if err != nil {
 		// requestErrors = append(requestErrors,err.Error())
 		log.Fatal(err.Error())
 	}
 	parameters := url.Values{}
-	parameters.Add("id", "")
+	parameters.Add("id", id)
 	Url.RawQuery = parameters.Encode()
 	fmt.Printf("Encoded URL is %q\n", Url.String())
 	resp, err := http.Get(Url.String())
@@ -115,13 +115,12 @@ func GetMoviesById(id string) (movie Movie) {
 	// Print the first 5 lines of the response body.
 	scanner := bufio.NewScanner(resp.Body)
 	for i := 0; scanner.Scan() && i < 5; i++ {
-
-    	json.Unmarshal([]byte(scanner.Text()), &movie) // items slice
+    	json.Unmarshal([]byte(scanner.Text()), &response) // items slice
 	}
 	if err := scanner.Err(); err != nil {
 		panic(err)
 	}
-	return movie
+	return response
 }
 
 func RenderMovies(w http.ResponseWriter, r *http.Request) {
@@ -148,10 +147,19 @@ func RenderMovieById(w http.ResponseWriter, r *http.Request) {
     }
 	// Casting the string number to an integer
     id := keys[0]
-	movie := GetMoviesById(id)
-	tmpl := template.Must(template.ParseFiles("html/item.html"))
+	response := GetMoviesById(id)
 
-	if err := tmpl.Execute(w, movie); err != nil {
+	tmpl := template.Must(template.ParseFiles("html/item.html"))
+	data := PageData{
+		PageTitle: "IMDb Movie",
+		Movies: response.Data,
+	}
+	if err := tmpl.Execute(w, data); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}	
+
+
+	if err := tmpl.Execute(w, response.Data[0]); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}	
 }
