@@ -121,18 +121,14 @@ func SplitAtCommas(s string) []string {
 
 
 func worker(jobs <-chan string, results chan<- Movie, wg *sync.WaitGroup, queryParams QueryParameters, complete bool, id string) {
-	itemsToDisplay := queryParams.Items
+	// itemsToDisplay := queryParams.Items
 	numberType := queryParams.Type
-	// log.Println("\nItems per response: ", itemsToDisplay, "\nItems per worker: ", 0,"\nType: ", numberType,)
 
 	defer wg.Done()
 
 	var moviesAddedCounter int
 
 	for line := range jobs {
-		if moviesAddedCounter == itemsToDisplay {
-			break
-		}
 		lineItems := SplitAtCommas(line)
 		var newMovie Movie
 		if complete && id != "" && id == lineItems[0] {
@@ -169,7 +165,7 @@ func worker(jobs <-chan string, results chan<- Movie, wg *sync.WaitGroup, queryP
 			idOfCurrentMovie := lineItems[0] // get id of current movie
 			substringOfId := idOfCurrentMovie[2:] // convert to only string numbers
 			integerId, _ := strconv.Atoi(substringOfId) // parse substring to int
-			
+
 			// if numberType is supposed to be odd and it is not, then continue to next line wihtout adding it to the list
 			if numberType ==  "odd" && !Odd(integerId) {
 				continue
@@ -208,10 +204,17 @@ func GetMoviesFromFileConcurrently(queryParams QueryParameters, complete bool, i
     wg := new(sync.WaitGroup)
   
     // start workers
-    var workers int = 1 // TODO: fix issue with items and workers
-	// if queryParams.Items >= 80 {
-	// 	workers = 80
-	// } 
+    var workers int 
+	switch {
+		case queryParams.Items < 50:
+			workers = 2
+		case queryParams.Items > 50 && queryParams.Items < 500:
+			workers = 50
+		case queryParams.Items >= 500:
+			workers = 100
+		default:
+			workers = 1
+	}
 
     for w := 1; w <= workers; w++ {
       wg.Add(1)
@@ -237,8 +240,11 @@ func GetMoviesFromFileConcurrently(queryParams QueryParameters, complete bool, i
 	movies = nil
 	summaryMovies = nil
     // Convert channel to slice of Movie and send
-	
+	movieCounter := 0
     for movie := range results {
+		if movieCounter == queryParams.Items {
+			break
+		}
 		fmt.Println("Movie: ", movie)
 		if complete {
 			movies = append(movies, movie)
@@ -251,6 +257,7 @@ func GetMoviesFromFileConcurrently(queryParams QueryParameters, complete bool, i
 			}
 			summaryMovies = append(summaryMovies, movieSummary)
 		}
+		movieCounter++
     }
 }
 
@@ -301,7 +308,7 @@ func GetMovies(w http.ResponseWriter, r *http.Request) {
 
 	// GET QUERY PARAMS AND VALIDATE
 	var queryParams QueryParameters = GetQueryParams(r)
-	// log.Println("\t queryParams.ItemPerWorkers: ", queryParams.ItemPerWorkers )
+	log.Println("\t queryParams.ItemPerWorkers: ", queryParams.ItemPerWorkers )
 	// log.Println("\t queryParams.Items: ", queryParams.Items )
 	// log.Println("\t queryParams.Type: ", queryParams.Type )
 
@@ -309,11 +316,9 @@ func GetMovies(w http.ResponseWriter, r *http.Request) {
 
 	totalTime :=  fmt.Sprintf("%d%s", time.Since(start).Milliseconds(), " Milliseconds.")
 
-	fmt.Println("summaryMovies", summaryMovies)
-
 	jsonObject := Response_All{ 
 		Title: "Response", 
-		Results: len(movies),
+		Results: len(summaryMovies),
 		Message: "Data",
 		Data: summaryMovies,
 		Errors: requestErrors,
@@ -358,7 +363,7 @@ func GetMovieById(w http.ResponseWriter, r *http.Request) {
 
 	jsonObject := Response_Single{ 
 		Title: "Response", 
-		Results: len(movies),
+		Results: 1,
 		Message: "Data",
 		Data: selectedMovie,
 		Errors: requestErrors,

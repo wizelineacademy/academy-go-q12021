@@ -49,6 +49,12 @@
     }
 
     h4 {
+        font-size: 0.8rem;
+        font-weight: normal;
+        text-transform: uppercase;
+    }
+
+    h3 {
         font-size: 1rem;
         font-weight: bold;
         text-transform: uppercase;
@@ -106,29 +112,66 @@
     }
 </style>
 <script>
-    $(document).ready(function () {    
-        const itemsDefault = "15";
-        const typeDefault = "all";
+    $(document).ready(function () {
+        const itemsDefault = '15';
+        const typeDefault = 'all';
+        const item_per_workers = '1';
 
-        $("button[name='itemButton'][value='"+localStorage.getItem('items')+"']").addClass('active');
-        $("button[name='typeButton'][value='"+localStorage.getItem('type')+"']").addClass('active');
+        $(
+            "button[name='itemButton'][value='" +
+                localStorage.getItem('items') +
+                "']"
+        ).addClass('active');
+        $(
+            "button[name='typeButton'][value='" +
+                localStorage.getItem('type') +
+                "']"
+        ).addClass('active');
+        $(
+            "button[name='itemPerWorkersButton'][value='" +
+                localStorage.getItem('item_per_workers') +
+                "']"
+        ).addClass('active');
 
-        $('button[name="itemButton"]').click(function() { 
-            var itemsValue = $(this).attr("value");
+        $('button[name="itemButton"]').click(function () {
+            var itemsValue = $(this).attr('value');
             localStorage.setItem('items', itemsValue);
             var typeValue = localStorage.getItem('type') | typeDefault;
-            var url = "http://localhost:3000/?items=" + itemsValue + "&type=" + typeValue;
+            var url =
+                'http://localhost:3000/?items=' +
+                itemsValue +
+                '&type=' +
+                typeValue;
             window.location.href = url;
         });
 
-        $('button[name="typeButton"]').click(function() { 
-            var typeValue = $(this).attr("value");
+        $('button[name="typeButton"]').click(function () {
+            var typeValue = $(this).attr('value');
             localStorage.setItem('type', typeValue);
             var itemsValue = localStorage.getItem('items') | itemsDefault;
-            var url = "http://localhost:3000/?items=" + itemsValue + "&type=" + typeValue;
+            var url =
+                'http://localhost:3000/?items=' +
+                itemsValue +
+                '&type=' +
+                typeValue;
             window.location.href = url;
-        }); 
-        
+        });
+
+        $('button[name="itemPerWorkersButton"]').click(function () {
+            var value = $(this).attr('value');
+            localStorage.setItem('item_per_workers', value);
+            var itemsValue = localStorage.getItem('items') | itemsDefault;
+            var typeValue = localStorage.getItem('type') | typeDefault;
+            var url =
+                'http://localhost:3000/?items=' +
+                itemsValue +
+                '&type=' +
+                typeValue +
+                '&item_per_workers=' +
+                value;
+            window.location.href = url;
+        });
+
         $('.btn-group button[name="itemButton"]').click(function (a) {
             $('.btn-group-itemButton .active').removeClass('active');
             $(this).addClass('active');
@@ -136,6 +179,11 @@
 
         $('.btn-group button[name="typeButton"]').click(function (a) {
             $('.btn-group-typeButton .active').removeClass('active');
+            $(this).addClass('active');
+        });
+
+        $('.btn-group button[name="itemPerWorkersButton"]').click(function (a) {
+            $('.btn-group-itemPerWorkersButton .active').removeClass('active');
             $(this).addClass('active');
         });
     });
@@ -149,22 +197,112 @@
         />
     </a>
 </div>
-<div class="wrapper">
-    <div class="container">
-        <h4>Display results:</h4>
-        <div class="btn-group btn-group-itemButton" role="group" aria-label="Basic example">
-            <button name="itemButton" type="button" class="btn btn-secondary " value="15">15</button>
-            <button name="itemButton" type="button" class="btn btn-secondary" value="100">100</button>
-            <button name="itemButton" type="button" class="btn btn-secondary" value="500">500</button>
-            <button name="itemButton" type="button" class="btn btn-secondary" value="100000">All</button>
-          </div>
+<div class="wrapper row" style="flex-wrap: nowrap; justify-content: space-around">
+    <div class="item">
+        <h4>Display results</h4>
+        <div
+            class="btn-group btn-group-itemButton btn-group-sm"
+            role="group"
+            aria-label="Basic example"
+        >
+            <button
+                name="itemButton"
+                type="button"
+                class="btn btn-secondary"
+                value="15"
+            >
+                15
+            </button>
+            <button
+                name="itemButton"
+                type="button"
+                class="btn btn-secondary"
+                value="100"
+            >
+                100
+            </button>
+            <button
+                name="itemButton"
+                type="button"
+                class="btn btn-secondary"
+                value="500"
+            >
+                500
+            </button>
+            <button
+                name="itemButton"
+                type="button"
+                class="btn btn-secondary"
+                value="100000"
+            >
+                All
+            </button>
+        </div>
     </div>
-    <div class="container">
-        <h4>ID type:</h4>
-        <div class="btn-group btn-group-typeButton" role="group" aria-label="Basic example">
-            <button name="typeButton" type="button" class="btn btn-secondary " value="all">All</button>
-            <button name="typeButton" type="button" class="btn btn-secondary" value="odd">Odd</button>
-            <button name="typeButton" type="button" class="btn btn-secondary" value="even">even</button>
+    <div class="item">
+        <h4>ID number type</h4>
+        <div
+            class="btn-group btn-group-typeButton btn-group-sm"
+            role="group"
+            aria-label="Basic example"
+        >
+            <button
+                name="typeButton"
+                type="button"
+                class="btn btn-secondary btn-group-sm"
+                value="all"
+            >
+                All
+            </button>
+            <button
+                name="typeButton"
+                type="button"
+                class="btn btn-secondary btn-group-sm"
+                value="odd"
+            >
+                Odd
+            </button>
+            <button
+                name="typeButton"
+                type="button"
+                class="btn btn-secondary btn-group-sm"
+                value="even"
+            >
+                even
+            </button>
+        </div>
+    </div>
+    <div class="item">
+        <h4>Item per Workers</h4>
+        <div
+            class="btn-group btn-group-itemPerWorkersButton btn-group-sm"
+            role="group"
+            aria-label="Basic example"
+        >
+            <button
+                name="itemPerWorkersButton"
+                type="button"
+                class="btn btn-secondary"
+                value="1"
+            >
+                1
+            </button>
+            <button
+                name="itemPerWorkersButton"
+                type="button"
+                class="btn btn-secondary"
+                value="3"
+            >
+                3
+            </button>
+            <button
+                name="itemPerWorkersButton"
+                type="button"
+                class="btn btn-secondary"
+                value="10"
+            >
+                10
+            </button>
         </div>
     </div>
 </div>
@@ -186,7 +324,7 @@
                     src="https://i.pinimg.com/474x/d3/e4/8e/d3e48efc9fb9830d437972cc2f0514b2.jpg"
                 />
                 {{end}}
-                <h4>{{.Year}} - {{.OriginalTitle}}</h4>
+                <h3>{{.Year}} - {{.OriginalTitle}}</h3>
             </div>
         </a>
     </div>
