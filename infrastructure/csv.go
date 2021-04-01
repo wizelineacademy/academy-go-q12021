@@ -54,6 +54,20 @@ func (c *csvSource) GetAllLines() ([][]string, error) {
 	return rows, nil
 }
 
+func (c *csvSource) GetIterator() (CsvIterator, error) {
+
+	c.logger.Println("Creating Iterator of CSV file", c.file)
+
+	csvfile, err := os.Open(c.file)
+	if err != nil {
+		return nil, err
+	}
+
+	reader := csv.NewReader(csvfile)
+
+	return &CsvIteratorImpl{reader: reader}, nil
+}
+
 func (c *csvSource) WriteLines(newsItems []dto.NewItem) error {
 	f, err := os.OpenFile(c.file, os.O_TRUNC|os.O_WRONLY, os.ModeAppend)
 	defer f.Close()
@@ -78,4 +92,34 @@ func (c *csvSource) WriteLines(newsItems []dto.NewItem) error {
 	}
 
 	return nil
+}
+
+type CsvIterator interface {
+	HasNext() (bool, error)
+	GetNext() []string
+}
+
+type CsvIteratorImpl struct {
+	record []string
+	reader *csv.Reader
+}
+
+func (i *CsvIteratorImpl) HasNext() (bool, error) {
+	record, err := i.reader.Read()
+	i.record = record
+	if err == io.EOF {
+		return false, nil
+	}
+	if err, ok := err.(*csv.ParseError); ok {
+		return false, errors.New(fmt.Sprintf("Cannot parse CSV: %s", err.Error()))
+	}
+	if err != nil {
+		return false, err
+	}
+
+	return true, nil
+}
+
+func (i *CsvIteratorImpl) GetNext() []string {
+	return i.record
 }

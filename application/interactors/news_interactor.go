@@ -30,3 +30,9 @@ func (s *newsArticlesInteractor) GetByID(id string) (*domain.NewsArticle, error)
 func (s *newsArticlesInteractor) FetchAll() error {
 	return s.newsRepository.FetchCurrent()
 }
+
+func (s *newsArticlesInteractor) FetchAllConcurrenlty() error {
+	it := s.newsRepository.FetchCurrent()
+	it.
+	return error
+}
