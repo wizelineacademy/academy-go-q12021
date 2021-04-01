@@ -20,6 +20,7 @@ type PokeInteractor interface {
 	Get(id int32) (*model.Pokemon, error)
 	GetAll() ([]*model.Pokemon, error)
 	CatchOne(int32) (*model.Pokemon, error)
+	GetAllWorkers(string, int, int) ([]*model.Pokemon, error)
 }
 
 func NewPokeInteractor(r repository.PokeRepository, p presenter.PokePresenter, client *resty.Client) PokeInteractor {
@@ -28,6 +29,14 @@ func NewPokeInteractor(r repository.PokeRepository, p presenter.PokePresenter, c
 		PokePresenter: p,
 		RestClient:    client,
 	}
+}
+
+func (pI *pokeInteractor) GetAllWorkers(typeQuery string, items, itemsPerWorker int) ([]*model.Pokemon, error) {
+	p, err := pI.PokeRepo.FindAllWorkers(typeQuery, items, itemsPerWorker)
+	if err != nil {
+		return nil, err
+	}
+	return pI.PokePresenter.ResponsePokemons(p), nil
 }
 
 func (pI *pokeInteractor) Get(id int32) (*model.Pokemon, error) {
@@ -48,6 +57,10 @@ func (pI *pokeInteractor) GetAll() ([]*model.Pokemon, error) {
 
 func (pI *pokeInteractor) CatchOne(id int32) (*model.Pokemon, error) {
 	p, err := pI.lookForPokemon(id)
+	if err != nil {
+		return nil, err
+	}
+	p, err = pI.PokeRepo.Save(p)
 	if err != nil {
 		return nil, err
 	}

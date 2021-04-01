@@ -1,0 +1,3 @@
+application_name:  PokeManager
+application_host:  0.0.0.0:4001
+csv_name:  poke.csv

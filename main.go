@@ -1,34 +1,45 @@
 package main
 
 import (
+	"flag"
 	"fmt"
+	configz "github.com/ToteEmmanuel/academy-go-q12021/config"
 	"github.com/ToteEmmanuel/academy-go-q12021/controller"
+	"github.com/ToteEmmanuel/academy-go-q12021/infrastructure/datastore"
 	router2 "github.com/ToteEmmanuel/academy-go-q12021/infrastructure/router"
-	cvsfilereader "github.com/ToteEmmanuel/academy-go-q12021/tools/reader"
 	usecaseinteractor "github.com/ToteEmmanuel/academy-go-q12021/usecase/interactor"
 	usecasepresenter "github.com/ToteEmmanuel/academy-go-q12021/usecase/presenter"
 	usecaserepository "github.com/ToteEmmanuel/academy-go-q12021/usecase/repository"
 	"github.com/go-resty/resty/v2"
 	"github.com/urfave/negroni"
+	"log"
 	"net/http"
 )
 
 func main() {
-	csvPokeStorage, err := cvsfilereader.NewCsvStorage("./poke.csv")
-	restClient := resty.New()
+
+	filePath := flag.String("file", "./config.yml", "The config files path.")
+	flag.Parse()
+
+	config , err := configz.Load(filePath)
 	if err != nil {
-		fmt.Println("No Source for Pokemons!")
+		log.Fatal("Could not find config file %s %v", *filePath, err)
+	}
+	csvPokeStorage, err := datastore.NewCsvStorage(config.CsvName)
+	if err != nil {
+		log.Fatal("No Source for Pokemons!(file not found %s) %v\n", config.CsvName, err)
 		panic(err)
 	}
+	restClient := resty.New()
 	negi := negroni.Classic()
 	router := router2.NewRouter(initPokeDependencies(csvPokeStorage, restClient))
 	negi.UseHandler(router)
-	if err := http.ListenAndServe("localhost:3000", negi); err != nil {
+	if err := http.ListenAndServe(config.AppHost, negi); err != nil {
 		fmt.Printf("Sudden death %v\n", err)
 	}
 }
 
-func initPokeDependencies(storage *cvsfilereader.CsvPokeStorage, client *resty.Client) controller.PokeController {
+func initPokeDependencies(storage *datastore.CsvPokeStorage, client *resty.Client) controller.PokeController {
 	pokePresenter := usecasepresenter.NewPokePresenter()
 	pokeRepository := usecaserepository.NewPokeRepository(storage)
 	pokeInteractor := usecaseinteractor.NewPokeInteractor(pokeRepository, pokePresenter, client)
