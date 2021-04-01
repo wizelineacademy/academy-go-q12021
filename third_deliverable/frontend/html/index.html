@@ -41,16 +41,19 @@
         background-color: rgb(251, 251, 251);
         font-family: Roboto;
     }
+
     h1 {
         background-color: rgb(251, 251, 251);
         font-family: 'Limelight', cursive;
         font-size: 4rem;
     }
+
     h4 {
         font-size: 1rem;
         font-weight: bold;
         text-transform: uppercase;
     }
+
     a {
         display: flex;
         justify-content: center;
@@ -58,22 +61,26 @@
         height: 100%;
         color: #252525;
     }
+
     .shadow {
         -webkit-box-shadow: 9px 10px 42px -3px rgba(0, 0, 0, 0.57);
         -moz-box-shadow: 9px 10px 42px -3px rgba(0, 0, 0, 0.57);
         box-shadow: 9px 10px 42px -3px rgba(0, 0, 0, 0.57);
     }
+
     .itemContainer {
         display: flex;
         flex-direction: column;
         max-width: fit-content;
         padding: 1rem;
     }
+
     .poster {
         background-color: rgb(11, 17, 35);
         height: 300px;
         width: 200px;
     }
+
     .wrapper {
         flex-wrap: wrap;
         display: flex;
@@ -81,20 +88,50 @@
         justify-content: center;
         align-items: center;
     }
+
     .item {
         padding: 1rem;
         margin: 1rem;
     }
+
     .logo {
         width: 40px;
         height: 40px;
     }
+
     .navBar {
         justify-content: space-between;
         padding-left: 3rem;
         padding-right: 3rem;
     }
 </style>
+<script>
+    $(document).ready(function () {
+        var selectedItemValue = localStorage.getItem('selectedItemValue');
+        $('#' + selectedItemValue).addClass('active');
+
+        var selectedIdType = localStorage.getItem('selectedIdType');
+        $('#' + selectedIdType).addClass('active');
+
+        var pageItem = $('.itemsPagination li');
+        pageItem.click(function (a) {
+            pageItem.removeClass('active');
+            $(this).addClass('active');
+            var id = $(this).attr('id');
+            localStorage.setItem('selectedItemValue', id);
+        });
+        var selectedIdType = localStorage.getItem('selectedIdType');
+        $('#' + selectedItemValue).addClass('active');
+
+        var idTypeItem = $('.typePagination li');
+        idTypeItem.click(function (a) {
+            idTypeItem.removeClass('active');
+            $(this).addClass('active');
+            var id = $(this).attr('id');
+            localStorage.setItem('selectedIdType', id);
+        });
+    });
+</script>
 <div class="wrapper navBar">
     <h1>{{.PageTitle}}</h1>
     <a href="https://academy.wizeline.com/">
@@ -105,41 +142,51 @@
     </a>
 </div>
 <div class="wrapper">
-    <h4>Show up to:</h4>
-    <div
-        class="btn-group"
-        role="group"
-        aria-label="Button group with nested dropdown"
-    >
-        <a class="btn btn-secondary" href="http://localhost:3000/?items=15"
-            >15</a
-        >
-        <a class="btn btn-secondary" href="http://localhost:3000/?items=100"
-            >100</a
-        >
-        <a class="btn btn-secondary" href="http://localhost:3000/?items=1000"
-            >1000</a
-        >
-        <a class="btn btn-secondary" href="http://localhost:3000/?items=1000"
-            >All</a
-        >
-
-        <!-- <div class="btn-group" role="group">
-            <button
-                id="btnGroupDrop1"
-                type="button"
-                class="btn btn-secondary dropdown-toggle"
-                data-toggle="dropdown"
-                aria-haspopup="true"
-                aria-expanded="false"
-            >
-                Dropdown
-            </button>
-            <div class="dropdown-menu" aria-labelledby="btnGroupDrop1">
-                <a class="dropdown-item" href="#">Dropdown link</a>
-                <a class="dropdown-item" href="#">Dropdown link</a>
-            </div>
-        </div> -->
+    <div class="container">
+        <h4>Display results:</h4>
+        <nav aria-label="...">
+            <ul class="itemsPagination pagination">
+                <li id="15" class="page-item">
+                    <a class="page-link" href="http://localhost:3000/?items=15"
+                        >15</a
+                    >
+                </li>
+                <li id="100" class="page-item">
+                    <a class="page-link" href="http://localhost:3000/?items=100"
+                        >100</a
+                    >
+                </li>
+                <li id="500" class="page-item">
+                    <a class="page-link" href="http://localhost:3000/?items=500"
+                        >500</a
+                    >
+                </li>
+                <li id="All" class="page-item">
+                    <a
+                        class="page-link"
+                        href="http://localhost:3000/?items=10000"
+                        >All</a
+                    >
+                </li>
+            </ul>
+        </nav>
+    </div>
+    <div class="container">
+        <h4>ID type:</h4>
+        <nav aria-label="...">
+            <ul class="typePagination pagination">
+                <li id="Odd" class="page-item">
+                    <a class="page-link" href="http://localhost:3000/?type=odd"
+                        >Odd</a
+                    >
+                </li>
+                <li id="Even" class="page-item">
+                    <a class="page-link" href="http://localhost:3000/?type=even"
+                        >Even</a
+                    >
+                </li>
+            </ul>
+        </nav>
     </div>
 </div>
 

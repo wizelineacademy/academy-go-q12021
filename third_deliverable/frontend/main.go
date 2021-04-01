@@ -83,10 +83,10 @@ func GetMovies(queryParams QueryParameters) (response Response_All) {
 	if err != nil {
 		log.Fatal(err.Error())
 	}
-	fmt.Println("\n\n ITEMS:", queryParams.Items)
+	fmt.Println("\n\n TYPE:", queryParams.Type)
 
 	parameters := url.Values{}
-	// parameters.Add("type", queryParams.Type)
+	parameters.Add("type", queryParams.Type)
 	itemsString := strconv.Itoa(queryParams.Items) // parse items to string
 	parameters.Add("items", itemsString)
 	// parameters.Add("item_per_workers", string(queryParams.ItemPerWorkers))
@@ -144,12 +144,10 @@ func GetMoviesById(id string) (response Response_Single) {
 func GetQueryParams(r *http.Request) (queryParams QueryParameters) {
 	keys := r.URL.Query()
 
-	// if val, ok := keys["type"]; ok {
-	// 	log.Println("Type query provided")
-	// 	queryParams.Type = val[0]
-	// } else {
-	// 	log.Println("Type not provided as query param.")
-	// }
+	if val, ok := keys["type"]; ok {
+		queryParams.Type = val[0]
+	}
+	
 	// if val, ok := keys["item_per_workers"]; ok {
 	// 	IntItemPerWorkers, err := strconv.Atoi(val[0]) // parse string to int
 	// 	if err != nil {
@@ -161,7 +159,6 @@ func GetQueryParams(r *http.Request) (queryParams QueryParameters) {
 	// } else {
 	// 	log.Println("item_per_workers not provided as query param")
 	// }
-
 	if val, ok := keys["items"]; ok {
 		IntItems, err := strconv.Atoi(val[0]) // parse string to int
 		if err != nil {
@@ -177,12 +174,12 @@ func GetQueryParams(r *http.Request) (queryParams QueryParameters) {
 	return
 }
 
+
 func RenderMovies(w http.ResponseWriter, r *http.Request) {
 	// Casting the string number to an integer
 	queryParams := GetQueryParams(r)
-	log.Println(queryParams)
 
-	response := GetMovies(QueryParameters{Items: queryParams.Items, ItemPerWorkers: 1, Type: "odd" })
+	response := GetMovies(QueryParameters{Items: queryParams.Items, ItemPerWorkers: 1, Type: queryParams.Type })
 	
 
 	tmpl := template.Must(template.ParseFiles("html/index.html"))
