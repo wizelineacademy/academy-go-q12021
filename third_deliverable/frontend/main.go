@@ -187,7 +187,7 @@ func RenderMovies(w http.ResponseWriter, r *http.Request) {
 
 	tmpl := template.Must(template.ParseFiles("html/index.html"))
 	data := Page_AllMovies{
-		PageTitle: "IMDb Movies",
+		PageTitle: "Cine+",
 		Movies: response.Data,
 	}
 	if err := tmpl.Execute(w, data); err != nil {
@@ -209,7 +209,7 @@ func RenderMovieById(w http.ResponseWriter, r *http.Request) {
 
 	tmpl := template.Must(template.ParseFiles("html/item.html"))
 	data := Page_MovieDetails{
-		PageTitle: "IMDb Movie",
+		PageTitle: "Cine+",
 		Movie: response.Data,
 	}
 	if err := tmpl.Execute(w, data); err != nil {

@@ -1,10 +1,10 @@
-# iCinema
+# Cine+
 
 This project was intented to become a galery/library like of good vintage movies. This is the third and last deliverable of the Official Wizeline Academy Go bootcamp.
 
 ### Execution instructions
 
-To run iCinema :
+To run Cine+ :
 
 #### Run backend server first
 1. First you need to navigate to the directory academy-go-q12021/third_deliverable/backend
