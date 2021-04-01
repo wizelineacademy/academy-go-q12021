@@ -17,7 +17,7 @@ import (
 
 /* Generic functions and structure */
 
-
+const MaxUint64 = ^uint64(0) 
 type Movie struct {
 	ImdbTitleId string `json:"imdb_title_id"`
     Title string `json:"title"`
@@ -49,27 +49,35 @@ type Response struct {
 	Message string `json:"message"`
 	Results int `json:"results"`
 	Data []Movie `json:"data"`
+	Errors []string `json:"errors"`
+	ExecutionTime string `json:"execution_time"`
 }
-
-// const (  // iota is reset to 0
-// 	odd = iota  // c0 == 0
-// 	even = iota  // c1 == 1
-// )
 
 type QueryParameters struct {
 	ItemPerWorkers string `json:"item_per_workers"`
-    Items int `json:"items"`
+    Items uint64 `json:"items"`
     Type string `json:"type"`
 }
 var movies []Movie
+var requestErrors []string
 
 func ConvertStructToJSON(obj interface{}) string {
     e, err := json.Marshal(obj)
     if err != nil {
+		requestErrors = append(requestErrors, err.Error())
         return err.Error()
     }
     return string(e)
 }
+
+func Even(number int) bool {
+    return number%2 == 0
+}
+
+func Odd(number int) bool {
+    return !Even(number)
+}
+
 
 // following function from: https://play.golang.org/p/f5jceIm4nbE
 func SplitAtCommas(s string) []string {
@@ -94,77 +102,80 @@ func SplitAtCommas(s string) []string {
 
 func worker(jobs <-chan string, results chan<- Movie, wg *sync.WaitGroup, queryParams QueryParameters) {
 	itemsToDisplay := queryParams.Items
-	// itemsPerWorkers := queryParams.ItemPerWorkers
 	numberType := queryParams.Type
 	log.Println("\nItems per response: ", itemsToDisplay, "\nItems per worker: ", 0,"\nType: ", numberType,)
 
-	// Decreasing internal counter for wait-group as soon as goroutine finishes
 	defer wg.Done()
-	// eventually I want to have a []string channel to work on a chunk of lines not just one line of text
-	moviesAddedCounter := 0
+
+	var moviesAddedCounter uint64
+
 	for line := range jobs {
-		items := SplitAtCommas(line)
+		lineItems := SplitAtCommas(line)
 		newMovie := Movie{
-			ImdbTitleId: items[0],
-			Title: items[1],
-			OriginalTitle: items[2],
-			Year: items[3],
-			DatePublished: items[4],
-			Genre: items[5],
-			Duration: items[6],
-			Country: items[7],
-			Language: items[8],
-			Director: items[9],
-			Writer: items[10],
-			ProductionCompany: items[11],
-			Actors: items[12],
-			Description: items[13],
-			AvgVote: items[14],
-			Votes: items[15],
-			Budget: items[16],
-			UsaGrossIncome: items[17],
-			WorlwideGrossIncome: items[18],
-			Metascore: items[19],
-			ReviewsFromUsers: items[20],
-			ReviewsFromCritics: items[21],
+			ImdbTitleId: lineItems[0],
+			Title: lineItems[1],
+			OriginalTitle: lineItems[2],
+			Year: lineItems[3],
+			DatePublished: lineItems[4],
+			Genre: lineItems[5],
+			Duration: lineItems[6],
+			Country: lineItems[7],
+			Language: lineItems[8],
+			Director: lineItems[9],
+			Writer: lineItems[10],
+			ProductionCompany: lineItems[11],
+			Actors: lineItems[12],
+			Description: lineItems[13],
+			AvgVote: lineItems[14],
+			Votes: lineItems[15],
+			Budget: lineItems[16],
+			UsaGrossIncome: lineItems[17],
+			WorlwideGrossIncome: lineItems[18],
+			Metascore: lineItems[19],
+			ReviewsFromUsers: lineItems[20],
+			ReviewsFromCritics: lineItems[21],
 		}
+		// get id from Movie struct and parse the string to a number
 		inputFmt := newMovie.ImdbTitleId[2:len(newMovie.ImdbTitleId)] // get substring of id
 		id, err := strconv.Atoi(inputFmt) // parse substring to int
+
+		log.Println(moviesAddedCounter < itemsToDisplay, moviesAddedCounter, itemsToDisplay)
 		if err != nil {
-			log.Fatal("The Id provided is wrong, please check it!")
+			requestErrors = append(requestErrors, err.Error())
 			return
+		}	else if moviesAddedCounter < itemsToDisplay {
+			if numberType ==  "odd" && Odd(id) {
+				log.Println("The Id is Odd: ", id)
+				moviesAddedCounter++
+				results <- newMovie
+			}
+			if numberType ==  "even" && Even(id) {
+				log.Println("The Id is Odd: ", id)
+				moviesAddedCounter++
+				results <- newMovie
+			}
+			if numberType !=  "even" && numberType !=  "odd" {
+				log.Println("Display both even and odd numbers")
+				moviesAddedCounter++
+				results <- newMovie
+			}
 		}
-		if numberType ==  "all" && moviesAddedCounter < itemsToDisplay {
-			moviesAddedCounter++
-			results <- newMovie
-		} else if numberType ==  "odd" && Odd(id) && moviesAddedCounter < itemsToDisplay {
-			log.Println("The Id is Odd: ", id)
-			moviesAddedCounter++
-			results <- newMovie
-		} else if numberType ==  "even" && Even(id) && moviesAddedCounter < itemsToDisplay {
-			log.Println("The Id is Even: ", id)
-			moviesAddedCounter++
-			results <- newMovie
-		}
-		
 	}
 }
 
-func Even(number int) bool {
-    return number%2 == 0
-}
-
-func Odd(number int) bool {
-    return !Even(number)
-}
 
 
-func GetMoviesConcurrently(queryParams QueryParameters) {
-
+func GetMoviesFromFileConcurrently(queryParams QueryParameters) {
+	itemsPerWorkers, err := strconv.Atoi(queryParams.ItemPerWorkers) // parse substring to int
+	if err != nil {
+		requestErrors = append(requestErrors, err.Error())
+		log.Println(err.Error())
+	}
 
     file, err := os.Open("IMDb_movies_short.csv")
     if err != nil {
-      log.Fatal(err)
+		requestErrors = append(requestErrors, err.Error())
+      	log.Fatal(err)
     }
     defer file.Close()
   
@@ -174,7 +185,8 @@ func GetMoviesConcurrently(queryParams QueryParameters) {
     wg := new(sync.WaitGroup)
   
     // start workers
-    const workers = 1
+    var workers = itemsPerWorkers
+
     for w := 1; w <= workers; w++ {
       wg.Add(1)
       go worker(jobs, results, wg, queryParams)
@@ -207,106 +219,90 @@ func GetMoviesConcurrently(queryParams QueryParameters) {
 
 func GetMovies(w http.ResponseWriter, r *http.Request) {
 	start := time.Now() 
+	w.Header().Set("Content-Type", "application/json")
 
 	// GET QUERY PARAMS AND VALIDATE
 	keys := r.URL.Query()
 	var queryParams QueryParameters
 
 	if val, ok := keys["type"]; ok {
-		log.Println("Type available")
+		log.Println("Type query provided")
 		queryParams.Type = val[0]
 	} else {
-		queryParams.Type = "all"
-		log.Println("Type not available")
+		requestErrors = append(requestErrors, "`type` was not provided as query param. Should be rather odd or even.")
+		log.Println("Type not provided as query param.")
 	}
 
 	if val, ok := keys["item_per_workers"]; ok {
-		log.Println("item_per_workers available")
+		log.Println("item_per_workers query provided")
 		queryParams.ItemPerWorkers = val[0]
 	} else {
-		log.Println("item_per_workers not available")
+		requestErrors = append(requestErrors, "`items_per_workers` was not provided as query param.")
+		log.Println("item_per_workers not provided as query param")
 	}
 
 	if val, ok := keys["items"]; ok {
-		log.Println("items available")
-		itemsInteger, _ := strconv.Atoi(val[0]) // parse substring to int
-		queryParams.Items = itemsInteger
+		uIntItems, err := strconv.ParseUint(val[0],10,32) // parse string to uint
+		if err != nil {
+			requestErrors = append(requestErrors, err.Error() + ". Number should be positive integer. The items param will be considered as 0. ")
+			queryParams.Items = 0
+		} else {
+			queryParams.Items = uIntItems
+			log.Println("items query provided: value ", uIntItems)	
+		}
 	} else {
-		log.Println("items not available")
+		requestErrors = append(requestErrors, "`items` was not provided as query param: MaxValue")
+		queryParams.Items = MaxUint64
 	}
 
-	GetMoviesConcurrently(queryParams)
+	GetMoviesFromFileConcurrently(queryParams)
+
+	totalTime :=  fmt.Sprintf("%d%s", time.Since(start).Microseconds(), " Microseconds.")
 
 	jsonObject := Response{ 
 		Title: "Response", 
 		Results: len(movies),
 		Message: "Data",
 		Data: movies,
+		Errors: requestErrors,
+		ExecutionTime: totalTime,
 	}
 	jsonResult := ConvertStructToJSON(jsonObject)
+
 	fmt.Fprintf(w, "%s", jsonResult)
-	log.Println(" \t Number of Parsed Movies: ", len(movies), " \t TIME: " ,time.Since(start).Microseconds(), " Microseconds.")	
+	log.Println(" \t Number of Parsed Movies: ", len(movies), " \t TIME: " ,totalTime)	
+	requestErrors = nil
 }
 
-func RenderMovie(w http.ResponseWriter, r *http.Request) {
+
+func GetMovieById(w http.ResponseWriter, r *http.Request) {
 	keys, ok := r.URL.Query()["id"]
-    if !ok || len(keys[0]) < 1 {
-		errorMessage := "Url Param 'id' is missing"
-		log.Println(errorMessage)
-		fmt.Fprintf(w, "%s", errorMessage)
-        return
-    }
-	// Casting the string number to an integer
+	if !ok || len(keys) <= 0 {
+		requestErrors = append(requestErrors, "Id query param is required but missing")
+		log.Println("Id query param is required but missing")
+	}
+	// id := keys[0]
 
-	// if err := tmpl.Execute(w, item); err != nil {
-	// 	http.Error(w, err.Error(), http.StatusInternalServerError)
+	// GetMoviesFromFileConcurrently(id)
+	// var selectedMovie Movie
+	// for _, movie := range movies {
+	// 	if movie.ImdbTitleId == id {
+	// 		// Found!
+	// 		selectedMovie = movie
+	// 		break
+	// 	}
 	// }	
+	// imgUrl := GetMoviePosterFromOmdbApi(selectedMovie.OriginalTitle, selectedMovie.Year)
+	// selectedMovie.Poster = imgUrl
+	// return selectedMovie
 }
 
-func GetMovieById(id string) Movie {
-	// Get the http reponse from api localhost:8080 (first_deliverable)
-	// var url string = "http://localhost:8080/getLanguageById?id=" + id
-	// resp, err := http.Get(url)
-	// if err != nil {
-	// 	panic(err)
-	// }
-	// defer resp.Body.Close()
-
-	// // Print the HTTP response status.
-	// fmt.Println("\n\tResponse status:", resp.Status)
-
-	// // Print the first 5 lines of the response body.
-	// scanner := bufio.NewScanner(resp.Body)
-	// for i := 0; scanner.Scan() && i < 5; i++ {
-    // 	json.Unmarshal([]byte(scanner.Text()), &movie) // items slice
-	// }
-	// if err := scanner.Err(); err != nil {
-	// 	panic(err)
-	// }
-	var selectedMovie Movie
-	for _, movie := range movies {
-		if movie.ImdbTitleId == id {
-			// Found!
-			selectedMovie = movie
-			break
-		}
-	}	
-	imgUrl := GetMoviePoster(selectedMovie.OriginalTitle, selectedMovie.Year)
-
-
-	selectedMovie.Poster = imgUrl
-	return selectedMovie
-}
-
-func GetMoviePoster(title string, year string) (imageUrl string) {
+func GetMoviePosterFromOmdbApi(title string, year string) (imageUrl string) {
 	// Consume the api of omdbapi
-	// urlSlice := []string{"http://www.omdbapi.com/?apikey=", "43502af4","&t=", title, "&y=", year }
-	// var url string = strings.Join(urlSlice, "")
-	// log.Println("url: ", url)
-
 	Url, err := url.Parse("http://www.omdbapi.com/")
     if err != nil {
-        panic("boom")
+		requestErrors = append(requestErrors,err.Error())
+        log.Fatal(err.Error())
     }
     parameters := url.Values{}
     parameters.Add("apikey", "43502af4")
@@ -317,7 +313,8 @@ func GetMoviePoster(title string, year string) (imageUrl string) {
 
 	resp, err := http.Get(Url.String())
 	if err != nil {
-		panic(err)
+		requestErrors = append(requestErrors, err.Error())
+        log.Fatal(err.Error())
 	}
 	defer resp.Body.Close()
 
@@ -333,16 +330,18 @@ func GetMoviePoster(title string, year string) (imageUrl string) {
 		log.Println("Movie Found on OMDBAPI: ", movie)
 	}
 	if err := scanner.Err(); err != nil {
-		panic(err)
+		requestErrors = append(requestErrors,err.Error())
+        log.Println(err.Error())
 	}
 	return imageUrl
 }
 
 func main() {
-  http.HandleFunc("/getMovies", GetMovies)
-  http.HandleFunc("/getMovieById", RenderMovie)
-  log.Println("Server running succesfully on port 8080!")
-  log.Fatal(http.ListenAndServe(":8080", nil))
+	requestErrors = nil
+	http.HandleFunc("/getMovies", GetMovies)
+	http.HandleFunc("/getMovieById", GetMovieById)
+	log.Println("Server running succesfully on port 8080!")
+	log.Fatal(http.ListenAndServe(":8080", nil))
 }
 
 
