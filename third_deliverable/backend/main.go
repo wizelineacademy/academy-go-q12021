@@ -279,20 +279,6 @@ func GetMovieById(w http.ResponseWriter, r *http.Request) {
 		requestErrors = append(requestErrors, "Id query param is required but missing")
 		log.Println("Id query param is required but missing")
 	}
-	// id := keys[0]
-
-	// GetMoviesFromFileConcurrently(id)
-	// var selectedMovie Movie
-	// for _, movie := range movies {
-	// 	if movie.ImdbTitleId == id {
-	// 		// Found!
-	// 		selectedMovie = movie
-	// 		break
-	// 	}
-	// }	
-	// imgUrl := GetMoviePosterFromOmdbApi(selectedMovie.OriginalTitle, selectedMovie.Year)
-	// selectedMovie.Poster = imgUrl
-	// return selectedMovie
 }
 
 func GetMoviePosterFromOmdbApi(title string, year string) (imageUrl string) {
