@@ -7,10 +7,23 @@ import (
 	"log"
 	"net/http"
 	"net/url"
+	"strconv"
 	"text/template"
 )
+type QueryParameters struct {
+	ItemPerWorkers int `json:"item_per_workers"`
+    Items int `json:"items"`
+    Type string `json:"type"`
+}
 
 /* Movie structure */
+type ShortMovie struct {
+	ImdbTitleId string `json:"imdb_title_id"`
+	OriginalTitle string `json:"original_title"`
+	Year string `json:"year"`
+	Poster string `json:"poster"`
+}
+
 type Movie struct {
 	ImdbTitleId string `json:"imdb_title_id"`
     Title string `json:"title"`
@@ -51,21 +64,25 @@ type PageData struct {
     Movies     []Movie
 }
 
-func GetMovies(Type string, items string, item_per_workers string) (response Response) {
+func GetMovies(queryParams QueryParameters) (response Response) {
 	// Get the http reponse from api localhost:8080 backend
 	Url, err := url.Parse("http://localhost:8080/getMovies")
 	if err != nil {
 		log.Fatal(err.Error())
 	}
+	fmt.Println("\n\n ITEMS:", queryParams.Items)
+
 	parameters := url.Values{}
-	parameters.Add("type", Type)
-	parameters.Add("items", items)
-	parameters.Add("item_per_workers", item_per_workers)
+	// parameters.Add("type", queryParams.Type)
+	itemsString := strconv.Itoa(queryParams.Items) // parse items to string
+	parameters.Add("items", itemsString)
+	// parameters.Add("item_per_workers", string(queryParams.ItemPerWorkers))
 
 	Url.RawQuery = parameters.Encode()
 	fmt.Printf("Encoded URL is %q\n", Url.String())
 	resp, err := http.Get(Url.String())
-	
+	log.Println(Url.String())
+
 	if err != nil {
 		defer resp.Body.Close()
 		log.Fatalf(err.Error())
@@ -112,6 +129,7 @@ func GetMoviesById(id string) (response Response) {
 	fmt.Println("\n\tResponse status:", resp.Status)
 
 	// Print the first 5 lines of the response body.
+	// bufio.Reader.ReadLine
 	scanner := bufio.NewScanner(resp.Body)
 	for i := 0; scanner.Scan() && i < 5; i++ {
     	json.Unmarshal([]byte(scanner.Text()), &response) // items slice
@@ -122,11 +140,50 @@ func GetMoviesById(id string) (response Response) {
 	return response
 }
 
+func GetQueryParams(r *http.Request) (queryParams QueryParameters) {
+	keys := r.URL.Query()
+
+	// if val, ok := keys["type"]; ok {
+	// 	log.Println("Type query provided")
+	// 	queryParams.Type = val[0]
+	// } else {
+	// 	log.Println("Type not provided as query param.")
+	// }
+	// if val, ok := keys["item_per_workers"]; ok {
+	// 	IntItemPerWorkers, err := strconv.Atoi(val[0]) // parse string to int
+	// 	if err != nil {
+	// 		queryParams.ItemPerWorkers = 1
+	// 	} else {
+	// 		log.Println("item_per_workers query provided")
+	// 		queryParams.ItemPerWorkers = IntItemPerWorkers	
+	// 	}
+	// } else {
+	// 	log.Println("item_per_workers not provided as query param")
+	// }
+
+	if val, ok := keys["items"]; ok {
+		IntItems, err := strconv.Atoi(val[0]) // parse string to int
+		if err != nil {
+			log.Fatal(err.Error())
+			queryParams.Items = 1
+		} else {
+			queryParams.Items = IntItems
+			log.Println("items query provided: value ", IntItems)	
+		}
+	} else {
+		queryParams.Items = 1
+	}
+	return
+}
+
 func RenderMovies(w http.ResponseWriter, r *http.Request) {
 	// Casting the string number to an integer
-	response := GetMovies("1","1","1")
-	log.Println("RESPONSE: ",response.Results)
+	queryParams := GetQueryParams(r)
+	log.Println(queryParams)
+
+	response := GetMovies(QueryParameters{Items: queryParams.Items, ItemPerWorkers: 1, Type: "odd" })
 	
+
 	tmpl := template.Must(template.ParseFiles("html/index.html"))
 	data := PageData{
 		PageTitle: "IMDb Movies",
