@@ -51,16 +51,16 @@ type PageData struct {
     Movies     []Movie
 }
 
-func GetMovies() (response Response) {
+func GetMovies(Type string, items string, item_per_workers string) (response Response) {
 	// Get the http reponse from api localhost:8080 backend
 	Url, err := url.Parse("http://localhost:8080/getMovies")
 	if err != nil {
 		log.Fatal(err.Error())
 	}
 	parameters := url.Values{}
-	parameters.Add("type", "")
-	parameters.Add("items", "10")
-	parameters.Add("item_per_workers", "1")
+	parameters.Add("type", Type)
+	parameters.Add("items", items)
+	parameters.Add("item_per_workers", item_per_workers)
 
 	Url.RawQuery = parameters.Encode()
 	fmt.Printf("Encoded URL is %q\n", Url.String())
@@ -82,7 +82,6 @@ func GetMovies() (response Response) {
 	scanner := bufio.NewScanner(resp.Body)
 	for i := 0; scanner.Scan() && i < 5; i++ {
 		json.Unmarshal([]byte(scanner.Text()), &response) // items slice
-
 	}
 	if err := scanner.Err(); err != nil {
 		panic(err)
@@ -125,8 +124,9 @@ func GetMoviesById(id string) (response Response) {
 
 func RenderMovies(w http.ResponseWriter, r *http.Request) {
 	// Casting the string number to an integer
-	response := GetMovies()
-
+	response := GetMovies("1","1","1")
+	log.Println("RESPONSE: ",response.Results)
+	
 	tmpl := template.Must(template.ParseFiles("html/index.html"))
 	data := PageData{
 		PageTitle: "IMDb Movies",
