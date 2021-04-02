@@ -69,8 +69,8 @@ func (c *CsvPokeStorage) FindAll() []*model.Pokemon {
 }
 
 func (c *CsvPokeStorage) Save(pokemon *model.Pokemon) (*model.Pokemon, error) {
-	if c.pokeMap[pokemon.Id] != nil {
-		return c.pokeMap[pokemon.Id], nil
+	if value, ok := c.pokeMap[pokemon.Id]; ok {
+		return value, nil
 	}
 	target, err := os.OpenFile(c.file, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	defer target.Close()
