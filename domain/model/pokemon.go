@@ -2,7 +2,7 @@ package model
 
 //Representation of a Pokemon
 type Pokemon struct {
-	Id         int32    `json:"id"`
+	Id         int      `json:"id"`
 	Species    string   `json:"species"`
 	Sprite     string   `json:"sprite"`
 	FlavorText string   `json:"flavorText"`
@@ -10,7 +10,7 @@ type Pokemon struct {
 }
 
 //Creates an struct with pokemagic
-func NewPokemon(id int32, species, sprite, flavorText string, types ...string) *Pokemon {
+func NewPokemon(id int, species, sprite, flavorText string, types ...string) *Pokemon {
 	p := Pokemon{
 		Id:         id,
 		Species:    species,

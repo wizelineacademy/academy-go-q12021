@@ -15,17 +15,17 @@ import (
 )
 
 type CsvPokeStorage struct {
-	pokeMap map[int32]*model.Pokemon
+	pokeMap map[int]*model.Pokemon
 	file    string
 }
 
-func NewCsvStorage(file string) (*CsvPokeStorage, error) {
+func NewCsvStorage(file string) (PokeStorage, error) {
 	source, err := os.Open(file)
 	if err != nil {
 		return nil, err
 	}
 	reader := csv.NewReader(source)
-	pokeMap := make(map[int32]*model.Pokemon)
+	pokeMap := make(map[int]*model.Pokemon)
 	for {
 		record, err := reader.Read()
 		if err == io.EOF {
@@ -36,14 +36,14 @@ func NewCsvStorage(file string) (*CsvPokeStorage, error) {
 			continue
 		}
 		if len(record) != 5 {
-			fmt.Errorf("Incorrect amount of fields(5) in :", record)
+			fmt.Errorf("Incorrect amount of fields(5) in : %s", record)
 		}
-		var id int32
+		var id int
 		if val, err := strconv.Atoi(record[0]); err != nil {
-			fmt.Errorf("Error  parsing line ", record)
+			fmt.Errorf("Error  parsing line %s", record)
 			continue
 		} else {
-			id = int32(val)
+			id = int(val)
 		}
 		pokeMap[id] = &model.Pokemon{
 			Id:         id,
@@ -56,7 +56,7 @@ func NewCsvStorage(file string) (*CsvPokeStorage, error) {
 	return &CsvPokeStorage{pokeMap, file}, nil
 }
 
-func (c *CsvPokeStorage) FindById(id int32) *model.Pokemon {
+func (c *CsvPokeStorage) FindById(id int) *model.Pokemon {
 	return c.pokeMap[id]
 }
 
@@ -69,6 +69,9 @@ func (c *CsvPokeStorage) FindAll() []*model.Pokemon {
 }
 
 func (c *CsvPokeStorage) Save(pokemon *model.Pokemon) (*model.Pokemon, error) {
+	if c.pokeMap[pokemon.Id] != nil {
+		return c.pokeMap[pokemon.Id], nil
+	}
 	target, err := os.OpenFile(c.file, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	defer target.Close()
 	if err != nil {
@@ -114,7 +117,7 @@ func (c *CsvPokeStorage) FindAllWorkers(typeStr string, items int, itemsPerWorke
 		if k == -1 {
 			break
 		}
-		pokemons = append(pokemons, c.pokeMap[int32(keys[k])])
+		pokemons = append(pokemons, c.pokeMap[int(keys[k])])
 	}
 	log.Println("Receiver sending shutdown signal")
 	close(shutdown)
