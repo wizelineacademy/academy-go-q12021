@@ -121,7 +121,6 @@ func SplitAtCommas(s string) []string {
 
 
 func worker(jobs <-chan string, results chan<- Movie, wg *sync.WaitGroup, queryParams QueryParameters, complete bool, id string) {
-	// itemsToDisplay := queryParams.Items
 	numberType := queryParams.Type
 
 	defer wg.Done()
@@ -190,7 +189,6 @@ func worker(jobs <-chan string, results chan<- Movie, wg *sync.WaitGroup, queryP
 			moviesAddedCounter++	
 		}	
 	}
-	log.Println("Added a total of ", moviesAddedCounter)
 }
 
 func GetMoviesFromFileConcurrently(queryParams QueryParameters, complete bool, id string) {
@@ -346,8 +344,12 @@ func GetMovieById(w http.ResponseWriter, r *http.Request) {
 		requestErrors = append(requestErrors, "Id query param is required but missing")
 		log.Println("Id query param is required but missing")
 	}
-	id := keys[0]
-
+	var id string
+	if ok {
+		id = keys[0] 
+	} else {
+		id = ""
+	}
 
 	
 	GetMoviesFromFileConcurrently(QueryParameters{	
