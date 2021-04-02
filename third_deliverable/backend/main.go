@@ -204,17 +204,10 @@ func GetMoviesFromFileConcurrently(queryParams QueryParameters, complete bool, i
     wg := new(sync.WaitGroup)
   
     // start workers
-    var workers int 
-	switch {
-		case queryParams.Items < 50:
-			workers = 2
-		case queryParams.Items > 50 && queryParams.Items < 500:
-			workers = 50
-		case queryParams.Items >= 500:
-			workers = 100
-		default:
-			workers = 1
-	}
+    var workers int = 1 // TODO: fix issue with items and workers
+	// if queryParams.Items >= 80 {
+	// 	workers = 80
+	// } 
 
     for w := 1; w <= workers; w++ {
       wg.Add(1)
