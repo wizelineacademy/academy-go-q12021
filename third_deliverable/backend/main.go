@@ -168,10 +168,15 @@ func worker(jobs <-chan string, results chan<- Movie, wg *sync.WaitGroup, queryP
 
 			// if numberType is supposed to be odd and it is not, then continue to next line wihtout adding it to the list
 			if numberType ==  "odd" && !Odd(integerId) {
-				continue
+				return
 			}
 			// if numberType is supposed to be even and it is not, then continue to next line wihtout adding it to the list
 			if numberType ==  "even" && !Even(integerId) {
+				return
+			}
+			// validate that the line has 22 fields other wise skip
+			if len(lineItems) < 22 {
+				log.Println("usage: line out of range: ", len(lineItems))
 				continue
 			}
 			// if it got to this point add it to the list
@@ -204,10 +209,17 @@ func GetMoviesFromFileConcurrently(queryParams QueryParameters, complete bool, i
     wg := new(sync.WaitGroup)
   
     // start workers
-    var workers int = 1 // TODO: fix issue with items and workers
-	// if queryParams.Items >= 80 {
-	// 	workers = 80
-	// } 
+    var workers int = 1
+	switch {
+		case queryParams.Items <= 50:
+			workers = 2
+		case queryParams.Items > 50:
+			workers = 25
+		case queryParams.Items > 500:
+			workers = 100
+		default:
+			workers = 1
+	}
 
     for w := 1; w <= workers; w++ {
       wg.Add(1)
@@ -238,7 +250,6 @@ func GetMoviesFromFileConcurrently(queryParams QueryParameters, complete bool, i
 		if movieCounter == queryParams.Items {
 			break
 		}
-		fmt.Println("Movie: ", movie)
 		if complete {
 			movies = append(movies, movie)
 		} else {
@@ -260,6 +271,10 @@ func GetQueryParams(r *http.Request) (queryParams QueryParameters) {
 	if val, ok := keys["type"]; ok {
 		log.Println("Type query provided")
 		queryParams.Type = val[0]
+		if queryParams.Type != "odd" || queryParams.Type != "even" {
+			log.Println("Type defafult empty")
+			queryParams.Type = ""
+		}
 	} else {
 		requestErrors = append(requestErrors, "`type` was not provided as query param. Should be rather odd or even.")
 		log.Println("Type not provided as query param.")
@@ -301,9 +316,7 @@ func GetMovies(w http.ResponseWriter, r *http.Request) {
 
 	// GET QUERY PARAMS AND VALIDATE
 	var queryParams QueryParameters = GetQueryParams(r)
-	log.Println("\t queryParams.ItemPerWorkers: ", queryParams.ItemPerWorkers )
-	// log.Println("\t queryParams.Items: ", queryParams.Items )
-	// log.Println("\t queryParams.Type: ", queryParams.Type )
+	log.Println("\t queryParams.Type: ", queryParams.Type )
 
 	GetMoviesFromFileConcurrently(queryParams, false, "")
 
