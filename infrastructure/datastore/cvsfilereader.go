@@ -102,10 +102,7 @@ func (c *CsvPokeStorage) FindAllWorkers(typeStr string, items int, itemsPerWorke
 	for key := range c.pokeMap {
 		keys = append(keys, int(key))
 	}
-	odd := false
-	if typeStr == "odd" {
-		odd = true
-	}
+	odd := typeStr == "odd"
 	poolSize := runtime.GOMAXPROCS(0)
 	wg, keyIdx, latestIdx, shutdown := c.prepareWorkers(poolSize, itemsPerWorker, keys, odd)
 	k := 0
