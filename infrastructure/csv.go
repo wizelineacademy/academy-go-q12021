@@ -15,6 +15,7 @@ import (
 type CsvSource interface {
 	WriteLines(newsItems []dto.NewItem) error
 	GetAllLines() ([][]string, error)
+	NewReader() (*csv.Reader, error)
 }
 type csvSource struct {
 	file   string
@@ -54,9 +55,9 @@ func (c *csvSource) GetAllLines() ([][]string, error) {
 	return rows, nil
 }
 
-func (c *csvSource) GetIterator() (CsvIterator, error) {
+func (c *csvSource) NewReader() (*csv.Reader, error) {
 
-	c.logger.Println("Creating Iterator of CSV file", c.file)
+	c.logger.Println("Creating Reader of CSV file", c.file)
 
 	csvfile, err := os.Open(c.file)
 	if err != nil {
@@ -65,7 +66,7 @@ func (c *csvSource) GetIterator() (CsvIterator, error) {
 
 	reader := csv.NewReader(csvfile)
 
-	return &CsvIteratorImpl{reader: reader}, nil
+	return reader, nil
 }
 
 func (c *csvSource) WriteLines(newsItems []dto.NewItem) error {
@@ -86,40 +87,9 @@ func (c *csvSource) WriteLines(newsItems []dto.NewItem) error {
 		}
 		record := []string{newItem.Id, newItem.Title, newItem.Description, newItem.Url, newItem.Author, newItem.Image, newItem.Language, category, newItem.Published}
 		if err := w.Write(record); err != nil {
-			fmt.Println(err)
 			return err
 		}
 	}
 
 	return nil
-}
-
-type CsvIterator interface {
-	HasNext() (bool, error)
-	GetNext() []string
-}
-
-type CsvIteratorImpl struct {
-	record []string
-	reader *csv.Reader
-}
-
-func (i *CsvIteratorImpl) HasNext() (bool, error) {
-	record, err := i.reader.Read()
-	i.record = record
-	if err == io.EOF {
-		return false, nil
-	}
-	if err, ok := err.(*csv.ParseError); ok {
-		return false, errors.New(fmt.Sprintf("Cannot parse CSV: %s", err.Error()))
-	}
-	if err != nil {
-		return false, err
-	}
-
-	return true, nil
-}
-
-func (i *CsvIteratorImpl) GetNext() []string {
-	return i.record
 }

@@ -77,3 +77,18 @@ func (mr *MockNewsArticleRepositoryMockRecorder) FindByID(arg0 interface{}) *gom
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindByID", reflect.TypeOf((*MockNewsArticleRepository)(nil).FindByID), arg0)
 }
+
+// GetIterator mocks base method.
+func (m *MockNewsArticleRepository) GetIterator() (domain.NewsIterator, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetIterator")
+	ret0, _ := ret[0].(domain.NewsIterator)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetIterator indicates an expected call of GetIterator.
+func (mr *MockNewsArticleRepositoryMockRecorder) GetIterator() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetIterator", reflect.TypeOf((*MockNewsArticleRepository)(nil).GetIterator))
+}

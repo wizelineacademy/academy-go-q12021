@@ -5,6 +5,7 @@
 package mocks
 
 import (
+	csv "encoding/csv"
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"
@@ -47,6 +48,21 @@ func (m *MockCsvSource) GetAllLines() ([][]string, error) {
 func (mr *MockCsvSourceMockRecorder) GetAllLines() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAllLines", reflect.TypeOf((*MockCsvSource)(nil).GetAllLines))
+}
+
+// NewReader mocks base method.
+func (m *MockCsvSource) NewReader() (*csv.Reader, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "NewReader")
+	ret0, _ := ret[0].(*csv.Reader)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// NewReader indicates an expected call of NewReader.
+func (mr *MockCsvSourceMockRecorder) NewReader() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "NewReader", reflect.TypeOf((*MockCsvSource)(nil).NewReader))
 }
 
 // WriteLines mocks base method.

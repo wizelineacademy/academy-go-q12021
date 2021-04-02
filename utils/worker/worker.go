@@ -2,18 +2,20 @@ package worker
 
 import (
 	"sync"
+
+	"github.com/jesus-mata/academy-go-q12021/domain"
 )
 
 type Worker struct {
 	ID             int
 	jobs           <-chan Job
-	results        chan<- int
+	results        chan<- *domain.NewsArticle
 	quit           chan bool
 	wg             *sync.WaitGroup
 	itemsPerWorker int
 }
 
-func NewWorker(id int, jobs <-chan Job, wg *sync.WaitGroup, results chan<- int, itemsPerWorker int) *Worker {
+func NewWorker(id int, jobs <-chan Job, wg *sync.WaitGroup, results chan<- *domain.NewsArticle, itemsPerWorker int) *Worker {
 	return &Worker{
 		ID:             id,
 		jobs:           jobs,

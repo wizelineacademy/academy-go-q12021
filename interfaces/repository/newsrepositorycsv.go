@@ -1,8 +1,10 @@
 package repository
 
 import (
+	"encoding/csv"
 	"errors"
 	"fmt"
+	"io"
 	"log"
 	"time"
 
@@ -65,6 +67,13 @@ func (r *newsRepository) FindAll() ([]*domain.NewsArticle, error) {
 	return newsArticles, nil
 }
 
+func (r *newsRepository) GetIterator() (domain.NewsIterator, error) {
+	r.logger.Println("Retriving all News Articles")
+	reader, err := r.csvSource.NewReader()
+
+	return NewNewsIteratorImpl(reader), err
+}
+
 func (r *newsRepository) FetchCurrent() error {
 	r.logger.Println("Fetching all News Articles from API")
 	newsItems, err := r.newsApi.GetCurrentNews()
@@ -98,4 +107,38 @@ func mapFromCSVRecord(record []string) (*domain.NewsArticle, error) {
 	}
 
 	return domain.CreateNewsArticle(id, title, description, url, author, image, language, category, publishedDate)
+}
+
+type NewsIteratorImpl struct {
+	data   *domain.NewsArticle
+	reader *csv.Reader
+}
+
+func NewNewsIteratorImpl(reader *csv.Reader) domain.NewsIterator {
+
+	return &NewsIteratorImpl{reader: reader}
+}
+
+func (i *NewsIteratorImpl) HasNext() (bool, error) {
+	record, err := i.reader.Read()
+	if err == io.EOF {
+		return false, nil
+	}
+	if err, ok := err.(*csv.ParseError); ok {
+		return false, errors.New(fmt.Sprintf("Cannot parse CSV: %s", err.Error()))
+	}
+	if err != nil {
+		return false, err
+	}
+	data, err := mapFromCSVRecord(record)
+	if err != nil {
+		return false, err
+	}
+	i.data = data
+
+	return true, nil
+}
+
+func (i *NewsIteratorImpl) GetNext() *domain.NewsArticle {
+	return i.data
 }

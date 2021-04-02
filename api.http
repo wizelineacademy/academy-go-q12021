@@ -1,0 +1,14 @@
+POST http://localhost:8080/news/current
+content-type: application/json
+
+#####
+GET https://api.currentsapi.services/v1/latest-news
+Authorization: T4M9usrwXX_kmsRjrcAl352dStr12BGB8hUxPCWr7h-YBbeo
+cache-control: no-cache
+content-type: application/json
+
+###
+GET 'https://api.currentsapi.services/v1/search?keywords=Amazon&language=en'
+Authorization: T4M9usrwXX_kmsRjrcAl352dStr12BGB8hUxPCWr7h-YBbeo
+content-type: application/json
+cache-control: no-cache

@@ -2,13 +2,15 @@ package worker
 
 import (
 	"sync"
+
+	"github.com/jesus-mata/academy-go-q12021/domain"
 )
 
 type WorkerPool struct {
 	pollSize       int
 	itemsPerWorker int
 	jobQueue       chan Job
-	results        chan<- int
+	results        chan<- *domain.NewsArticle
 	Workers        []*Worker
 	wg             *sync.WaitGroup
 	wgSendJobs     *sync.WaitGroup
@@ -18,7 +20,7 @@ func calculatePoolSize(limit, items_per_worker int) int {
 	return limit/items_per_worker + 1
 }
 
-func NewWorkerPool(limit, itemsPerWorker int, results chan<- int, wg *sync.WaitGroup) *WorkerPool {
+func NewWorkerPool(limit, itemsPerWorker int, results chan<- *domain.NewsArticle, wg *sync.WaitGroup) *WorkerPool {
 
 	jobQueue := make(chan Job, limit*itemsPerWorker)
 

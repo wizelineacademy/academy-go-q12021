@@ -5,4 +5,4 @@ app:
 currentnews:
   api:
     host: "https://api.currentsapi.services/v1/latest-news"
-    apiKey: "VVaqbbrkdYyMa4Kw92mRefEDZAAxwFudy8Mhew4I-2HmQS1P"
+    apiKey: "T4M9usrwXX_kmsRjrcAl352dStr12BGB8hUxPCWr7h-YBbeo"

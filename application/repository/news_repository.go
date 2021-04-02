@@ -7,4 +7,5 @@ type NewsArticleRepository interface {
 	FindAll() ([]*domain.NewsArticle, error)
 	FindByID(id string) (*domain.NewsArticle, error)
 	FetchCurrent() error
+	GetIterator() (domain.NewsIterator, error)
 }

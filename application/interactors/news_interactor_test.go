@@ -1,12 +1,15 @@
 package interactors
 
 import (
+	"encoding/csv"
 	"fmt"
+	"os"
 	"testing"
 	"time"
 
 	"github.com/golang/mock/gomock"
 	"github.com/jesus-mata/academy-go-q12021/domain"
+	"github.com/jesus-mata/academy-go-q12021/interfaces/repository"
 	mocks "github.com/jesus-mata/academy-go-q12021/mocks/repository"
 	"github.com/stretchr/testify/assert"
 )
@@ -69,4 +72,35 @@ func TestFetchAll(t *testing.T) {
 		t.Errorf("Test failed due to: %s", err)
 	}
 
+}
+
+func TestFindAllByCategoryConcurrently(t *testing.T) {
+	ctrl := gomock.NewController(t)
+
+	newsRepository := mocks.NewMockNewsArticleRepository(ctrl)
+
+	csvFileName := "../../resources/data_test.csv"
+	csvfile, err := os.Open(csvFileName)
+	if err != nil {
+		t.Errorf("Cannot open file: %s", err)
+	}
+
+	reader := csv.NewReader(csvfile)
+
+	it := repository.NewNewsIteratorImpl(reader)
+
+	newsRepository.EXPECT().GetIterator().Return(it, nil)
+
+	newsInteractor := NewNewsArticlesInteractor(newsRepository)
+
+	category := "technology"
+	limit := 10
+	itemsPerWorker := 10
+	articles, err := newsInteractor.FindAllByCategoryConcurrenlty(category, limit, itemsPerWorker)
+	if err != nil {
+		t.Errorf("Test failed due to: %s", err)
+	}
+
+	assert.Equal(t, 2, len(articles))
+	fmt.Println(articles)
 }

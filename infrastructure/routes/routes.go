@@ -10,4 +10,5 @@ func SetupRoutes(r *mux.Router, h *handler.NewsHandlers) {
 	r.HandleFunc("/news", h.ListAll).Methods("GET")
 	r.HandleFunc("/news/{id}", h.GetByID).Methods("GET")
 	r.HandleFunc("/news/current", h.FetchAll).Methods("POST")
+	r.HandleFunc("/concurrent/news", h.ListAllConcurrenlty).Methods("GET")
 }
