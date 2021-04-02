@@ -117,7 +117,8 @@ items_per_workers: Is an Int and is the amount of valid items the worker should 
 
 For submitting your work, you should follow these steps:
 
-1. Create a pull request with your code, targeting the master branch of your fork.
+
+1. Create a pull request with your code, targeting the master branch of the repository academy-go-q12021.
 2. Fill this [form](https://forms.gle/Kf9dvnth3hPe3Azg9) including the PR’s url
 3. Stay tune for feedback
 4. Do the changes according to the reviewer's comments
