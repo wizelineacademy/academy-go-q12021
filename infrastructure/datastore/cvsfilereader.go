@@ -16,7 +16,7 @@ import (
 
 type CsvPokeStorage struct {
 	pokeMap map[int32]*model.Pokemon
-	file string
+	file    string
 }
 
 func NewCsvStorage(file string) (*CsvPokeStorage, error) {
@@ -77,10 +77,10 @@ func (c *CsvPokeStorage) Save(pokemon *model.Pokemon) (*model.Pokemon, error) {
 	writer := csv.NewWriter(target)
 	defer writer.Flush()
 	err = writer.Write([]string{
-		fmt.Sprintf("%d",pokemon.Id),
+		fmt.Sprintf("%d", pokemon.Id),
 		pokemon.Species,
 		pokemon.Sprite,
-		strings.Join(pokemon.Types,","),
+		strings.Join(pokemon.Types, ","),
 		pokemon.FlavorText})
 	if err != nil {
 		return nil, err
@@ -90,27 +90,53 @@ func (c *CsvPokeStorage) Save(pokemon *model.Pokemon) (*model.Pokemon, error) {
 }
 
 func (c *CsvPokeStorage) FindAllWorkers(typeStr string, items int, itemsPerWorker int) ([]*model.Pokemon, error) {
-	poolSize := runtime.GOMAXPROCS(0)
-	log.Println("Max pool size of ", poolSize)
-	var wg sync.WaitGroup
-	wg.Add(poolSize)
-	key := make(chan int)
-	latestIdx := make(chan int)
-	shutdown := make(chan struct{})
+	pokemons := []*model.Pokemon{}
+	if items == 0 || itemsPerWorker == 0 {
+		return pokemons, nil
+	}
+
 	keys := []int{}
 	for key := range c.pokeMap {
 		keys = append(keys, int(key))
 	}
-	mod := 1
-	if typeStr == "odd"{
-		mod = 2
+	odd := false
+	if typeStr == "odd" {
+		odd = true
 	}
+	poolSize := runtime.GOMAXPROCS(0)
+	wg, keyIdx, latestIdx, shutdown := c.prepareWorkers(poolSize, itemsPerWorker, keys, odd)
+	k := 0
+	for len(pokemons) < items && len(pokemons) < poolSize*itemsPerWorker {
+		log.Println("Sending", k)
+		latestIdx <- k
+		k = <-keyIdx
+		log.Println("Received", k)
+		if k == -1 {
+			break
+		}
+		pokemons = append(pokemons, c.pokeMap[int32(keys[k])])
+	}
+	log.Println("Receiver sending shutdown signal")
+	close(shutdown)
+	log.Println("Waiting for workers to shutdown.")
+	wg.Wait()
+	return pokemons, nil
+}
+
+func (c *CsvPokeStorage) prepareWorkers(poolSize, itemsPerWorker int, keys []int, odd bool) (*sync.WaitGroup, chan int, chan int, chan struct{}) {
+	log.Println("Max pool size of ", poolSize)
+	var wg sync.WaitGroup
+	wg.Add(poolSize)
+	keyIdx := make(chan int)
+	latestIdx := make(chan int)
+	shutdown := make(chan struct{})
+
 	for i := 0; i < poolSize; i++ {
 		w := &Worker{
 			id:                i,
-			key:               key,
+			key:               keyIdx,
 			latestIdx:         latestIdx,
-			mod:			   mod,
+			odd:               odd,
 			itemsProcessed:    0,
 			maxItemsPerWorker: itemsPerWorker,
 			keys:              keys,
@@ -119,18 +145,5 @@ func (c *CsvPokeStorage) FindAllWorkers(typeStr string, items int, itemsPerWorke
 		}
 		go w.Work()
 	}
-	pokemons := []*model.Pokemon{}
-	latestIdx <- 0
-	for ;len(pokemons) <= items; {
-		k := <-key
-		if k == -1 {
-			break
-		}
-		pokemons = append(pokemons, c.pokeMap[int32(keys[k])])
-		latestIdx <- k
-	}
-	fmt.Println("Receiver sending shutdown signal")
-	close(shutdown)
-	wg.Wait()
-	return pokemons, nil
+	return &wg, keyIdx, latestIdx, shutdown
 }
