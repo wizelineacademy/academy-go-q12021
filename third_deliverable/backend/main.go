@@ -316,7 +316,6 @@ func GetMovies(w http.ResponseWriter, r *http.Request) {
 
 	// GET QUERY PARAMS AND VALIDATE
 	var queryParams QueryParameters = GetQueryParams(r)
-	log.Println("\t queryParams.Type: ", queryParams.Type )
 
 	GetMoviesFromFileConcurrently(queryParams, false, "")
 
