@@ -1,5 +1,3 @@
-package main
-
 import (
 	"bufio"
 	"encoding/json"
@@ -15,39 +13,39 @@ import (
 const UintSize = 32 << (^uint(0) >> 32 & 1)
 const MaxInt  = 1<<(UintSize-1) - 1
 
-type Movie struct {
-	ImdbTitleId string `json:"imdb_title_id"`
-    Title string `json:"title"`
-	OriginalTitle string `json:"original_title"`
-	Year string `json:"year"`
-	DatePublished string `json:"date_published"`
-	Genre string `json:"genre"`
-	Duration string `json:"duration"`
-	Country string `json:"country"`
-	Language string `json:"language"`
-	Director string `json:"director"`
-	Writer string `json:"writer"`
-	ProductionCompany string `json:"production_company"`
-	Actors string `json:"actors"`
-	Description string `json:"description"`
-	AvgVote string `json:"avg_vote"`
-	Votes string `json:"votes"`
-	Budget string `json:"budget"`
-	UsaGrossIncome string `json:"usa_gross_income"`
-	WorlwideGrossIncome string `json:"worlwide_gross_income"`
-	Metascore string `json:"metascore"`
-	ReviewsFromUsers string `json:"reviews_from_users"`
-	ReviewsFromCritics string `json:"reviews_from_critics"`
-	Poster string `json:"poster"`
-}
+// type Movie struct {
+// 	ImdbTitleId string `json:"imdb_title_id"`
+//     Title string `json:"title"`
+// 	OriginalTitle string `json:"original_title"`
+// 	Year string `json:"year"`
+// 	DatePublished string `json:"date_published"`
+// 	Genre string `json:"genre"`
+// 	Duration string `json:"duration"`
+// 	Country string `json:"country"`
+// 	Language string `json:"language"`
+// 	Director string `json:"director"`
+// 	Writer string `json:"writer"`
+// 	ProductionCompany string `json:"production_company"`
+// 	Actors string `json:"actors"`
+// 	Description string `json:"description"`
+// 	AvgVote string `json:"avg_vote"`
+// 	Votes string `json:"votes"`
+// 	Budget string `json:"budget"`
+// 	UsaGrossIncome string `json:"usa_gross_income"`
+// 	WorlwideGrossIncome string `json:"worlwide_gross_income"`
+// 	Metascore string `json:"metascore"`
+// 	ReviewsFromUsers string `json:"reviews_from_users"`
+// 	ReviewsFromCritics string `json:"reviews_from_critics"`
+// 	Poster string `json:"poster"`
+// }
 
 
-type MovieSummary struct {
-	ImdbTitleId string `json:"imdb_title_id"`
-	OriginalTitle string `json:"original_title"`
-	Year string `json:"year"`
-	Poster string `json:"poster"`
-}
+// type MovieSummary struct {
+// 	ImdbTitleId string `json:"imdb_title_id"`
+// 	OriginalTitle string `json:"original_title"`
+// 	Year string `json:"year"`
+// 	Poster string `json:"poster"`
+// }
 
 
 type Response_Single struct {
@@ -194,7 +192,7 @@ func worker(jobs <-chan string, results chan<- Movie, wg *sync.WaitGroup, queryP
 func GetMoviesFromFileConcurrently(queryParams QueryParameters, complete bool, id string) {
 	
 	// dataset gathered from: https://www.kaggle.com/stefanoleone992/imdb-extensive-dataset
-    file, err := os.Open("IMDb_movies_complete.csv")
+    file, err := os.Open("IMDb_movies_refactored.csv")
     if err != nil {
 		requestErrors = append(requestErrors, err.Error())
       	log.Fatal(err)
@@ -383,7 +381,7 @@ func GetMovieById(w http.ResponseWriter, r *http.Request) {
 }
 
 
-func main() {
+func old() {
 	requestErrors = nil
 	http.HandleFunc("/getMovies", GetMovies)
 	http.HandleFunc("/getMovieById", GetMovieById)

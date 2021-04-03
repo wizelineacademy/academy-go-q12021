@@ -1,0 +1,4 @@
+#app_name: todos
+app_name: cine+
+http_port: 8080
+db: data/IMDb_movies_refactored.csv
