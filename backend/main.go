@@ -24,7 +24,7 @@ const (
 )
 
 func main() {
-	log.Println("Will start")
+	log.Println("Turning server on ...")
 
 	var configFile string
 	flag.StringVar(
@@ -35,7 +35,7 @@ func main() {
 	)
 	flag.Parse()
 
-	log.Println("Read config file")
+	log.Println("Reading config file...")
 	// Read config file
 	cfg, err := config.Load(configFile)
 	if err != nil {
@@ -43,16 +43,17 @@ func main() {
 		os.Exit(ExitAbnormalErrorLoadingConfiguration)
 	}
 	
-	log.Println("Will open database file")
+	log.Println("Generating File Reader ...")
 	rf, err := os.Open(cfg.DB)
 	if err != nil {
-		log.Println("Error")
-		log.Fatal(err.Error())
+		log.Fatal("Failed open File Reader: %w", err)
 		os.Exit(ExitAbnormalErrorLoadingCSVFile)
 	}
 
+	log.Println("Generating File Writter ...")
 	wf, err := os.OpenFile(cfg.DB, os.O_APPEND|os.O_WRONLY, os.ModeAppend)
 	if err != nil {
+		log.Fatal("Failed open File Writter: %w", err)
 		os.Exit(ExitAbnormalErrorLoadingCSVFile)
 	}
 	defer rf.Close()
@@ -66,6 +67,6 @@ func main() {
 	r := router.New(c)
 
 	// Start server
-	fmt.Println("Starting server at port [8080].")
+	fmt.Println("Server running at port [8080].")
 	log.Fatal(http.ListenAndServe(":8080", r))
 }

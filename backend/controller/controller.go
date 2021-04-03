@@ -29,14 +29,14 @@ func New(
 	return &MovieUseCase{u, r}
 }
 
-// GET /todos
+// GET /movies
 func (t *MovieUseCase) GetMovies(w http.ResponseWriter, r *http.Request) {
 	body, _ := t.useCase.GetMovies()
 	w.Header().Set("Content-Type", "application/json")
 	t.render.JSON(w, http.StatusOK, body)
 }
 
-// GET /todos/{id}
+// GET /movies/{id}
 func (t *MovieUseCase) GetMovieById(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 
