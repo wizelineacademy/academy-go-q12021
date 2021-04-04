@@ -50,7 +50,7 @@ func GetMovies(queryParams model.QueryParameters) (response model.Response_All) 
 	defer resp.Body.Close()
 
 	// Print the HTTP response status.
-	fmt.Println("\n\tResponse status:", resp.Status, resp.Body)
+	// fmt.Println("\n\tResponse status:", resp.Status, resp.Body)
 	err = json.NewDecoder(resp.Body).Decode(&response)
 	if err != nil {
 		panic(err)
@@ -75,7 +75,6 @@ func GetMoviesById(id string) (response model.Response_Single) {
 	defer resp.Body.Close()
 
 	// Print the HTTP response status.
-	fmt.Println("\n\tResponse status:", resp.Status, resp.Body)
 	err = json.NewDecoder(resp.Body).Decode(&response)
 	if err != nil {
 		panic(err)
@@ -145,9 +144,17 @@ func RenderMovieById(w http.ResponseWriter, r *http.Request) {
 	response := GetMoviesById(id)
 
 	tmpl := template.Must(template.ParseFiles("html/item.html"))
+
+	movieMock := model.Movie{
+		ImdbTitleId:   "123123",
+		Title:         "Hola  k ase",
+		OriginalTitle: "Original title",
+		Year:          "109123",
+	}
+
 	data := model.Page_MovieDetails{
 		PageTitle: "Cine+",
-		Movie:     response.Data,
+		Movie:     movieMock,
 	}
 	if err := tmpl.Execute(w, data); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -175,7 +182,7 @@ func main() {
 		os.Exit(ExitAbnormalErrorLoadingConfiguration)
 	}
 
-	http.HandleFunc("/", RenderMovies)
+	http.HandleFunc("/getMovies", RenderMovies)
 	http.HandleFunc("/getMovieById", RenderMovieById)
 	fmt.Printf("Web app running succesfully on port [%s].", cfg.HTTPPort)
 	log.Fatal(http.ListenAndServe(":"+cfg.HTTPPort, nil))

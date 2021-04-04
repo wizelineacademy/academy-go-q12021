@@ -42,12 +42,29 @@ type QueryParameters struct {
 	Type           string `json:"type"`
 }
 
-// Response_Single struct (Model)
+// // Response_Single struct (Model)
 type Response struct {
-	Title         string      `json:"title"`
-	Message       string      `json:"message"`
-	Results       int         `json:"results"`
-	ExecutionTime string      `json:"execution_time"`
-	Data          interface{} `json:"data"`
-	Errors        []string    `json:"errors"`
+	Title         string        `json:"title"`
+	Message       string        `json:"message"`
+	Results       int           `json:"results"`
+	ExecutionTime string        `json:"execution_time"`
+	Data          []interface{} `json:"data"`
+	Errors        []string      `json:"errors"`
+}
+
+type Response_All struct {
+	Title         string          `json:"title"`
+	Message       string          `json:"message"`
+	Results       int             `json:"results"`
+	Data          []*MovieSummary `json:"data"`
+	Errors        []string        `json:"errors"`
+	ExecutionTime string          `json:"execution_time"`
+}
+type Response_Single struct {
+	Title         string   `json:"title"`
+	Message       string   `json:"message"`
+	Results       int      `json:"results"`
+	Data          Movie    `json:"data"`
+	Errors        []string `json:"errors"`
+	ExecutionTime string   `json:"execution_time"`
 }

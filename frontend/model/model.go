@@ -53,7 +53,7 @@ type Response_Single struct {
 	Title         string   `json:"title"`
 	Message       string   `json:"message"`
 	Results       int      `json:"results"`
-	Data          []Movie  `json:"data"`
+	Data          Movie    `json:"data"`
 	Errors        []string `json:"errors"`
 	ExecutionTime string   `json:"execution_time"`
 }
@@ -66,4 +66,13 @@ type Page_AllMovies struct {
 type Page_MovieDetails struct {
 	PageTitle string
 	Movie     Movie
+}
+
+type Response struct {
+	Title         string      `json:"title"`
+	Message       string      `json:"message"`
+	Results       int         `json:"results"`
+	ExecutionTime string      `json:"execution_time"`
+	Data          interface{} `json:"data"`
+	Errors        []string    `json:"errors"`
 }

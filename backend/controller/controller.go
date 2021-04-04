@@ -19,7 +19,7 @@ var requestErrors []string
 // UseCase interface
 type UseCase interface {
 	GetMoviesConcurrently(model.QueryParameters, bool, string) ([]interface{}, error)
-	GetMovies() ([]*model.Movie, error)
+	GetMovies() ([]*model.MovieSummary, error)
 	GetMovieById(string) (*model.Movie, error)
 }
 
@@ -49,7 +49,7 @@ func (t *MovieUseCase) GetMovies(w http.ResponseWriter, r *http.Request) {
 
 	totalTime := fmt.Sprintf("%d%s", time.Since(start).Microseconds(), " Microseconds.")
 
-	jsonObject := model.Response{
+	jsonObject := model.Response_All{
 		Title:         "Get Movies",
 		Results:       len(movies),
 		Message:       "",
@@ -132,11 +132,19 @@ func (t *MovieUseCase) GetMovieById(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	jsonObject := model.Response{
+	var listOfMovies model.Movie
+
+	for each := range movies {
+		newMovie := movies[each].(model.Movie)
+		// log.Println("each movie", each, newMovie)
+		listOfMovies = newMovie
+	}
+
+	jsonObject := model.Response_Single{
 		Title:         "Get Movie By Id",
 		Results:       1,
 		Message:       "",
-		Data:          movies,
+		Data:          listOfMovies,
 		Errors:        requestErrors,
 		ExecutionTime: fmt.Sprintf("%d%s", time.Since(start).Microseconds(), " Microseconds."),
 	}

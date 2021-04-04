@@ -29,8 +29,8 @@ func New(
 }
 
 // GetMovies -
-func (s *Service) GetMovies() ([]*model.Movie, error) {
-	out := []*model.Movie{}
+func (s *Service) GetMovies() ([]*model.MovieSummary, error) {
+	out := []*model.MovieSummary{}
 
 	csvr := csv.NewReader(s.csvr)
 
@@ -41,30 +41,11 @@ func (s *Service) GetMovies() ([]*model.Movie, error) {
 	}
 
 	for _, row := range data {
-		movie := model.Movie{
-			ImdbTitleId:         row[0],
-			Title:               row[1],
-			OriginalTitle:       row[2],
-			Year:                row[3],
-			DatePublished:       row[4],
-			Genre:               row[5],
-			Duration:            row[6],
-			Country:             row[7],
-			Language:            row[8],
-			Director:            row[9],
-			Writer:              row[10],
-			ProductionCompany:   row[11],
-			Actors:              row[12],
-			Description:         row[13],
-			AvgVote:             row[14],
-			Votes:               row[15],
-			Budget:              row[16],
-			UsaGrossIncome:      row[17],
-			WorlwideGrossIncome: row[18],
-			Metascore:           row[19],
-			ReviewsFromUsers:    row[20],
-			ReviewsFromCritics:  row[21],
-			Poster:              row[22],
+		movie := model.MovieSummary{
+			ImdbTitleId:   row[0],
+			OriginalTitle: row[2],
+			Year:          row[3],
+			Poster:        row[22],
 		}
 		out = append(out, &movie)
 	}
@@ -97,7 +78,7 @@ func (s *Service) GetMovieById(movieID string) (*model.Movie, error) {
 	return out, nil
 }
 
-// GetMovieById -
+// GetMoviesConcurrently -
 func (s *Service) GetMoviesConcurrently(queryParams model.QueryParameters, complete bool, id string) ([]interface{}, error) {
 	numberOfJobs := 0
 

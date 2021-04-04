@@ -12,7 +12,7 @@ type UseCase struct {
 
 // Service interface
 type Service interface {
-	GetMovies() ([]*model.Movie, error)
+	GetMovies() ([]*model.MovieSummary, error)
 	GetMovieById(movieID string) (*model.Movie, error)
 	GetMoviesConcurrently(queryParams model.QueryParameters, complete bool, id string) ([]interface{}, error)
 }
@@ -35,7 +35,7 @@ func (u *UseCase) GetMoviesConcurrently(queryParams model.QueryParameters, compl
 }
 
 // GetMovies -
-func (u *UseCase) GetMovies() ([]*model.Movie, error) {
+func (u *UseCase) GetMovies() ([]*model.MovieSummary, error) {
 	resp, err := u.service.GetMovies()
 
 	if err != nil {
