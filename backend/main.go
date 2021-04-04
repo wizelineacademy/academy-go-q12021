@@ -63,16 +63,17 @@ func main() {
 
 	csvw := csv.NewWriter(wf)
 
-	s, err := service.New(rf, csvw) 
+	service, err := service.New(rf, csvw) 
 	if err != nil {
 		log.Fatal("Failed running service : %w", err)
 		os.Exit(ExitAbnormalErrorLoadingCSVFile)
 	}
-	u := usecase.New(s)
-	c := controller.New(u, render.New())
-	r := router.New(c)
+
+	useCase := usecase.New(service)
+	controller := controller.New(useCase, render.New())
+	router := router.New(controller)
 
 	// Start server
 	fmt.Println("Server running at port [8080].")
-	log.Fatal(http.ListenAndServe(":8080", r))
+	log.Fatal(http.ListenAndServe(":8080", router))
 }

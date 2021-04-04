@@ -91,3 +91,28 @@ func (s *Service) GetMovieById(movieID string) (*model.Movie, error) {
 
 	return out, nil
 }
+
+
+// GetMovieById -
+func (s *Service) GetConcurrently(queryParams *model.QueryParameters, complete bool, id string) ([]*model.Movie, error) {
+	out := []*model.Movie{}
+
+	// csvr := csv.NewReader(s.csvr)
+
+	// data, err := csvr.ReadAll()
+	// if err != nil {
+	// 	fmt.Print("Error reading")
+	// 	return nil, err
+	// }
+
+	// for _, row := range data {
+	// 	if row[0] == movieID {
+	// 		out.ImdbTitleId = row[0]
+	// 		out.Title = row[1]
+	// 		out.Year = row[2]
+	// 	}
+	// }
+	// s.csvr.Seek(0, 0)
+
+	return out, nil
+}

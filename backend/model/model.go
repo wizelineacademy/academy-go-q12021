@@ -34,3 +34,21 @@ type MovieSummary struct {
 	Year string `json:"year"`
 	Poster string `json:"poster"`
 }
+
+// model.QueryParameters struct (Model)
+type QueryParameters struct {
+	ItemPerWorkers int `json:"item_per_workers"`
+    Items int `json:"items"`
+    Type string `json:"type"`
+}
+
+// Response_Single struct (Model)
+type Response struct {
+	Title string `json:"title"`
+	Message string `json:"message"`
+	Results int `json:"results"`
+	ExecutionTime string `json:"execution_time"`
+	Data interface{} `json:"data"`
+	Errors []string `json:"errors"`
+}
+
