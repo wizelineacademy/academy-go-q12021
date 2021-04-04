@@ -42,13 +42,13 @@ func main() {
 		log.Fatal("Failed to load config: %w", err)
 		os.Exit(ExitAbnormalErrorLoadingConfiguration)
 	}
-	
+
 	log.Println("Generating File Reader ...")
 	rf, err := os.Open(cfg.DB)
 	if err != nil {
 		log.Fatal("Failed open File Reader: %w", err)
 		os.Exit(ExitAbnormalErrorLoadingCSVFile)
-	}	
+	}
 
 	log.Println("Generating File Writter ...")
 	wf, err := os.OpenFile(cfg.DB, os.O_APPEND|os.O_WRONLY, os.ModeAppend)
@@ -63,7 +63,7 @@ func main() {
 
 	csvw := csv.NewWriter(wf)
 
-	service, err := service.New(rf, csvw) 
+	service, err := service.New(rf, csvw)
 	if err != nil {
 		log.Fatal("Failed running service : %w", err)
 		os.Exit(ExitAbnormalErrorLoadingCSVFile)

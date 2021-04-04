@@ -1,6 +1,7 @@
 package usecase
 
 import (
+	"log"
 	"main/model"
 )
 
@@ -13,7 +14,7 @@ type UseCase struct {
 type Service interface {
 	GetMovies() ([]*model.Movie, error)
 	GetMovieById(movieID string) (*model.Movie, error)
-	GetConcurrently(queryParams *model.QueryParameters, complete bool, id string) ([]*model.Movie, error)
+	GetConcurrently(queryParams model.QueryParameters, complete bool, id string) ([]model.MovieSummary, error)
 }
 
 // New UseCasequeryParams
@@ -22,17 +23,16 @@ func New(service Service) *UseCase {
 }
 
 // GetConcurrently -
-func (u *UseCase) GetConcurrently(queryParams *model.QueryParameters, complete bool, id string) ([]*model.Movie, error) {
+func (u *UseCase) GetConcurrently(queryParams model.QueryParameters, complete bool, id string) ([]model.MovieSummary, error) {
 
 	resp, err := u.service.GetConcurrently(queryParams, complete, id)
-
 	if err != nil {
 		return nil, err
 	}
+	log.Println("u.service.GetConcurrently: ", len(resp))
 
 	return resp, nil
 }
-
 
 // GetMovies -
 func (u *UseCase) GetMovies() ([]*model.Movie, error) {
