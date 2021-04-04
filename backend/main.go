@@ -63,7 +63,7 @@ func main() {
 
 	csvw := csv.NewWriter(wf)
 
-	service, err := service.New(rf, csvw)
+	service, err := service.New(rf, csvw, cfg.DB)
 	if err != nil {
 		log.Fatal("Failed running service : %w", err)
 		os.Exit(ExitAbnormalErrorLoadingCSVFile)
@@ -74,6 +74,6 @@ func main() {
 	router := router.New(controller)
 
 	// Start server
-	fmt.Println("Server running at port [8080].")
-	log.Fatal(http.ListenAndServe(":8080", router))
+	fmt.Printf("Server running at port [%s].", cfg.HTTPPort)
+	log.Fatal(http.ListenAndServe(":"+cfg.HTTPPort, router))
 }

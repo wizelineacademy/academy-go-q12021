@@ -9,7 +9,6 @@ import (
 
 	"main/model"
 
-	"github.com/gorilla/mux"
 	"github.com/unrolled/render"
 )
 
@@ -20,7 +19,7 @@ var requestErrors []string
 
 // UseCase interface
 type UseCase interface {
-	GetConcurrently(model.QueryParameters, bool, string) ([]model.MovieSummary, error)
+	GetConcurrently(model.QueryParameters, bool, string) ([]interface{}, error)
 	GetMovies() ([]*model.Movie, error)
 	GetMovieById(string) (*model.Movie, error)
 }
@@ -56,7 +55,7 @@ func (t *MovieUseCase) GetMovies(w http.ResponseWriter, r *http.Request) {
 		Results:       1,
 		Message:       "Data",
 		Data:          movies,
-		Errors:        nil, // TODO: Send errors too
+		Errors:        requestErrors,
 		ExecutionTime: totalTime,
 	}
 	t.render.JSON(w, http.StatusOK, jsonObject)
@@ -72,14 +71,13 @@ func (t *MovieUseCase) GetConcurrently(w http.ResponseWriter, r *http.Request) {
 
 	log.Println("\n\t QUERYPARAMS", queryParams.Items, queryParams.ItemPerWorkers, queryParams.Type)
 
-	isMoveComplete := false // TODO: switch depending on the endpoint
+	willRequireMovieComplete := false
 
-	movies, err := t.useCase.GetConcurrently(queryParams, isMoveComplete, "") // TODO: send complete boolean and id string
+	movies, err := t.useCase.GetConcurrently(queryParams, willRequireMovieComplete, "")
 	if err != nil {
 		log.Fatal("Failed on GetMovies : %w", err)
 		t.render.JSON(w, http.StatusInternalServerError, movies)
 	}
-	log.Println("+++++ t.useCase.GetConcurrently movies: ", len(movies))
 
 	totalTime := fmt.Sprintf("%d%s", time.Since(start).Microseconds(), " Microseconds.")
 
@@ -88,7 +86,7 @@ func (t *MovieUseCase) GetConcurrently(w http.ResponseWriter, r *http.Request) {
 		Results:       len(movies),
 		Message:       "Data",
 		Data:          movies,
-		Errors:        nil, // TODO: Send errors too
+		Errors:        requestErrors,
 		ExecutionTime: totalTime,
 	}
 
@@ -98,23 +96,50 @@ func (t *MovieUseCase) GetConcurrently(w http.ResponseWriter, r *http.Request) {
 // GET /movies/{id}
 func (t *MovieUseCase) GetMovieById(w http.ResponseWriter, r *http.Request) {
 	start := time.Now()
-	params := mux.Vars(r)
+	w.Header().Set("Content-Type", "application/json")
 
-	movie, err := t.useCase.GetMovieById(params["id"])
-	if err != nil {
-		log.Fatal("Failed on GetMovieById : %w", err)
-		t.render.JSON(w, http.StatusInternalServerError, movie)
+	// GET QUERY PARAMS AND VALIDATE
+	keys, ok := r.URL.Query()["id"]
+	if !ok || len(keys) <= 0 {
+		errorMessage := "Id query param is required but missing"
+		requestErrors = append(requestErrors, errorMessage)
+		response := model.Response{
+			Data:          nil,
+			Title:         "Error",
+			Message:       errorMessage,
+			Errors:        requestErrors,
+			Results:       0,
+			ExecutionTime: fmt.Sprintf("%d%s", time.Since(start).Microseconds(), " Microseconds."),
+		}
+		t.render.JSON(w, http.StatusInternalServerError, response)
+		log.Println(errorMessage)
+		return
+	}
+	var id string
+	if ok {
+		id = keys[0]
+	} else {
+		id = ""
 	}
 
-	totalTime := fmt.Sprintf("%d%s", time.Since(start).Microseconds(), " Microseconds.")
+	queryParams := model.QueryParameters{Items: 1, Type: "", ItemPerWorkers: 1}
+	willRequireMovieComplete := true
+
+	log.Println("Will call the GetConcurrently function with params: ", queryParams, willRequireMovieComplete, id)
+	movies, err := t.useCase.GetConcurrently(queryParams, true, id)
+	if err != nil {
+		log.Println("Failed on GetMovieById : %w", err)
+		t.render.JSON(w, http.StatusInternalServerError, movies)
+		return
+	}
 
 	jsonObject := model.Response{
 		Title:         "model.Response",
 		Results:       1,
 		Message:       "Data",
-		Data:          movie,
-		Errors:        nil, // TODO: Send errors too
-		ExecutionTime: totalTime,
+		Data:          movies,
+		Errors:        requestErrors,
+		ExecutionTime: fmt.Sprintf("%d%s", time.Since(start).Microseconds(), " Microseconds."),
 	}
 
 	t.render.JSON(w, http.StatusOK, jsonObject)

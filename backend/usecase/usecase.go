@@ -14,7 +14,7 @@ type UseCase struct {
 type Service interface {
 	GetMovies() ([]*model.Movie, error)
 	GetMovieById(movieID string) (*model.Movie, error)
-	GetConcurrently(queryParams model.QueryParameters, complete bool, id string) ([]model.MovieSummary, error)
+	GetConcurrently(queryParams model.QueryParameters, complete bool, id string) ([]interface{}, error)
 }
 
 // New UseCasequeryParams
@@ -23,13 +23,13 @@ func New(service Service) *UseCase {
 }
 
 // GetConcurrently -
-func (u *UseCase) GetConcurrently(queryParams model.QueryParameters, complete bool, id string) ([]model.MovieSummary, error) {
+func (u *UseCase) GetConcurrently(queryParams model.QueryParameters, complete bool, id string) ([]interface{}, error) {
 
 	resp, err := u.service.GetConcurrently(queryParams, complete, id)
 	if err != nil {
 		return nil, err
 	}
-	log.Println("u.service.GetConcurrently: ", len(resp))
+	log.Println("u.service.GetConcurrently: ", len(resp), queryParams, complete, id)
 
 	return resp, nil
 }

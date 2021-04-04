@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strconv"
 	"sync"
 
 	"main/model"
@@ -12,16 +13,18 @@ import (
 
 // Service
 type Service struct {
-	csvr *os.File
-	csvw *csv.Writer
+	csvr   *os.File
+	csvw   *csv.Writer
+	dbPath string
 }
 
 // New creates a new Service layer
 func New(
 	csvr *os.File,
-	csvw *csv.Writer) (*Service, error) {
+	csvw *csv.Writer,
+	dbPath string) (*Service, error) {
 
-	return &Service{csvr, csvw}, nil
+	return &Service{csvr, csvw, dbPath}, nil
 }
 
 // GetMovies -
@@ -94,15 +97,16 @@ func (s *Service) GetMovieById(movieID string) (*model.Movie, error) {
 }
 
 // GetMovieById -
-func (s *Service) GetConcurrently(queryParams model.QueryParameters, complete bool, id string) ([]model.MovieSummary, error) {
-	file, err := os.Open("data/IMDb_movies_refactored.csv")
+func (s *Service) GetConcurrently(queryParams model.QueryParameters, complete bool, id string) ([]interface{}, error) {
+
+	file, err := os.Open(s.dbPath)
 	if err != nil {
 		// requestErrors = append(requestErrors, err.Error())
 		log.Fatal(err)
 	}
 	defer file.Close()
 
-	out := []model.MovieSummary{}
+	out := []interface{}{}
 
 	jobs := make(chan []string)
 	results := make(chan interface{})
@@ -150,21 +154,13 @@ func (s *Service) GetConcurrently(queryParams model.QueryParameters, complete bo
 		close(results)
 	}()
 
-	var movies []model.Movie
-
 	// Convert channel to slice of Movie and send
 	movieCounter := 0
 	for movieInterface := range results {
 		if movieCounter == queryParams.Items {
 			break
 		}
-		if complete {
-			movie, _ := movieInterface.(model.Movie) // TODO: handle error
-			movies = append(movies, movie)
-		} else {
-			movieSummary, _ := movieInterface.(model.MovieSummary) // TODO: handle error
-			out = append(out, movieSummary)
-		}
+		out = append(out, movieInterface)
 		movieCounter++
 	}
 	log.Println("service -> GetConcurrently ", len(out))
@@ -175,7 +171,8 @@ func worker(jobs <-chan []string, results chan<- interface{}, wg *sync.WaitGroup
 	defer wg.Done()
 
 	for lineItems := range jobs {
-		if complete { //  && id != "" && id == lineItems[0]
+		if complete && id != "" && id == lineItems[0] {
+			log.Println("Valuating the Movie", complete, id)
 			movie := model.Movie{
 				ImdbTitleId:         lineItems[0],
 				Title:               lineItems[1],
@@ -202,7 +199,25 @@ func worker(jobs <-chan []string, results chan<- interface{}, wg *sync.WaitGroup
 				Poster:              lineItems[22],
 			}
 			results <- movie
-		} else {
+		}
+		if !complete {
+			// get id from Movie struct and parse the string to a number
+			idOfCurrentMovie := lineItems[0]            // get id of current movie
+			substringOfId := idOfCurrentMovie[2:]       // convert to only string numbers
+			integerId, _ := strconv.Atoi(substringOfId) // parse substring to int
+
+			log.Println("Valuating the MovieSummary", complete, id, idOfCurrentMovie)
+
+			// if numberType is supposed to be odd and it is not, then continue to next line wihtout adding it to the list
+			if queryParams.Type == "odd" && !Odd(integerId) {
+				continue
+			}
+			// if numberType is supposed to be even and it is not, then continue to next line wihtout adding it to the list
+			if queryParams.Type == "even" && !Even(integerId) {
+				continue
+			}
+
+			// if it got to this point add it to the list
 			movieSummary := model.MovieSummary{
 				ImdbTitleId:   lineItems[0],
 				OriginalTitle: lineItems[2],
@@ -210,60 +225,10 @@ func worker(jobs <-chan []string, results chan<- interface{}, wg *sync.WaitGroup
 				Poster:        lineItems[22],
 			}
 			results <- movieSummary
-		}
-		// moviesAddedCounter++
-		// }
-		// 	// get id from model.Movie struct and parse the string to a number
-		// 	idOfCurrentMovie := lineItems[0] // get id of current movie
-		// 	substringOfId := idOfCurrentMovie[2:] // convert to only string numbers
-		// 	integerId, _ := strconv.Atoi(substringOfId) // parse substring to int
 
-		// 	// if queryParams.Type is supposed to be odd and it is not, then continue to next line wihtout adding it to the list
-		// 	if queryParams.Type ==  "odd" && !Odd(integerId) {
-		// 		return
-		// 	}
-		// 	// if queryParams.Type is supposed to be even and it is not, then continue to next line wihtout adding it to the list
-		// 	if queryParams.Type ==  "even" && !Even(integerId) {
-		// 		return
-		// 	}
-		// 	// validate that the line has 22 fields other wise skip
-		// 	if len(lineItems) < 22 {
-		// 		log.Println("usage: line out of range: ", len(lineItems))
-		// 		continue
-		// 	}
-		// 	// if it got to this point add it to the list
-		// 	movie = model.Movie{
-		// 		ImdbTitleId: lineItems[0],
-		// 		OriginalTitle: lineItems[2],
-		// 		Year: lineItems[3],
-		// 		Poster: lineItems[22],
-		// 	}
-		// 	results <- movie
-		// 	moviesAddedCounter++
-		// }
+		}
 	}
 }
-
-// // following function from: https://play.golang.org/p/f5jceIm4nbE
-// func SplitAtCommas(s string) []string {
-//     res := []string{}
-//     var beg int
-//     var inString bool
-
-//     for i := 0; i < len(s); i++ {
-//         if s[i] == ',' && !inString {
-//             res = append(res, s[beg:i])
-//             beg = i+1
-//         } else if s[i] == '"' {
-//             if !inString {
-//                 inString = true
-//             } else if i > 0 && s[i-1] != '\\' {
-//                 inString = false
-//             }
-//         }
-//     }
-//     return append(res, s[beg:])
-// }
 
 func Even(number int) bool {
 	return number%2 == 0
