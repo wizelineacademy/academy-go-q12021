@@ -48,7 +48,7 @@ func main() {
 	if err != nil {
 		log.Fatal("Failed open File Reader: %w", err)
 		os.Exit(ExitAbnormalErrorLoadingCSVFile)
-	}
+	}	
 
 	log.Println("Generating File Writter ...")
 	wf, err := os.OpenFile(cfg.DB, os.O_APPEND|os.O_WRONLY, os.ModeAppend)
@@ -56,12 +56,18 @@ func main() {
 		log.Fatal("Failed open File Writter: %w", err)
 		os.Exit(ExitAbnormalErrorLoadingCSVFile)
 	}
+	log.Println("File Reader and Writter generated succesfully")
+
 	defer rf.Close()
 	defer wf.Close()
 
 	csvw := csv.NewWriter(wf)
 
-	s, _ := service.New(rf, csvw)
+	s, err := service.New(rf, csvw) 
+	if err != nil {
+		log.Fatal("Failed running service : %w", err)
+		os.Exit(ExitAbnormalErrorLoadingCSVFile)
+	}
 	u := usecase.New(s)
 	c := controller.New(u, render.New())
 	r := router.New(c)
