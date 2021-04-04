@@ -8,6 +8,7 @@ import (
 	"strconv"
 	"sync"
 
+	"main/constants"
 	"main/model"
 )
 
@@ -97,7 +98,8 @@ func (s *Service) GetMovieById(movieID string) (*model.Movie, error) {
 }
 
 // GetMovieById -
-func (s *Service) GetConcurrently(queryParams model.QueryParameters, complete bool, id string) ([]interface{}, error) {
+func (s *Service) GetMoviesConcurrently(queryParams model.QueryParameters, complete bool, id string) ([]interface{}, error) {
+	numberOfJobs := 0
 
 	file, err := os.Open(s.dbPath)
 	if err != nil {
@@ -114,17 +116,17 @@ func (s *Service) GetConcurrently(queryParams model.QueryParameters, complete bo
 	wg := new(sync.WaitGroup)
 
 	// start workers
-	var workers int = 1
-	switch {
-	case queryParams.Items <= 50:
-		workers = 2
-	case queryParams.Items > 50 && queryParams.Items < 500:
-		workers = 25
-	case queryParams.Items >= 500:
-		workers = 100
-	default:
-		workers = 1
-	}
+	var workers int = 100
+	// switch {
+	// case queryParams.Items <= 50:
+	// 	workers = 2
+	// case queryParams.Items > 50 && queryParams.Items < 500:
+	// 	workers = 25
+	// case queryParams.Items >= 500:
+	// 	workers = 100
+	// default:
+	// 	workers = 1
+	// }
 
 	for w := 1; w <= workers; w++ {
 		wg.Add(1)
@@ -143,6 +145,7 @@ func (s *Service) GetConcurrently(queryParams model.QueryParameters, complete bo
 
 		for each := range data {
 			job := data[each]
+			numberOfJobs++
 			jobs <- job
 		}
 		close(jobs)
@@ -163,7 +166,7 @@ func (s *Service) GetConcurrently(queryParams model.QueryParameters, complete bo
 		out = append(out, movieInterface)
 		movieCounter++
 	}
-	log.Println("service -> GetConcurrently ", len(out))
+	log.Println("service -> GetMoviesConcurrently ", len(out))
 	return out, nil
 }
 
@@ -172,7 +175,6 @@ func worker(jobs <-chan []string, results chan<- interface{}, wg *sync.WaitGroup
 
 	for lineItems := range jobs {
 		if complete && id != "" && id == lineItems[0] {
-			log.Println("Valuating the Movie", complete, id)
 			movie := model.Movie{
 				ImdbTitleId:         lineItems[0],
 				Title:               lineItems[1],
@@ -206,14 +208,12 @@ func worker(jobs <-chan []string, results chan<- interface{}, wg *sync.WaitGroup
 			substringOfId := idOfCurrentMovie[2:]       // convert to only string numbers
 			integerId, _ := strconv.Atoi(substringOfId) // parse substring to int
 
-			log.Println("Valuating the MovieSummary", complete, id, idOfCurrentMovie)
-
 			// if numberType is supposed to be odd and it is not, then continue to next line wihtout adding it to the list
-			if queryParams.Type == "odd" && !Odd(integerId) {
+			if queryParams.Type == constants.Odd && !Odd(integerId) {
 				continue
 			}
 			// if numberType is supposed to be even and it is not, then continue to next line wihtout adding it to the list
-			if queryParams.Type == "even" && !Even(integerId) {
+			if queryParams.Type == constants.Even && !Even(integerId) {
 				continue
 			}
 

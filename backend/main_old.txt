@@ -192,7 +192,7 @@ func worker(jobs <-chan string, results chan<- Movie, wg *sync.WaitGroup, queryP
 func GetMoviesFromFileConcurrently(queryParams QueryParameters, complete bool, id string) {
 	
 	// dataset gathered from: https://www.kaggle.com/stefanoleone992/imdb-extensive-dataset
-    file, err := os.Open("IMDb_movies_refactored.csv")
+    file, err := os.Open("IMDb_movies_processed.csv")
     if err != nil {
 		requestErrors = append(requestErrors, err.Error())
       	log.Fatal(err)

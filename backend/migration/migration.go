@@ -12,8 +12,10 @@ import (
 	"os"
 )
 
+// Errors that will be sent to the api response
 var requestErrors []string
 
+// Method used to gather images from the Omdb api
 func GetMoviePosterFromOmdbApi(title string, year string) (imageUrl string) {
 	// Consume the api of omdbapi
 	Url, err := url.Parse("http://www.omdbapi.com/")

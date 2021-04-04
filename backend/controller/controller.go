@@ -7,19 +7,18 @@ import (
 	"strconv"
 	"time"
 
+	"main/constants"
 	"main/model"
 
 	"github.com/unrolled/render"
 )
 
-const UintSize = 32 << (^uint(0) >> 32 & 1)
-const MaxInt = 1<<(UintSize-1) - 1
-
+// Requested errors
 var requestErrors []string
 
 // UseCase interface
 type UseCase interface {
-	GetConcurrently(model.QueryParameters, bool, string) ([]interface{}, error)
+	GetMoviesConcurrently(model.QueryParameters, bool, string) ([]interface{}, error)
 	GetMovies() ([]*model.Movie, error)
 	GetMovieById(string) (*model.Movie, error)
 }
@@ -51,9 +50,9 @@ func (t *MovieUseCase) GetMovies(w http.ResponseWriter, r *http.Request) {
 	totalTime := fmt.Sprintf("%d%s", time.Since(start).Microseconds(), " Microseconds.")
 
 	jsonObject := model.Response{
-		Title:         "model.Response",
-		Results:       1,
-		Message:       "Data",
+		Title:         "Get Movies",
+		Results:       len(movies),
+		Message:       "",
 		Data:          movies,
 		Errors:        requestErrors,
 		ExecutionTime: totalTime,
@@ -62,7 +61,7 @@ func (t *MovieUseCase) GetMovies(w http.ResponseWriter, r *http.Request) {
 }
 
 // GET /movies_concurrently
-func (t *MovieUseCase) GetConcurrently(w http.ResponseWriter, r *http.Request) {
+func (t *MovieUseCase) GetMoviesConcurrently(w http.ResponseWriter, r *http.Request) {
 	start := time.Now()
 	w.Header().Set("Content-Type", "application/json")
 
@@ -73,7 +72,7 @@ func (t *MovieUseCase) GetConcurrently(w http.ResponseWriter, r *http.Request) {
 
 	willRequireMovieComplete := false
 
-	movies, err := t.useCase.GetConcurrently(queryParams, willRequireMovieComplete, "")
+	movies, err := t.useCase.GetMoviesConcurrently(queryParams, willRequireMovieComplete, "")
 	if err != nil {
 		log.Fatal("Failed on GetMovies : %w", err)
 		t.render.JSON(w, http.StatusInternalServerError, movies)
@@ -82,9 +81,9 @@ func (t *MovieUseCase) GetConcurrently(w http.ResponseWriter, r *http.Request) {
 	totalTime := fmt.Sprintf("%d%s", time.Since(start).Microseconds(), " Microseconds.")
 
 	jsonObject := model.Response{
-		Title:         "model.Response",
+		Title:         "Get Movies Concurrently",
 		Results:       len(movies),
-		Message:       "Data",
+		Message:       "",
 		Data:          movies,
 		Errors:        requestErrors,
 		ExecutionTime: totalTime,
@@ -125,8 +124,8 @@ func (t *MovieUseCase) GetMovieById(w http.ResponseWriter, r *http.Request) {
 	queryParams := model.QueryParameters{Items: 1, Type: "", ItemPerWorkers: 1}
 	willRequireMovieComplete := true
 
-	log.Println("Will call the GetConcurrently function with params: ", queryParams, willRequireMovieComplete, id)
-	movies, err := t.useCase.GetConcurrently(queryParams, true, id)
+	log.Println("Will call the GetMoviesConcurrently function with params: ", queryParams, willRequireMovieComplete, id)
+	movies, err := t.useCase.GetMoviesConcurrently(queryParams, true, id)
 	if err != nil {
 		log.Println("Failed on GetMovieById : %w", err)
 		t.render.JSON(w, http.StatusInternalServerError, movies)
@@ -134,9 +133,9 @@ func (t *MovieUseCase) GetMovieById(w http.ResponseWriter, r *http.Request) {
 	}
 
 	jsonObject := model.Response{
-		Title:         "model.Response",
+		Title:         "Get Movie By Id",
 		Results:       1,
-		Message:       "Data",
+		Message:       "",
 		Data:          movies,
 		Errors:        requestErrors,
 		ExecutionTime: fmt.Sprintf("%d%s", time.Since(start).Microseconds(), " Microseconds."),
@@ -151,7 +150,7 @@ func GetQueryParams(r *http.Request) (queryParams model.QueryParameters) {
 	if val, ok := keys["type"]; ok {
 		log.Println("Type query provided")
 		queryParams.Type = val[0]
-		if queryParams.Type != "odd" && queryParams.Type != "even" {
+		if queryParams.Type != constants.Odd && queryParams.Type != constants.Even {
 			log.Println("Type defafult empty")
 			queryParams.Type = ""
 		}
@@ -184,7 +183,7 @@ func GetQueryParams(r *http.Request) (queryParams model.QueryParameters) {
 		}
 	} else {
 		requestErrors = append(requestErrors, "`items` was not provided as query param: MaxValue")
-		queryParams.Items = MaxInt
+		queryParams.Items = constants.MaxInt
 	}
 	return
 }
