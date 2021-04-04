@@ -138,7 +138,7 @@
             localStorage.setItem('items', itemsValue);
             var typeValue = localStorage.getItem('type') | typeDefault;
             var url =
-                'http://localhost:3000/?items=' +
+                'http://localhost:3000/getMovies?items=' +
                 itemsValue +
                 '&type=' +
                 typeValue;
@@ -150,7 +150,7 @@
             localStorage.setItem('type', typeValue);
             var itemsValue = localStorage.getItem('items') | itemsDefault;
             var url =
-                'http://localhost:3000/?items=' +
+                'http://localhost:3000/getMovies?items=' +
                 itemsValue +
                 '&type=' +
                 typeValue;
@@ -163,7 +163,7 @@
             var itemsValue = localStorage.getItem('items') | itemsDefault;
             var typeValue = localStorage.getItem('type') | typeDefault;
             var url =
-                'http://localhost:3000/?items=' +
+                'http://localhost:3000/getMovies?items=' +
                 itemsValue +
                 '&type=' +
                 typeValue +
@@ -197,7 +197,10 @@
         />
     </a>
 </div>
-<div class="wrapper row" style="flex-wrap: nowrap; justify-content: space-around">
+<div
+    class="wrapper row"
+    style="flex-wrap: nowrap; justify-content: space-around"
+>
     <div class="item">
         <h4>Display results</h4>
         <div

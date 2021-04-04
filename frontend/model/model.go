@@ -1,5 +1,6 @@
 package model
 
+// QueryParameters (Model): meant to be used for a movie request.
 type QueryParameters struct {
 	ItemPerWorkers int    `json:"item_per_workers"`
 	Items          int    `json:"items"`
@@ -66,13 +67,4 @@ type Page_AllMovies struct {
 type Page_MovieDetails struct {
 	PageTitle string
 	Movie     Movie
-}
-
-type Response struct {
-	Title         string      `json:"title"`
-	Message       string      `json:"message"`
-	Results       int         `json:"results"`
-	ExecutionTime string      `json:"execution_time"`
-	Data          interface{} `json:"data"`
-	Errors        []string    `json:"errors"`
 }
