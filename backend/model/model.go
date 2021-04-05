@@ -68,3 +68,9 @@ type Response_Single struct {
 	Errors        []string `json:"errors"`
 	ExecutionTime string   `json:"execution_time"`
 }
+
+type Item struct {
+	Id    string `json:"id"`
+	Title string `json:"title"`
+	Years string `json:"years"`
+}

@@ -1,9 +1,0 @@
-To run the first_deliverable:
-1. First you need to go to academy-go-q12021/first_deliverable/
-2. Compile with go build 
-3. execute the binary with ./academy-go-q12021
-
-To verify unit test:
-1. Make sure the project is running on port 8080
-2. Compile with go build 
-3. execute test with go test command

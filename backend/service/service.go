@@ -28,6 +28,18 @@ func New(
 	return &Service{csvr, csvw, dbPath}, nil
 }
 
+func (s *Service) GetLanguages() ([]*model.MovieSummary, error) {
+	out := []*model.MovieSummary{}
+
+	return out, nil
+}
+
+func (s *Service) GetLanguageById() ([]*model.MovieSummary, error) {
+	out := []*model.MovieSummary{}
+
+	return out, nil
+}
+
 // GetMovies -
 func (s *Service) GetMovies() ([]*model.MovieSummary, error) {
 	out := []*model.MovieSummary{}
