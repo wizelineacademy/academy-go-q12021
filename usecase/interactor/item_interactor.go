@@ -2,6 +2,7 @@ package interactor
 
 import (
 	"bootcamp/domain/model"
+	"bootcamp/interface/controller/vo"
 	"bootcamp/usecase/presenter"
 	"bootcamp/usecase/repository"
 	"errors"
@@ -17,9 +18,10 @@ type itemInteractor struct {
 // ItemInteractor
 type ItemInteractor interface {
 	// Get return all Items
-	Get(u []*model.Item) ([]*model.Item, error)
+	GetItems(i []*model.Item, paged *vo.Paged) ([]*model.Item, error)
+
 	// Create func creates a new Items
-	Create(u *model.Item) (*model.Item, error)
+	Create(i *model.Item) (*model.Item, error)
 }
 
 // NewItemInteractor returns a new interactor struct
@@ -28,18 +30,25 @@ func NewItemInteractor(r repository.ItemRepository, p presenter.ItemPresenter, d
 }
 
 // Get func returns all Items.
-func (us *itemInteractor) Get(u []*model.Item) ([]*model.Item, error) {
-	u, err := us.ItemRepository.FindAll(u)
+func (ii *itemInteractor) GetItems(items []*model.Item, paged *vo.Paged) ([]*model.Item, error) {
+
+	var err error = nil
+	if paged == nil {
+		items, err = ii.ItemRepository.FindAll(items)
+	} else {
+		items, err = ii.ItemRepository.FindAllPaged(items, paged)
+	}
+
 	if err != nil {
 		return nil, err
 	}
-	return us.ItemPresenter.ResponseItems(u), nil
+	return ii.ItemPresenter.ResponseItems(items), nil
 }
 
 // Create func add a new Item in the datastore.
-func (us *itemInteractor) Create(u *model.Item) (*model.Item, error) {
-	data, err := us.DBRepository.Transaction(func(i interface{}) (interface{}, error) {
-		u, err := us.ItemRepository.Create(u)
+func (ii *itemInteractor) Create(item *model.Item) (*model.Item, error) {
+	data, err := ii.DBRepository.Transaction(func(i interface{}) (interface{}, error) {
+		u, err := ii.ItemRepository.Create(item)
 		return u, err
 	})
 	item, ok := data.(*model.Item)

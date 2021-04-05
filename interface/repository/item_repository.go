@@ -2,10 +2,12 @@ package repository
 
 import (
 	"bootcamp/domain/model"
+	"bootcamp/interface/controller/vo"
 	"bootcamp/usecase/repository"
 	"database/sql"
 	"fmt"
 	"strings"
+	"sync"
 )
 
 // itemRepository struct to SQL DB
@@ -69,4 +71,76 @@ func (ir *itemRepository) Create(item *model.Item) (*model.Item, error) {
 	resulset.RowsAffected()
 
 	return item, nil
+}
+
+func (ir *itemRepository) FindAllPaged(items []*model.Item, paged *vo.Paged) ([]*model.Item, error) {
+
+	queryString := "SELECT count(id) FROM items"
+
+	// Get among of items
+	rs, err := ir.db.Query(queryString)
+	r := 0
+	if rs.Next() {
+		rs.Scan(&r)
+	}
+
+	workers := r/paged.ItemsPerWorkers
+
+	//  get all items
+	queryString = "SELECT id, name FROM items"
+	rows, err := ir.db.Query(queryString)
+	if err != nil {
+		return nil, err
+	}
+
+	// channels
+	chanIn := make(chan model.Item, r)
+	chanOut := make(chan model.Item, paged.Items)
+
+	var waitGroup sync.WaitGroup
+	waitGroup.Add(workers)
+
+	for i:=0; i<workers;i++ {
+		go findOddOrEven(chanIn, chanOut, *paged, &waitGroup)
+	}
+
+	for rows.Next() {
+		item := model.Item{}
+		if err = rows.Scan(&item.ID, &item.Name); err != nil {
+			return nil, err
+		}
+		chanIn <- item
+	}
+	waitGroup.Wait()
+
+	close(chanIn)
+	close(chanOut)
+
+	for i:=0; i<paged.Items;i++{
+		item := <-chanOut
+		if item.ID>0 {
+			items = append(items, &item)
+		}
+	}
+
+
+	fmt.Println("Items ", len(items))
+
+	return items, nil
+}
+
+func findOddOrEven(chanIn <-chan model.Item, chanOut chan<- model.Item, paged vo.Paged, waitGroup *sync.WaitGroup) {
+
+	defer waitGroup.Done()
+	fmt.Println("worker working...")
+
+	for i:=0; i < paged.ItemsPerWorkers; i++ {
+		itm := <- chanIn
+		module := itm.ID%2
+		if paged.Type == "odd" && module == 0 {
+			chanOut <- itm
+		} else if paged.Type == "even" && module != 0 {
+			chanOut <- itm
+		}
+	}
 }
