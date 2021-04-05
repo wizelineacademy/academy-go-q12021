@@ -1,0 +1,60 @@
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8" />
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+    <!-- Bootstrap CSS -->
+    <link
+        rel="stylesheet"
+        href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+        integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm"
+        crossorigin="anonymous"
+    />    
+    <title>{{.ErrorTitle}}</title>
+</head>
+<style>
+    .accent {
+        background-color: #f5c518;
+        border-color: #f5c518;
+    }
+    body {
+        background-color: rgb(251, 251, 251);
+        font-family: Roboto;
+    }
+    .main {
+        padding: 2rem;
+    }
+    .button-container {
+        margin: 1rem;
+    }
+    .wrapper {
+        color: rgb(130, 19, 19);
+        display: flex;
+        flex-direction: column;
+    }
+    .shadow {
+        -webkit-box-shadow: 9px 10px 42px -3px rgba(0, 0, 0, 0.57);
+        -moz-box-shadow: 9px 10px 42px -3px rgba(0, 0, 0, 0.57);
+        box-shadow: 9px 10px 42px -3px rgba(0, 0, 0, 0.57);
+    }
+</style>
+<div class="container-fluid main">
+    <div class="button-container">
+        <a class="btn btn-primary accent" href="/" role="button"
+            >Go Home</a
+        >
+    </div>
+    <div class="wrapper container">
+        <div class="row">
+            <div class="container">
+                <h1>{{.ErrorTitle}}</h1>
+                <p>{{.Message}}</p>    
+            </div>
+            <div class="container">
+                <img height="300px" width="100%" src="https://42f2671d685f51e10fc6-b9fcecea3e50b3b59bdc28dead054ebc.ssl.cf5.rackcdn.com/illustrations/page_not_found_su7k.svg" />
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,390 @@
+import (
+	"bufio"
+	"encoding/json"
+	"fmt"
+	"log"
+	"net/http"
+	"os"
+	"strconv"
+	"sync"
+	"time"
+)
+
+const UintSize = 32 << (^uint(0) >> 32 & 1)
+const MaxInt  = 1<<(UintSize-1) - 1
+
+// type Movie struct {
+// 	ImdbTitleId string `json:"imdb_title_id"`
+//     Title string `json:"title"`
+// 	OriginalTitle string `json:"original_title"`
+// 	Year string `json:"year"`
+// 	DatePublished string `json:"date_published"`
+// 	Genre string `json:"genre"`
+// 	Duration string `json:"duration"`
+// 	Country string `json:"country"`
+// 	Language string `json:"language"`
+// 	Director string `json:"director"`
+// 	Writer string `json:"writer"`
+// 	ProductionCompany string `json:"production_company"`
+// 	Actors string `json:"actors"`
+// 	Description string `json:"description"`
+// 	AvgVote string `json:"avg_vote"`
+// 	Votes string `json:"votes"`
+// 	Budget string `json:"budget"`
+// 	UsaGrossIncome string `json:"usa_gross_income"`
+// 	WorlwideGrossIncome string `json:"worlwide_gross_income"`
+// 	Metascore string `json:"metascore"`
+// 	ReviewsFromUsers string `json:"reviews_from_users"`
+// 	ReviewsFromCritics string `json:"reviews_from_critics"`
+// 	Poster string `json:"poster"`
+// }
+
+
+// type MovieSummary struct {
+// 	ImdbTitleId string `json:"imdb_title_id"`
+// 	OriginalTitle string `json:"original_title"`
+// 	Year string `json:"year"`
+// 	Poster string `json:"poster"`
+// }
+
+
+type Response_Single struct {
+	Title string `json:"title"`
+	Message string `json:"message"`
+	Results int `json:"results"`
+	ExecutionTime string `json:"execution_time"`
+	Data Movie `json:"data"`
+	Errors []string `json:"errors"`
+}
+
+type Response_All struct {
+	Title string `json:"title"`
+	Message string `json:"message"`
+	Results int `json:"results"`
+	ExecutionTime string `json:"execution_time"`
+	Data []MovieSummary `json:"data"`
+	Errors []string `json:"errors"`
+}
+
+
+type QueryParameters struct {
+	ItemPerWorkers int `json:"item_per_workers"`
+    Items int `json:"items"`
+    Type string `json:"type"`
+}
+var movies []Movie
+var summaryMovies []MovieSummary
+
+var requestErrors []string
+
+func ConvertStructToJSON(obj interface{}) string {
+    e, err := json.Marshal(obj)
+    if err != nil {
+		requestErrors = append(requestErrors, err.Error())
+        return err.Error()
+    }
+    return string(e)
+}
+
+func Even(number int) bool {
+    return number%2 == 0
+}
+
+func Odd(number int) bool {
+    return !Even(number)
+}
+
+// following function from: https://play.golang.org/p/f5jceIm4nbE
+func SplitAtCommas(s string) []string {
+    res := []string{}
+    var beg int
+    var inString bool
+
+    for i := 0; i < len(s); i++ {
+        if s[i] == ',' && !inString {
+            res = append(res, s[beg:i])
+            beg = i+1
+        } else if s[i] == '"' {
+            if !inString {
+                inString = true
+            } else if i > 0 && s[i-1] != '\\' {
+                inString = false
+            }
+        }
+    }
+    return append(res, s[beg:])
+}
+
+
+
+
+func worker(jobs <-chan string, results chan<- Movie, wg *sync.WaitGroup, queryParams QueryParameters, complete bool, id string) {
+	numberType := queryParams.Type
+
+	defer wg.Done()
+
+	var moviesAddedCounter int
+
+	for line := range jobs {
+		lineItems := SplitAtCommas(line)
+		var newMovie Movie
+		if complete && id != "" && id == lineItems[0] {
+			newMovie = Movie{
+				ImdbTitleId: lineItems[0],
+				Title: lineItems[1],
+				OriginalTitle: lineItems[2],
+				Year: lineItems[3],
+				DatePublished: lineItems[4],
+				Genre: lineItems[5],
+				Duration: lineItems[6],
+				Country: lineItems[7],
+				Language: lineItems[8],
+				Director: lineItems[9],
+				Writer: lineItems[10],
+				ProductionCompany: lineItems[11],
+				Actors: lineItems[12],
+				Description: lineItems[13],
+				AvgVote: lineItems[14],
+				Votes: lineItems[15],
+				Budget: lineItems[16],
+				UsaGrossIncome: lineItems[17],
+				WorlwideGrossIncome: lineItems[18],
+				Metascore: lineItems[19],
+				ReviewsFromUsers: lineItems[20],
+				ReviewsFromCritics: lineItems[21],
+				Poster: lineItems[22],
+			}
+			results <- newMovie
+			moviesAddedCounter++	
+		} 
+		if !complete {		
+			// get id from Movie struct and parse the string to a number
+			idOfCurrentMovie := lineItems[0] // get id of current movie
+			substringOfId := idOfCurrentMovie[2:] // convert to only string numbers
+			integerId, _ := strconv.Atoi(substringOfId) // parse substring to int
+
+			// if numberType is supposed to be odd and it is not, then continue to next line wihtout adding it to the list
+			if numberType ==  "odd" && !Odd(integerId) {
+				return
+			}
+			// if numberType is supposed to be even and it is not, then continue to next line wihtout adding it to the list
+			if numberType ==  "even" && !Even(integerId) {
+				return
+			}
+			// validate that the line has 22 fields other wise skip
+			if len(lineItems) < 22 {
+				log.Println("usage: line out of range: ", len(lineItems))
+				continue
+			}
+			// if it got to this point add it to the list
+			newMovie = Movie{
+				ImdbTitleId: lineItems[0],
+				OriginalTitle: lineItems[2],
+				Year: lineItems[3],
+				Poster: lineItems[22],
+			}	
+			results <- newMovie
+			moviesAddedCounter++	
+		}	
+	}
+}
+
+func GetMoviesFromFileConcurrently(queryParams QueryParameters, complete bool, id string) {
+	
+	// dataset gathered from: https://www.kaggle.com/stefanoleone992/imdb-extensive-dataset
+    file, err := os.Open("IMDb_movies_processed.csv")
+    if err != nil {
+		requestErrors = append(requestErrors, err.Error())
+      	log.Fatal(err)
+    }
+    defer file.Close()
+  
+    jobs := make(chan string)
+    results := make(chan Movie)
+  
+    wg := new(sync.WaitGroup)
+  
+    // start workers
+    var workers int = 1
+	switch {
+		case queryParams.Items <= 50:
+			workers = 2
+		case queryParams.Items > 50:
+			workers = 25
+		case queryParams.Items > 500:
+			workers = 100
+		default:
+			workers = 1
+	}
+
+    for w := 1; w <= workers; w++ {
+      wg.Add(1)
+      go worker(jobs, results, wg, queryParams, complete, id)
+    }
+  
+    // scan the file into the string channel
+    go func() {
+      scanner := bufio.NewScanner(file)
+      for scanner.Scan() {
+        // Later I want to create a buffer of lines, not just line-by-line here ...
+		jobs <- scanner.Text()
+      }
+      close(jobs)
+    }()
+  
+    // Collect all the results,  make sure we close the result channel when everything was processed
+    go func() {
+      wg.Wait()
+      close(results)
+    }()
+
+	movies = nil
+	summaryMovies = nil
+    // Convert channel to slice of Movie and send
+	movieCounter := 0
+    for movie := range results {
+		if movieCounter == queryParams.Items {
+			break
+		}
+		if complete {
+			movies = append(movies, movie)
+		} else {
+			movieSummary := MovieSummary{
+				ImdbTitleId: movie.ImdbTitleId,
+				OriginalTitle: movie.OriginalTitle,
+				Year: movie.Year,
+				Poster: movie.Poster,
+			}
+			summaryMovies = append(summaryMovies, movieSummary)
+		}
+		movieCounter++
+    }
+}
+
+func GetQueryParams(r *http.Request) (queryParams QueryParameters) {
+	keys := r.URL.Query()
+
+	if val, ok := keys["type"]; ok {
+		log.Println("Type query provided")
+		queryParams.Type = val[0]
+		if queryParams.Type != "odd" || queryParams.Type != "even" {
+			log.Println("Type defafult empty")
+			queryParams.Type = ""
+		}
+	} else {
+		requestErrors = append(requestErrors, "`type` was not provided as query param. Should be rather odd or even.")
+		log.Println("Type not provided as query param.")
+	}
+	if val, ok := keys["item_per_workers"]; ok {
+		IntItemPerWorkers, err := strconv.Atoi(val[0]) // parse string to int
+		if err != nil {
+			requestErrors = append(requestErrors, err.Error())
+			queryParams.ItemPerWorkers = 1
+		} else {
+			log.Println("item_per_workers query provided")
+			queryParams.ItemPerWorkers = IntItemPerWorkers	
+		}
+	} else {
+		requestErrors = append(requestErrors, "`items_per_workers` was not provided as query param.")
+		log.Println("item_per_workers not provided as query param")
+	}
+
+	if val, ok := keys["items"]; ok {
+		IntItems, err := strconv.Atoi(val[0]) // parse string to int
+		if err != nil {
+			requestErrors = append(requestErrors, err.Error() + ". Number should be positive integer. The items param will be considered as 0. ")
+			queryParams.Items = 0
+		} else {
+			queryParams.Items = IntItems
+			log.Println("items query provided: value ", IntItems)	
+		}
+	} else {
+		requestErrors = append(requestErrors, "`items` was not provided as query param: MaxValue")
+		queryParams.Items = MaxInt
+	}
+	return
+}
+
+
+func GetMovies(w http.ResponseWriter, r *http.Request) {
+	start := time.Now() 
+	w.Header().Set("Content-Type", "application/json")
+
+	// GET QUERY PARAMS AND VALIDATE
+	var queryParams QueryParameters = GetQueryParams(r)
+
+	GetMoviesFromFileConcurrently(queryParams, false, "")
+
+	totalTime :=  fmt.Sprintf("%d%s", time.Since(start).Milliseconds(), " Milliseconds.")
+
+	jsonObject := Response_All{ 
+		Title: "Response", 
+		Results: len(summaryMovies),
+		Message: "Data",
+		Data: summaryMovies,
+		Errors: requestErrors,
+		ExecutionTime: totalTime,
+	}
+	jsonResult := ConvertStructToJSON(jsonObject)
+	fmt.Fprintf(w, "%s", jsonResult)
+	log.Println(" \t Number of Parsed Movies: ", len(movies), " \t TIME: " ,totalTime)	
+	requestErrors = nil
+}
+
+
+func GetMovieById(w http.ResponseWriter, r *http.Request) {
+	start := time.Now() 
+	w.Header().Set("Content-Type", "application/json")
+	
+	keys, ok := r.URL.Query()["id"]
+	if !ok || len(keys) <= 0 {
+		requestErrors = append(requestErrors, "Id query param is required but missing")
+		log.Println("Id query param is required but missing")
+	}
+	var id string
+	if ok {
+		id = keys[0] 
+	} else {
+		id = ""
+	}
+
+	
+	GetMoviesFromFileConcurrently(QueryParameters{	
+		ItemPerWorkers: 1,
+		Items: MaxInt,
+		Type: "",
+	}, true, id)
+	
+	var selectedMovie Movie
+
+	if len(movies) == 1 {
+		selectedMovie = movies[0]
+	} else {
+		selectedMovie = Movie{}
+	}
+
+	totalTime :=  fmt.Sprintf("%d%s", time.Since(start).Microseconds(), " Microseconds.")
+
+	jsonObject := Response_Single{ 
+		Title: "Response", 
+		Results: 1,
+		Message: "Data",
+		Data: selectedMovie,
+		Errors: requestErrors,
+		ExecutionTime: totalTime,
+	}
+	jsonResult := ConvertStructToJSON(jsonObject)
+
+	fmt.Fprintf(w, "%s", jsonResult)
+	requestErrors = nil
+}
+
+
+func old() {
+	requestErrors = nil
+	http.HandleFunc("/getMovies", GetMovies)
+	http.HandleFunc("/getMovieById", GetMovieById)
+	log.Println("Server running succesfully on port 8080!")
+	log.Fatal(http.ListenAndServe(":8080", nil))
+}
+
