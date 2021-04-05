@@ -77,6 +77,18 @@ type Page_MovieDetails struct {
 // PageData struct will render a page with a single interface struct item (Second deliverable)
 type PageData struct {
 	PageTitle     string
+	TechStackItem []TechStackItem
+}
+
+// PageData struct will render a page with a single interface struct item (Second deliverable)
+type ErrorPage struct {
+	ErrorTitle string
+	Message    string
+}
+
+// PageData struct will render a page with a single interface struct item (Second deliverable)
+type PageDataItem struct {
+	PageTitle     string
 	TechStackItem TechStackItem
 }
 

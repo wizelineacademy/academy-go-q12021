@@ -1,19 +1,16 @@
 package main
 
 import (
-	"bufio"
-	"encoding/csv"
-	"encoding/json"
 	"flag"
 	"fmt"
 	"log"
 	"net/http"
-	"net/url"
 	"os"
 	"strconv"
 	"text/template"
 
 	"main/config"
+	"main/controller"
 	"main/model"
 )
 
@@ -23,56 +20,8 @@ const (
 	ExitAbnormalErrorLoadingCSVFile
 )
 
-//
-func GetTechStackList() (items []model.TechStackItem) {
-	// Get the http reponse from api localhost:8080 (first_deliverable)
-	resp, err := http.Get("http://localhost:8080/getTechStack")
-	if err != nil {
-		log.Fatalf(err.Error())
-		items = []model.TechStackItem{{Title: "", Id: "", Years: ""}}
-		defer resp.Body.Close()
-		return
-	} else {
-		defer resp.Body.Close()
-		// Print the HTTP response status.
-		fmt.Println("\n\tResponse status:", resp.Status)
-
-		// Print the first 5 lines of the response body.
-		scanner := bufio.NewScanner(resp.Body)
-		for i := 0; scanner.Scan() && i < 5; i++ {
-			json.Unmarshal([]byte(scanner.Text()), &items) // items slice
-		}
-		if err := scanner.Err(); err != nil {
-			panic(err)
-		}
-		return items
-	}
-}
-
-func GetTechStackById(id string) (item model.TechStackItem) {
-	// Get the http reponse from api localhost:8080 (first_deliverable)
-	var url string = "http://localhost:8080/getTechStackById?id=" + id
-	resp, err := http.Get(url)
-	if err != nil {
-		panic(err)
-	}
-	defer resp.Body.Close()
-
-	// Print the HTTP response status.
-	fmt.Println("\n\tResponse status:", resp.Status)
-
-	// Print the first 5 lines of the response body.
-	scanner := bufio.NewScanner(resp.Body)
-	for i := 0; scanner.Scan() && i < 5; i++ {
-		json.Unmarshal([]byte(scanner.Text()), &item) // items slice
-	}
-	if err := scanner.Err(); err != nil {
-		panic(err)
-	}
-	return item
-}
-
-func RenderItem(w http.ResponseWriter, r *http.Request) {
+// Renders a single TechStackItem as html page response
+func RenderTechStackItem(w http.ResponseWriter, r *http.Request) {
 	keys, ok := r.URL.Query()["id"]
 	if !ok || len(keys[0]) < 1 {
 		errorMessage := "Url Param 'id' is missing"
@@ -82,108 +31,43 @@ func RenderItem(w http.ResponseWriter, r *http.Request) {
 	}
 	// Casting the string number to an integer
 	id := keys[0]
-	item := GetTechStackById(id)
-
-	tmpl := template.Must(template.ParseFiles("html/item.html"))
+	var tmpl *template.Template
+	item, err := controller.GetTechStackItems(id)
+	if err != nil {
+		RenderErrorPage(w)
+		return
+	}
+	tmpl = template.Must(template.ParseFiles("html/item.html"))
 
 	if err := tmpl.Execute(w, item); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 }
 
-func GetAllMovies(w http.ResponseWriter, r *http.Request) {
-	movies := GetMovies()
-	tmpl := template.Must(template.ParseFiles("html/movies.html"))
+func RenderErrorPage(w http.ResponseWriter) {
+	errorTemplate := template.Must(template.ParseFiles("html/server_error.html"))
+	data := model.ErrorPage{
+		ErrorTitle: "Internal Server Error",
+		Message:    "The server is not responding, please check it's running on the right port or contact support.",
+	}
+	errorTemplate.Execute(w, data)
+}
+
+// Renders a list of TechStackItem as html page response
+func RenderTechStackItems(w http.ResponseWriter, r *http.Request) {
+	var tmpl *template.Template
+	items, err := controller.GetItems()
+	if err != nil {
+		RenderErrorPage(w)
+		return
+	}
+	tmpl = template.Must(template.ParseFiles("html/tech_stack_list.html"))
 	data := model.PageData{
 		PageTitle:     "My Tech Stack",
-		TechStackItem: techStackItem,
+		TechStackItem: items,
 	}
 	tmpl.Execute(w, data)
-	WriteDataToCSVFile("result.csv", items)
-}
-
-func WriteDataToCSVFile(fileName string, items []model.TechStackItem) {
-	log.Println("Data: ", items)
-
-	csvfile, err := os.Create(fileName)
-	if err != nil {
-		log.Fatalln("Error creating file csv", err)
-	}
-	var writter *csv.Writer = csv.NewWriter(csvfile)
-
-	for _, item := range items {
-		strSlice := []string{item.Id, item.Title, item.Years}
-		fmt.Println(strSlice)
-		writter.Write(strSlice)
-	}
-	// Write any buffered items data to the underlying writer (standard output).
-	writter.Flush()
-
-	if err := writter.Error(); err != nil {
-		log.Fatalln("error writing csv:", err)
-	}
-
-}
-
-func GetMovies(queryParams model.QueryParameters) (response model.Response_All) {
-	// Get the http reponse from api localhost:8080 backend
-	Url, err := url.Parse("http://localhost:8080/getMovies")
-	if err != nil {
-		log.Fatal(err.Error())
-	}
-	fmt.Println("\n\n TYPE:", queryParams.Type)
-
-	parameters := url.Values{}
-	parameters.Add("type", queryParams.Type)
-	itemsString := strconv.Itoa(queryParams.Items) // parse items to string
-	parameters.Add("items", itemsString)
-	parameters.Add("item_per_workers", string(rune(queryParams.ItemPerWorkers)))
-
-	Url.RawQuery = parameters.Encode()
-	fmt.Printf("Encoded URL is %q\n", Url.String())
-	resp, err := http.Get(Url.String())
-	log.Println(Url.String())
-
-	if err != nil {
-		defer resp.Body.Close()
-		log.Fatalf(err.Error())
-		var response model.Response_All
-		return response
-	}
-
-	defer resp.Body.Close()
-
-	// Print the HTTP response status.
-	// fmt.Println("\n\tResponse status:", resp.Status, resp.Body)
-	err = json.NewDecoder(resp.Body).Decode(&response)
-	if err != nil {
-		panic(err)
-	}
-	return response
-}
-
-func GetMoviesById(id string) (response model.Response_Single) {
-	// Get the http reponse from api localhost:8080 backend
-	Url, err := url.Parse("http://localhost:8080/getMovieById")
-	if err != nil {
-		log.Fatal(err.Error())
-	}
-	parameters := url.Values{}
-	parameters.Add("id", id)
-	Url.RawQuery = parameters.Encode()
-	fmt.Printf("Encoded URL is %q\n", Url.String())
-	resp, err := http.Get(Url.String())
-	if err != nil {
-		log.Fatal(err.Error())
-	}
-	defer resp.Body.Close()
-
-	// Print the HTTP response status.
-	err = json.NewDecoder(resp.Body).Decode(&response)
-	if err != nil {
-		panic(err)
-	}
-	return response
+	controller.WriteDataToCSVFile("result.csv", items)
 }
 
 func GetQueryParams(r *http.Request) (queryParams model.QueryParameters) {
@@ -223,7 +107,7 @@ func RenderMovies(w http.ResponseWriter, r *http.Request) {
 	// Casting the string number to an integer
 	queryParams := GetQueryParams(r)
 
-	response := GetMovies(model.QueryParameters{Items: queryParams.Items, ItemPerWorkers: 1, Type: queryParams.Type})
+	response := controller.GetMovies(model.QueryParameters{Items: queryParams.Items, ItemPerWorkers: 1, Type: queryParams.Type})
 
 	tmpl := template.Must(template.ParseFiles("html/movies.html"))
 	data := model.Page_AllMovies{
@@ -245,7 +129,7 @@ func RenderMovieById(w http.ResponseWriter, r *http.Request) {
 	}
 	// Casting the string number to an integer
 	id := keys[0]
-	response := GetMoviesById(id)
+	response := controller.GetMoviesById(id)
 
 	tmpl := template.Must(template.ParseFiles("html/item.html"))
 
@@ -287,8 +171,8 @@ func main() {
 	}
 
 	// Second deliverable
-	http.HandleFunc("/getTechStack", GetAllItems)
-	http.HandleFunc("/getTechStackById", RenderItem)
+	http.HandleFunc("/getTechStack", RenderTechStackItems)
+	http.HandleFunc("/getTechStackById", RenderTechStackItem)
 
 	// Third deliverable
 	http.HandleFunc("/getMovies", RenderMovies)
