@@ -16,7 +16,9 @@ import (
 func WriteDataToCSVFile(fileName string, items []model.TechStackItem) {
 	csvfile, err := os.Create(fileName)
 	if err != nil {
-		log.Fatalln("Error creating file csv", err)
+		log.Println("Error creating file csv", err.Error())
+
+		return
 	}
 	var writter *csv.Writer = csv.NewWriter(csvfile)
 

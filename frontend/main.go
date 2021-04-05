@@ -76,7 +76,7 @@ func RenderTechStackItems(w http.ResponseWriter, r *http.Request) {
 		TechStackItem: items,
 	}
 	tmpl.Execute(w, data)
-	controller.WriteDataToCSVFile("result.csv", items)
+	controller.WriteDataToCSVFile("result_out.csv", items)
 }
 
 func GetQueryParams(r *http.Request) (queryParams model.QueryParameters) {

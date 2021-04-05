@@ -9,9 +9,10 @@
 
 <h1>{{.PageTitle}}</h1>
 <ul>
-    {{range .Items}}
+    A copy of this items was been saved on result_out.csv file!
+    {{range .TechStackItem}}
         {{if .Id}}
-            <li class="done"><a href="/getItem?id={{.Id}}">{{.Title}}</a></li>
+            <li class="done"><a href="/getTechStackById?id={{.Id}}">{{.Title}}</a></li>
         {{else}}
             <li>{{.Title}}</li>
         {{end}}
