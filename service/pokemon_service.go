@@ -150,7 +150,7 @@ func (pds *PokemonDataService) Get(id int) model.Response {
 	pokemon, ok := pds.Data[id]
 	if ok {
 		pokemons := []model.Pokemon{pokemon}
-		response := model.Response{Result: pokemons, Total: total, Items: 1}
+		response := model.ConcurrentResponse{Result: pokemons, Total: total, Items: 1}
 		return response
 	}
 	log.Printf("Pokemon %v not found in CSV source\n", id)
@@ -160,7 +160,7 @@ func (pds *PokemonDataService) Get(id int) model.Response {
 	if httpsource, ok := pds.HttpSource.(data.HttpSource); ok {
 		pokemon, apiError := pds.getPokemonFromAPI(id, &httpsource)
 		if apiError == nil {
-			response := model.Response{Result: []model.Pokemon{pokemon}, Total: total, Items: 1}
+			response := model.ConcurrentResponse{Result: []model.Pokemon{pokemon}, Total: total, Items: 1}
 			return response
 		}
 		log.Printf("Pokemon %v not found in API source\n", id)
@@ -170,14 +170,19 @@ func (pds *PokemonDataService) Get(id int) model.Response {
 		notFoundError.TechnicalError = errors.New("Error converting HttpSource")
 	}
 
-	return model.Response{Error: notFoundError}
+	return model.ConcurrentResponse{Error: notFoundError}
 }
 
-// List returns all the pokemons by page
-func (pds *PokemonDataService) List(typeFilter model.TypeFilter, items, itemsPerWorker int) model.Response {
+// List disable for this delivery
+func (pds *PokemonDataService) List(count, page int) model.Response {
+	return model.ConcurrentResponse{}
+}
+
+// Filter returns listed list of pokemons by odd or even id
+func (pds *PokemonDataService) Filter(typeFilter model.TypeFilter, items, itemsPerWorker int) model.Response {
 	if pds.Data == nil || len(pds.Data) == 0 {
 		emptyError := errs.EmptyDataError(dataType)
-		return model.Response{Error: emptyError}
+		return model.ConcurrentResponse{Error: emptyError}
 	}
 
 	filterData := &filterData{
@@ -197,7 +202,7 @@ func (pds *PokemonDataService) List(typeFilter model.TypeFilter, items, itemsPer
 			keyIndex++
 		}
 	}
-	return model.Response{Result: pokemons, Total: len(pds.Data), Items: len(pokemons)}
+	return model.ConcurrentResponse{Result: pokemons, Total: len(pds.Data), Items: len(pokemons)}
 }
 
 func (pds *PokemonDataService) filterPokemons(data *filterData) []int {
@@ -277,7 +282,7 @@ func (pis pokemonsIDSorter) Less(i, j int) bool { return pis[i] < pis[j] }
 
 func (pis pokemonsIDSorter) Swap(i, j int) { pis[i], pis[j] = pis[j], pis[i] }
 
-func NewPokemonDataService() (*PokemonDataService, error) {
+func NewPokemonDataService() (DataService, error) {
 	csvPath, csvError := config.GetEnvVar(constant.PokemonSourceVarName)
 	if csvError != nil {
 		return &PokemonDataService{}, csvError

@@ -8,5 +8,6 @@ import (
 type DataService interface {
 	Init() error
 	Get(id int) model.Response
-	List(typeFilter model.TypeFilter, items, itemsPerWorker int) model.Response
+	List(count, page int) model.Response
+	Filter(typeFilter model.TypeFilter, items, itemsPerWorker int) model.Response
 }

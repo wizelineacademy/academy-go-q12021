@@ -83,11 +83,11 @@ func TestGetFromApiSuccess(t *testing.T) {
 		StatusCode: http.StatusOK,
 	}, [][]string{})
 	response := pokemonSource.Get(1)
-	if response.Error != nil {
-		t.Errorf("PokemonSource should return an empty error when there is not pokemons, got '%v'", response.Error)
+	if response.GetError() != nil {
+		t.Errorf("PokemonSource should return an empty error when there is not pokemons, got '%v'", response.GetError())
 	}
 
-	pokemon := response.Result[0]
+	pokemon := response.(model.ConcurrentResponse).Result[0]
 	if pokemon.Id != 1 || pokemon.Name != "bulbasaur" {
 		t.Errorf("PokemonSource should return a correct pokemon successfully, got '%v'", pokemon)
 	}
@@ -101,11 +101,11 @@ func TestGetFromCsvSuccess(t *testing.T) {
 
 	pokemonSource := initPokemonSource(t, mockResponseData{}, csvData)
 	response := pokemonSource.Get(1)
-	if response.Error != nil {
-		t.Errorf("PokemonSource should return a pokemon successfully, got '%v'", response.Error)
+	if response.GetError() != nil {
+		t.Errorf("PokemonSource should return a pokemon successfully, got '%v'", response.GetError())
 	}
 
-	pokemon := response.Result[0]
+	pokemon := response.(model.ConcurrentResponse).Result[0]
 	if pokemon.Id != 1 && pokemon.Name != "bulbasaur" {
 		t.Errorf("PokemonSource should return a correct pokemon successfully, got '%v'", pokemon)
 	}
@@ -117,46 +117,46 @@ func TestGetNotFoundError(t *testing.T) {
 		Body:       "",
 	}, csvData)
 	response := pokemonSource.Get(2000)
-	if response.Error == nil || response.Error.Error() != "The pokemon with 2000 ID was not found" {
-		t.Errorf("PokemonSource should return an error when the ID does not exist, got '%v'", response.Error)
+	if response.GetError() == nil || response.GetError().Error() != "The pokemon with 2000 ID was not found" {
+		t.Errorf("PokemonSource should return an error when the ID does not exist, got '%v'", response.GetError())
 	}
 }
 
-func TestListEmptyError(t *testing.T) {
+func TestFilterEmptyError(t *testing.T) {
 	pokemonSource := initPokemonSource(t, mockResponseData{}, [][]string{})
-	response := pokemonSource.List(model.TypeFilter("odd"), 4, 3)
-	if response.Error == nil || response.Error.Error() != "There are not any pokemons" {
-		t.Errorf("PokemonSource should return an empty error when the ID does not exist, got '%v'", response.Error)
+	response := pokemonSource.Filter(model.TypeFilter("odd"), 4, 3)
+	if response.GetError() == nil || response.GetError().Error() != "There are not any pokemons" {
+		t.Errorf("PokemonSource should return an empty error when the ID does not exist, got '%v'", response.GetError())
 	}
 }
 
-func TestListItemsGraterThanData(t *testing.T) {
+func TestFilterItemsGraterThanData(t *testing.T) {
 	pokemonSource := initPokemonSource(t, mockResponseData{}, csvData)
-	response := pokemonSource.List(model.TypeFilter("odd"), 10, 2)
-	if response.Error != nil {
-		t.Errorf("PokemonSource should return a pokemons list successfully, got '%v'", response.Error)
-	} else if len(response.Result) != 4 {
-		t.Errorf("PokemonSource should return all the odd Pokemon's IDs in data without repetition, got '%v'", response.Result)
+	response := pokemonSource.Filter(model.TypeFilter("odd"), 10, 2)
+	if response.GetError() != nil {
+		t.Errorf("PokemonSource should return a pokemons list successfully, got '%v'", response.GetError())
+	} else if len(response.(model.ConcurrentResponse).Result) != 4 {
+		t.Errorf("PokemonSource should return all the odd Pokemon's IDs in data without repetition, got '%v'", response.(model.ConcurrentResponse).Result)
 	}
 }
 
-func TestListItemsPerWorkEqualsToAllData(t *testing.T) {
+func TestFilterItemsPerWorkEqualsToAllData(t *testing.T) {
 	pokemonSource := initPokemonSource(t, mockResponseData{}, csvData)
-	response := pokemonSource.List(model.TypeFilter("even"), 5, 7)
-	if response.Error != nil {
-		t.Errorf("PokemonSource should return a pokemons list successfully, got '%v'", response.Error)
-	} else if len(response.Result) != 3 {
-		t.Errorf("PokemonSource should return all the even Pokemon's IDs in data without repetition, got '%v'", response.Result)
+	response := pokemonSource.Filter(model.TypeFilter("even"), 5, 7)
+	if response.GetError() != nil {
+		t.Errorf("PokemonSource should return a pokemons list successfully, got '%v'", response.GetError())
+	} else if len(response.(model.ConcurrentResponse).Result) != 3 {
+		t.Errorf("PokemonSource should return all the even Pokemon's IDs in data without repetition, got '%v'", response.(model.ConcurrentResponse).Result)
 	}
 }
 
 func TestListBadParameters(t *testing.T) {
 	pokemonSource := initPokemonSource(t, mockResponseData{}, csvData)
-	response := pokemonSource.List(model.TypeFilter("even"), -5, -7)
-	if response.Error != nil {
-		t.Errorf("PokemonSource should return a pokemons list successfully, got '%v'", response.Error)
-	} else if len(response.Result) != 3 {
-		t.Errorf("PokemonSource should return all the even Pokemon's IDs in data without repetition, got '%v'", response.Result)
+	response := pokemonSource.Filter(model.TypeFilter("even"), -5, -7)
+	if response.GetError() != nil {
+		t.Errorf("PokemonSource should return a pokemons list successfully, got '%v'", response.GetError())
+	} else if len(response.(model.ConcurrentResponse).Result) != 3 {
+		t.Errorf("PokemonSource should return all the even Pokemon's IDs in data without repetition, got '%v'", response.(model.ConcurrentResponse).Result)
 	}
 }
 

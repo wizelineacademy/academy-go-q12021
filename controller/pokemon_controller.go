@@ -67,23 +67,106 @@ var queryParamsList = []queryParams{
 		defaultVal: model.Odd(),
 		convertion: convertionFunctions[typeKey],
 	},
+	{
+		name:       "count",
+		defaultVal: "10",
+		convertion: convertionFunctions[intKey],
+	},
+	{
+		name:       "page",
+		defaultVal: "1",
+		convertion: convertionFunctions[intKey],
+	},
 }
 
 type PokemonController struct {
-	DataService service.DataService
+	firstDelivery  service.DataService
+	secondDelivery service.DataService
+	thirdDelivery  service.DataService
 }
 
-func (pc PokemonController) GetPokemons(w http.ResponseWriter, r *http.Request) {
+// GetCsvPokemons returns pokemons contained into a CSV file.
+// It returns a list or a specific pokemon if the id query param is present
+func (pc PokemonController) GetCsvPokemons(w http.ResponseWriter, r *http.Request) {
+	queryParams := getPokemonsQueryParamas(r)
+	log.Printf("%v %v: %v\n", r.Method, r.URL.Path, queryParams)
+
+	// Return just one pokemon by ID
+	id, ok := queryParams["id"]
+	if ok {
+		responseGet := pc.firstDelivery.Get(id.(int))
+		if responseGet.GetError() != nil {
+			http.Error(w, responseGet.GetError().Error(), http.StatusNotFound)
+		} else {
+			json.NewEncoder(w).Encode(responseGet)
+		}
+		return
+	}
+
+	// List all pokemons
+	count, _ := queryParams["count"]
+	page, _ := queryParams["page"]
+	responseList := pc.firstDelivery.List(count.(int), page.(int))
+	if responseList.GetError() != nil {
+		http.Error(w, responseList.GetError().Error(), http.StatusNotFound)
+	} else {
+		json.NewEncoder(w).Encode(responseList)
+	}
+}
+
+// GetDynamicPokemons returns pokemons contained into a CSV file.
+// It returns a list or a specific pokemon if the id query param is present
+// If the pokemon does not exist in the CSV file, it is looked for in a REST API.
+func (pc PokemonController) GetDynamicPokemons(w http.ResponseWriter, r *http.Request) {
+	queryParams := getPokemonsQueryParamas(r)
+	log.Printf("%v %v: %v\n", r.Method, r.URL.Path, queryParams)
+
+	// Return just one pokemon by ID
+	id, ok := queryParams["id"]
+	if ok {
+		responseGet := pc.secondDelivery.Get(id.(int))
+		if responseGet.GetError() != nil {
+			printResponse(r.Method, r.URL.Path, http.StatusNotFound, responseGet)
+			http.Error(w, responseGet.GetError().Error(), http.StatusNotFound)
+		} else {
+			printResponse(r.Method, r.URL.Path, http.StatusOK, responseGet)
+			json.NewEncoder(w).Encode(responseGet)
+		}
+		return
+	}
+
+	// List all pokemons
+	count, _ := queryParams["count"]
+	page, _ := queryParams["page"]
+	responseList := pc.secondDelivery.List(count.(int), page.(int))
+	if responseList.GetError() != nil {
+		response := model.StaticResponse{
+			Result: make([]model.Pokemon, 0),
+			Total:  0,
+			Page:   1,
+			Count:  count.(int),
+		}
+		printResponse(r.Method, r.URL.Path, http.StatusOK, response)
+		json.NewEncoder(w).Encode(response)
+	} else {
+		printResponse(r.Method, r.URL.Path, http.StatusOK, responseList)
+		json.NewEncoder(w).Encode(responseList)
+	}
+}
+
+// GetCurrentPokemons returns pokemons contained into a CSV file.
+// It returns a filtered list or a specific pokemon if the id query param is present
+func (pc PokemonController) GetCurrentPokemons(w http.ResponseWriter, r *http.Request) {
 	queryParams := getPokemonsQueryParamas(r)
 	log.Printf("%v %v: %v\n", r.Method, r.URL.Path, queryParams)
 
 	// Return just one pokemon by ID
 	id, ok := queryParams[queryParamsList[0].name]
 	if ok {
-		responseGet := pc.DataService.Get(id.(int))
-		if responseGet.Error != nil {
+		responseGet := pc.thirdDelivery.Get(id.(int))
+		if responseGet.GetError() != nil {
 			printResponse(r.Method, r.URL.Path, http.StatusNotFound, responseGet)
-			http.Error(w, responseGet.Error.Error(), http.StatusNotFound)
+			http.Error(w, responseGet.GetError().Error(), http.StatusNotFound)
 		} else {
 			printResponse(r.Method, r.URL.Path, http.StatusOK, responseGet)
 			json.NewEncoder(w).Encode(responseGet)
@@ -95,9 +178,9 @@ func (pc PokemonController) GetPokemons(w http.ResponseWriter, r *http.Request) 
 	typeFilter, _ := queryParams[queryParamsList[3].name]
 	responseItems, _ := queryParams[queryParamsList[1].name]
 	itemsPerWorker, _ := queryParams[queryParamsList[2].name]
-	responseList := pc.DataService.List(typeFilter.(model.TypeFilter), responseItems.(int), itemsPerWorker.(int))
-	if responseList.Error != nil {
-		response := model.Response{
+	responseList := pc.thirdDelivery.Filter(typeFilter.(model.TypeFilter), responseItems.(int), itemsPerWorker.(int))
+	if responseList.GetError() != nil {
+		response := model.ConcurrentResponse{
 			Result: []model.Pokemon{},
 			Total:  0,
 			Items:  0,
@@ -133,15 +216,28 @@ func printResponse(method, path string, statusCode int, response model.Response)
 }
 
 func NewPokemonController() (PokemonController, error) {
-	dataService, serviceError := service.NewPokemonDataService()
-	if serviceError != nil {
-		return PokemonController{}, serviceError
+	serviceInstances := []func() (service.DataService, error){
+		service.NewStaticPokemonDataService,
+		service.NewRestPokemonDataService,
+		service.NewPokemonDataService,
 	}
-	iniErrror := dataService.Init()
-	if iniErrror != nil {
-		return PokemonController{}, iniErrror
+
+	services := [3]service.DataService{}
+	for index, sc := range serviceInstances {
+		service, instanceError := sc()
+		if instanceError != nil {
+			return PokemonController{}, instanceError
+		}
+		initError := service.Init()
+		if initError != nil {
+			return PokemonController{}, initError
+		}
+		services[index] = service
 	}
+
 	return PokemonController{
-		DataService: dataService,
+		firstDelivery:  services[0],
+		secondDelivery: services[1],
+		thirdDelivery:  services[2],
 	}, nil
 }

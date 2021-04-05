@@ -14,7 +14,9 @@ func main() {
 	if error != nil {
 		log.Fatal(error)
 	}
-	http.HandleFunc("/pokemons", pokemonController.GetPokemons)
+	http.HandleFunc("/first-delivery/pokemons", pokemonController.GetCsvPokemons)
+	http.HandleFunc("/second-delivery/pokemons", pokemonController.GetDynamicPokemons)
+	http.HandleFunc("/final-delivery/pokemons", pokemonController.GetCurrentPokemons)
 
 	serverPort, serverError := config.GetEnvVar(constant.ServerPortVarName)
 	if serverError != nil {
