@@ -336,7 +336,6 @@ func GetMovieById(w http.ResponseWriter, r *http.Request) {
 	start := time.Now() 
 	w.Header().Set("Content-Type", "application/json")
 	
-	// TODO: validate if id is null then send response to client
 	keys, ok := r.URL.Query()["id"]
 	if !ok || len(keys) <= 0 {
 		requestErrors = append(requestErrors, "Id query param is required but missing")

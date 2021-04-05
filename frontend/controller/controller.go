@@ -81,12 +81,12 @@ func GetTechStackItems(id string) (item model.TechStackItem, err error) {
 	return item, err
 }
 
-func GetMovies(queryParams model.QueryParameters) (response model.Response_All) {
+func GetMovies(queryParams model.QueryParameters) (response model.Response_All, err error) {
 	// Get the http reponse from api localhost:8080 backend
 	Url, err := url.Parse("http://localhost:8080/getMovies")
 	if err != nil {
 		log.Println(err.Error())
-		fmt.Println("\n\n Server Error! Check the backend server is running on port 8080")
+		return
 	}
 	fmt.Println("\n\n TYPE:", queryParams.Type)
 
@@ -99,12 +99,9 @@ func GetMovies(queryParams model.QueryParameters) (response model.Response_All) 
 	Url.RawQuery = parameters.Encode()
 	fmt.Printf("Encoded URL is %q\n", Url.String())
 	resp, err := http.Get(Url.String())
-
 	if err != nil {
-		defer resp.Body.Close()
-		log.Fatalf(err.Error())
-		var response model.Response_All
-		return response
+		log.Println(err.Error())
+		return
 	}
 
 	defer resp.Body.Close()
@@ -115,14 +112,15 @@ func GetMovies(queryParams model.QueryParameters) (response model.Response_All) 
 	if err != nil {
 		log.Println(err.Error())
 	}
-	return response
+	return
 }
 
-func GetMoviesById(id string) (response model.Response_Single) {
+func GetMoviesById(id string) (response model.Response_Single, err error) {
 	// Get the http reponse from api localhost:8080 backend
 	Url, err := url.Parse("http://localhost:8080/getMovieById")
 	if err != nil {
 		log.Println(err.Error())
+		return
 	}
 	parameters := url.Values{}
 	parameters.Add("id", id)
@@ -131,6 +129,7 @@ func GetMoviesById(id string) (response model.Response_Single) {
 	resp, err := http.Get(Url.String())
 	if err != nil {
 		log.Println(err.Error())
+		return
 	}
 	defer resp.Body.Close()
 
@@ -139,5 +138,5 @@ func GetMoviesById(id string) (response model.Response_Single) {
 	if err != nil {
 		log.Println(err.Error())
 	}
-	return response
+	return
 }

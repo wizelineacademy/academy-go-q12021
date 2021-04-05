@@ -37,7 +37,7 @@ func RenderTechStackItem(w http.ResponseWriter, r *http.Request) {
 		RenderErrorPage(w)
 		return
 	}
-	tmpl = template.Must(template.ParseFiles("html/item.html"))
+	tmpl = template.Must(template.ParseFiles("html/tech_stack_item.html"))
 
 	if err := tmpl.Execute(w, item); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -49,6 +49,15 @@ func RenderErrorPage(w http.ResponseWriter) {
 	data := model.ErrorPage{
 		ErrorTitle: "Internal Server Error",
 		Message:    "The server is not responding, please check it's running on the right port or contact support.",
+	}
+	errorTemplate.Execute(w, data)
+}
+
+func RenderNotFoundPage(w http.ResponseWriter) {
+	errorTemplate := template.Must(template.ParseFiles("html/not_found.html"))
+	data := model.ErrorPage{
+		ErrorTitle: "Not Found",
+		Message:    "The page that you are looking for is not there, try another one.",
 	}
 	errorTemplate.Execute(w, data)
 }
@@ -107,7 +116,11 @@ func RenderMovies(w http.ResponseWriter, r *http.Request) {
 	// Casting the string number to an integer
 	queryParams := GetQueryParams(r)
 
-	response := controller.GetMovies(model.QueryParameters{Items: queryParams.Items, ItemPerWorkers: 1, Type: queryParams.Type})
+	response, err := controller.GetMovies(model.QueryParameters{Items: queryParams.Items, ItemPerWorkers: 1, Type: queryParams.Type})
+	if err != nil {
+		RenderErrorPage(w)
+		return
+	}
 
 	tmpl := template.Must(template.ParseFiles("html/movies.html"))
 	data := model.Page_AllMovies{
@@ -129,9 +142,13 @@ func RenderMovieById(w http.ResponseWriter, r *http.Request) {
 	}
 	// Casting the string number to an integer
 	id := keys[0]
-	response := controller.GetMoviesById(id)
+	response, err := controller.GetMoviesById(id)
+	if err != nil {
+		RenderErrorPage(w)
+		return
+	}
 
-	tmpl := template.Must(template.ParseFiles("html/item.html"))
+	tmpl := template.Must(template.ParseFiles("html/movie.html"))
 
 	movieMock := model.Movie{
 		ImdbTitleId:   "123123",
@@ -153,6 +170,17 @@ func RenderMovieById(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func RenderDefault(w http.ResponseWriter, r *http.Request) {
+	if r.URL.Path == "/" {
+		RenderNotFoundPage(w)
+		return
+	}
+	if r.URL.Path != "/" {
+		RenderNotFoundPage(w)
+		return
+	}
+}
+
 func main() {
 	var configFile string
 	flag.StringVar(
@@ -169,6 +197,7 @@ func main() {
 		log.Fatal("Failed to load config: %w", err)
 		os.Exit(ExitAbnormalErrorLoadingConfiguration)
 	}
+	http.HandleFunc("/", RenderDefault)
 
 	// Second deliverable
 	http.HandleFunc("/getTechStack", RenderTechStackItems)
