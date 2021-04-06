@@ -7,7 +7,7 @@ type UseCase struct {
 	service Service
 }
 
-//Service interface is contains the
+//Service interface is contains the service
 type Service interface {
 	GetPokemons() ([]*models.Pokemon, error)
 	GetPokemon(string) (*models.Pokemon, error)
