@@ -7,9 +7,11 @@ import (
 	"math/rand"
 	"net/http"
 	"strconv"
+	"sync"
 
 	"github.com/joseantoniovz/academy-go-q12021/model"
 	"github.com/joseantoniovz/academy-go-q12021/util"
+	log "github.com/sirupsen/logrus"
 )
 
 type Response struct {
@@ -56,7 +58,7 @@ func GetById(id string) (model.Book, *model.Error) {
 	return bookResult, err
 }
 
-func ConsumeAPI() (model.Book, *model.Error) {
+func ConsumeAPI(id string) (model.Book, *model.Error) {
 	fmt.Println("Calling API...")
 	client := &http.Client{}
 	req, err := http.NewRequest("GET", "https://api.itbook.store/1.0/books/9781617294136", nil)
@@ -95,4 +97,34 @@ func ConsumeAPI() (model.Book, *model.Error) {
 	fmt.Println("A new row has been added to the CSV file")
 	return result, nil
 
+}
+
+func ConcurrencyBooks(typeNumber string, items, itemsPerWorker int) ([]model.Book, *model.Error) {
+	log.Info("type: " + typeNumber)
+	log.Info("items: " + strconv.Itoa(items))
+	log.Info("workers: " + strconv.Itoa(itemsPerWorker))
+	var books []model.Book = nil
+	var wg sync.WaitGroup
+
+	results := make(chan model.Book, items)
+
+	for i := 0; i < items; i++ {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+
+			for data := range results {
+				var book, err = GetById(data.Id)
+				if err != nil {
+					log.Error(err)
+				}
+				books = append(books, book)
+			}
+		}()
+	}
+
+	close(results)
+	wg.Wait()
+
+	return books, nil
 }

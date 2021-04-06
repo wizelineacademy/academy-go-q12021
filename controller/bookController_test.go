@@ -33,7 +33,7 @@ func TestGetBookById(t *testing.T) {
 	q := req.URL.Query()
 	q.Add("id", "1")
 	req.URL.RawQuery = q.Encode()
-	expected := `{"id":"2","title":"The Return of Duck and Goose","author":"Sir Quackalot","format":"paperback","price":""}`
+	expected := `{"id":"1","title":"The Adventures of Duck and Goose","author":"Sir Quackalot","format":"paperback","price":"10.99"}`
 	rr := httptest.NewRecorder()
 	handler := http.HandlerFunc(GetBookById)
 	handler.ServeHTTP(rr, req)
