@@ -1,0 +1,21 @@
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <title>{{.Title}}</title>
+</head>
+<div class="container" style="margin: 2rem" >
+    <a class="btn btn-primary" href="/getTechStack" role="button">Go Back</a>
+    {{if .Id}}
+        <div class="card" style="width: 18rem;">
+        <div class="card-body">
+            <h5 class="card-title">{{.Title}}</h5>
+            <h6 class="card-subtitle mb-2 text-muted">ID: {{.Id}}</h6>
+            <p class="card-text">Years of Experience: {{.Years}} </p>
+            <!-- <a href="#" class="card-link">Another link</a> -->
+        </div>
+        </div>
+    {{end}}
+</div>

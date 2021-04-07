@@ -1,0 +1,222 @@
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8" />
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+    <!-- Latest compiled and minified CSS -->
+    <link
+        rel="stylesheet"
+        href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css"
+        integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO"
+        crossorigin="anonymous"
+    />
+    <link rel="preconnect" href="https://fonts.gstatic.com" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Limelight&display=swap"
+        rel="stylesheet"
+    />
+    <!-- Latest compiled and minified JavaScript -->
+    <script
+        src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+        integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+        crossorigin="anonymous"
+    ></script>
+    <script
+        src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"
+        integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49"
+        crossorigin="anonymous"
+    ></script>
+    <script
+        src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"
+        integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy"
+        crossorigin="anonymous"
+    ></script>
+    <title>Wizeline Academy: Go Bootcamp</title>
+</head>
+
+<style>
+    body {
+        background-color: rgb(251, 251, 251);
+        font-family: Roboto;
+    }
+
+    h1 {
+        background-color: rgb(251, 251, 251);
+        font-family: 'Limelight', cursive;
+        font-size: 4rem;
+    }
+
+    h4 {
+        font-size: 0.8rem;
+        font-weight: normal;
+        text-transform: uppercase;
+    }
+
+    h3 {
+        font-size: 1rem;
+        font-weight: bold;
+        text-transform: uppercase;
+    }
+
+    a {
+        display: flex;
+        align-items: center;
+        color: #c2152c;
+    }
+
+    .shadow {
+        -webkit-box-shadow: 9px 10px 42px -3px rgba(0, 0, 0, 0.57);
+        -moz-box-shadow: 9px 10px 42px -3px rgba(0, 0, 0, 0.57);
+        box-shadow: 9px 10px 42px -3px rgba(0, 0, 0, 0.57);
+    }
+
+    .itemContainer {
+        display: flex;
+        flex-direction: column;
+        max-width: fit-content;
+        padding: 1rem;
+    }
+
+    .poster {
+        background-color: rgb(11, 17, 35);
+        height: 300px;
+        width: 200px;
+    }
+
+    .wrapper {
+        flex-wrap: wrap;
+        display: flex;
+        padding: 1rem;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .item {
+        padding: 1rem;
+        margin: 1rem;
+    }
+
+    .logo {
+        width: 40px;
+        height: 40px;
+    }
+
+    .navBar {
+        justify-content: space-between;
+        padding-left: 3rem;
+        padding-right: 3rem;
+    }
+</style>
+<script>
+    $(document).ready(function () {
+        const itemsDefault = '15';
+        const typeDefault = 'all';
+        const item_per_workers = '1';
+
+        $(
+            "button[name='itemButton'][value='" +
+                localStorage.getItem('items') +
+                "']"
+        ).addClass('active');
+        $(
+            "button[name='typeButton'][value='" +
+                localStorage.getItem('type') +
+                "']"
+        ).addClass('active');
+        $(
+            "button[name='itemPerWorkersButton'][value='" +
+                localStorage.getItem('item_per_workers') +
+                "']"
+        ).addClass('active');
+
+        $('button[name="itemButton"]').click(function () {
+            var itemsValue = $(this).attr('value');
+            localStorage.setItem('items', itemsValue);
+            var typeValue = localStorage.getItem('type') | typeDefault;
+            var url =
+                'http://localhost:3000/getMoviesConcurrently?items=' +
+                itemsValue +
+                '&type=' +
+                typeValue;
+            window.location.href = url;
+        });
+
+        $('button[name="typeButton"]').click(function () {
+            var typeValue = $(this).attr('value');
+            localStorage.setItem('type', typeValue);
+            var itemsValue = localStorage.getItem('items') | itemsDefault;
+            var url =
+                'http://localhost:3000/getMoviesConcurrently?items=' +
+                itemsValue +
+                '&type=' +
+                typeValue;
+            window.location.href = url;
+        });
+
+        $('button[name="itemPerWorkersButton"]').click(function () {
+            var value = $(this).attr('value');
+            localStorage.setItem('item_per_workers', value);
+            var itemsValue = localStorage.getItem('items') | itemsDefault;
+            var typeValue = localStorage.getItem('type') | typeDefault;
+            var url =
+                'http://localhost:3000/getMoviesConcurrently?items=' +
+                itemsValue +
+                '&type=' +
+                typeValue +
+                '&item_per_workers=' +
+                value;
+            window.location.href = url;
+        });
+
+        $('.btn-group button[name="itemButton"]').click(function (a) {
+            $('.btn-group-itemButton .active').removeClass('active');
+            $(this).addClass('active');
+        });
+
+        $('.btn-group button[name="typeButton"]').click(function (a) {
+            $('.btn-group-typeButton .active').removeClass('active');
+            $(this).addClass('active');
+        });
+
+        $('.btn-group button[name="itemPerWorkersButton"]').click(function (a) {
+            $('.btn-group-itemPerWorkersButton .active').removeClass('active');
+            $(this).addClass('active');
+        });
+    });
+</script>
+<div class="wrapper navBar">
+    <h2>Wizeline Academy: Go Bootcamp!</h2>
+    <a href="https://academy.wizeline.com/">
+        <img
+            class="logo"
+            src="https://avatars.githubusercontent.com/u/6192875?s=200&v=4"
+        />
+    </a>
+</div>
+<div class="container">
+    <h3>
+        Here you can find an index of each Deliverable of this bootcamp:
+    </h3>
+</div>
+<div class="container ">
+    First and Second Deliverable:
+    <ul>
+        <li class="done"><a href="/getTechStack">Get a list of Tech Stack Items loaded from a .csv</a></li>
+        <li class="done"><a href="/getTechStackById?id=1">Get a Tech Stack Item from a .csv by Id query param</a></li>
+    </ul>
+    Second Deliverable:
+    <ul>
+        <li class="done"><a href="/getMovies">Get a list of Movies loaded from a .csv </a></li>
+        <li class="done"><a href="/getMovieById?id=tt0004465">Get a single movie loaded from a .csv with query param Id</a></li>
+    </ul>
+    Third Deliverable:
+    <ul>
+        <li class="done"><a href="/getMoviesConcurrently">Get a list of Movies loaded from a .csv Concurrently</a></li>
+        <li class="done"><a href="/getMovieById?id=tt0004465">Get a single movie loaded from a .csv Concurrently with query param Id</a></li>
+    </ul>
+
+    Thank you! 
+    <a href="https://www.github.com/Ciip1996/academy-go-q12021">Find the Code at @Ciip1996 on Github</a>
+</div>
