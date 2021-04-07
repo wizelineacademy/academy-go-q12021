@@ -47,25 +47,29 @@ type queryParams struct {
 	convertion func([]string) (interface{}, error)
 }
 
-var queryParamsList = []queryParams{
+var queryParamsFilterList = []queryParams{
 	{
 		name:       "id",
 		convertion: convertionFunctions[intKey],
 	},
 	{
 		name:       "items",
-		defaultVal: "10",
 		convertion: convertionFunctions[intKey],
 	},
 	{
 		name:       "items_per_worker",
-		defaultVal: "10",
 		convertion: convertionFunctions[intKey],
 	},
 	{
 		name:       "type",
-		defaultVal: model.Odd(),
 		convertion: convertionFunctions[typeKey],
+	},
+}
+
+var queryParamsList = []queryParams{
+	{
+		name:       "id",
+		convertion: convertionFunctions[intKey],
 	},
 	{
 		name:       "count",
@@ -88,7 +92,7 @@ type PokemonController struct {
 // GetCsvPokemons returns pokemons contained into a CSV file.
 // It returns a list or a specific pokemon if the id query param is present
 func (pc PokemonController) GetCsvPokemons(w http.ResponseWriter, r *http.Request) {
-	queryParams := getPokemonsQueryParamas(r)
+	queryParams := getPokemonsQueryParamas(r, queryParamsList)
 	log.Printf("%v %v: %v\n", r.Method, r.URL.Path, queryParams)
 
 	// Return just one pokemon by ID
@@ -118,7 +122,7 @@ func (pc PokemonController) GetCsvPokemons(w http.ResponseWriter, r *http.Reques
 // It returns a list or a specific pokemon if the id query param is present
 // If the pokemon does not exist in the CSV file, it is looked for in a REST API.
 func (pc PokemonController) GetDynamicPokemons(w http.ResponseWriter, r *http.Request) {
-	queryParams := getPokemonsQueryParamas(r)
+	queryParams := getPokemonsQueryParamas(r, queryParamsList)
 	log.Printf("%v %v: %v\n", r.Method, r.URL.Path, queryParams)
 
 	// Return just one pokemon by ID
@@ -157,7 +161,7 @@ func (pc PokemonController) GetDynamicPokemons(w http.ResponseWriter, r *http.Re
 // GetCurrentPokemons returns pokemons contained into a CSV file.
 // It returns a filtered list or a specific pokemon if the id query param is present
 func (pc PokemonController) GetCurrentPokemons(w http.ResponseWriter, r *http.Request) {
-	queryParams := getPokemonsQueryParamas(r)
+	queryParams := getPokemonsQueryParamas(r, queryParamsFilterList)
 	log.Printf("%v %v: %v\n", r.Method, r.URL.Path, queryParams)
 
 	// Return just one pokemon by ID
@@ -175,16 +179,20 @@ func (pc PokemonController) GetCurrentPokemons(w http.ResponseWriter, r *http.Re
 	}
 
 	// Filter pokemons
-	typeFilter, _ := queryParams[queryParamsList[3].name]
-	responseItems, _ := queryParams[queryParamsList[1].name]
-	itemsPerWorker, _ := queryParams[queryParamsList[2].name]
+	responseItems, okItems := queryParams[queryParamsFilterList[1].name]
+	itemsPerWorker, okItemsWorker := queryParams[queryParamsFilterList[2].name]
+	typeFilter, okFilter := queryParams[queryParamsFilterList[3].name]
+	log.Printf("%v %v %v", okFilter, okItems, okItemsWorker)
+	if !okFilter || !okItems || !okItemsWorker {
+		response := model.ConcurrentResponse{Error: errors.New("The query params type, items and items_per_worker are required, otherwise you can request just for an id")}
+		printResponse(r.Method, r.URL.Path, http.StatusBadRequest, response)
+		http.Error(w, response.GetError().Error(), http.StatusBadRequest)
+		return
+	}
+
 	responseList := pc.thirdDelivery.Filter(typeFilter.(model.TypeFilter), responseItems.(int), itemsPerWorker.(int))
 	if responseList.GetError() != nil {
-		response := model.ConcurrentResponse{
-			Result: []model.Pokemon{},
-			Total:  0,
-			Items:  0,
-		}
+		response := model.ConcurrentResponse{Result: []model.Pokemon{}}
 		printResponse(r.Method, r.URL.Path, http.StatusOK, response)
 		json.NewEncoder(w).Encode(response)
 	} else {
@@ -193,11 +201,17 @@ func (pc PokemonController) GetCurrentPokemons(w http.ResponseWriter, r *http.Re
 	}
 }
 
-func getPokemonsQueryParamas(r *http.Request) map[string]interface{} {
+func (pc PokemonController) syncServices() {
+	pc.firstDelivery.Sync()
+	pc.secondDelivery.Sync()
+	pc.thirdDelivery.Sync()
+}
+
+func getPokemonsQueryParamas(r *http.Request, requiredParams []queryParams) map[string]interface{} {
 	queryParams := make(map[string]interface{}, 3)
 	query := r.URL.Query()
 
-	for _, param := range queryParamsList {
+	for _, param := range requiredParams {
 		valueParam, ok := query[param.name]
 		if !ok && param.defaultVal != "" {
 			valueParam = []string{param.defaultVal}
