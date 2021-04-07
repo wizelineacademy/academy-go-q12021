@@ -133,6 +133,7 @@ func (pc PokemonController) GetDynamicPokemons(w http.ResponseWriter, r *http.Re
 			printResponse(r.Method, r.URL.Path, http.StatusNotFound, responseGet)
 			http.Error(w, responseGet.GetError().Error(), http.StatusNotFound)
 		} else {
+			defer pc.syncServices()
 			printResponse(r.Method, r.URL.Path, http.StatusOK, responseGet)
 			json.NewEncoder(w).Encode(responseGet)
 		}
@@ -172,6 +173,7 @@ func (pc PokemonController) GetCurrentPokemons(w http.ResponseWriter, r *http.Re
 			printResponse(r.Method, r.URL.Path, http.StatusNotFound, responseGet)
 			http.Error(w, responseGet.GetError().Error(), http.StatusNotFound)
 		} else {
+			defer pc.syncServices()
 			printResponse(r.Method, r.URL.Path, http.StatusOK, responseGet)
 			json.NewEncoder(w).Encode(responseGet)
 		}

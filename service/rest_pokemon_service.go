@@ -111,6 +111,11 @@ func (pds *RestPokemonDataService) Filter(typeFilter model.TypeFilter, items, it
 	return model.StaticResponse{}
 }
 
+// Sync is used to read the data from CSV to have consistent data
+func (pds *RestPokemonDataService) Sync() error {
+	return pds.Init()
+}
+
 func (pds *RestPokemonDataService) setPokemonKeys() {
 	keys := make([]int, len(pds.Data))
 	index := 0

@@ -10,4 +10,5 @@ type DataService interface {
 	Get(id int) model.Response
 	List(count, page int) model.Response
 	Filter(typeFilter model.TypeFilter, items, itemsPerWorker int) model.Response
+	Sync() error
 }

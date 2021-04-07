@@ -41,6 +41,9 @@ func (pdsm pokemonDataServiceMock) Filter(typeFilter model.TypeFilter, items, it
 
 	return responses["successFilterConResponse"]
 }
+func (pdsm pokemonDataServiceMock) Sync() error {
+	return nil
+}
 
 var responses = map[string]model.Response{
 	"successGetStaReponse": model.StaticResponse{
