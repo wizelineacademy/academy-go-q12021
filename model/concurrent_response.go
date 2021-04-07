@@ -13,7 +13,7 @@ type ConcurrentResponse struct {
 }
 
 func (r ConcurrentResponse) String() string {
-	return fmt.Sprintf("\n{\n\tError: %v,\n\tResult: %v\n,\tTotal: %v,\n\tCount: %v\n}\n", r.Error, r.Result, r.Total, r.Items)
+	return fmt.Sprintf("\n{\n\tError: %v,\n\tResult: %v,\n\tTotal: %v,\n\tCount: %v\n}\n", r.Error, r.Result, r.Total, r.Items)
 }
 
 func (r ConcurrentResponse) NewErrorResponse(errorMessage string) Response {

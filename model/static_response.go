@@ -14,7 +14,7 @@ type StaticResponse struct {
 }
 
 func (r StaticResponse) String() string {
-	return fmt.Sprintf("\n{\n\tError: %v,\n\tResult: %v\n,\tTotal: %v,\n\tPage: %v,\n\tCount: %v\n}\n", r.Error, r.Result, r.Total, r.Page, r.Count)
+	return fmt.Sprintf("\n{\n\tError: %v,\n\tResult: %v,\n\tTotal: %v,\n\tPage: %v,\n\tCount: %v\n}\n", r.Error, r.Result, r.Total, r.Page, r.Count)
 }
 
 func (r StaticResponse) NewErrorResponse(errorMessage string) Response {
