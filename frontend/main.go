@@ -115,8 +115,9 @@ func GetQueryParams(r *http.Request) (queryParams model.QueryParameters) {
 func RenderMovies(w http.ResponseWriter, r *http.Request) {
 	// Casting the string number to an integer
 	queryParams := GetQueryParams(r)
+	const endpoint = "getMovies"
 
-	response, err := controller.GetMovies(model.QueryParameters{Items: queryParams.Items, ItemPerWorkers: 1, Type: queryParams.Type})
+	response, err := controller.GetMovies(model.QueryParameters{Items: queryParams.Items, ItemPerWorkers: 1, Type: queryParams.Type}, endpoint)
 	if err != nil {
 		RenderErrorPage(w)
 		return
@@ -126,11 +127,36 @@ func RenderMovies(w http.ResponseWriter, r *http.Request) {
 	data := model.Page_AllMovies{
 		PageTitle: "Cine+",
 		Movies:    response.Data,
+		Url: endpoint,
+
 	}
 	if err := tmpl.Execute(w, data); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 }
+
+func RenderMoviesConcurrently(w http.ResponseWriter, r *http.Request) {
+	// Casting the string number to an integer
+	queryParams := GetQueryParams(r)
+
+	const endpoint = "getMoviesConcurrently"
+	response, err := controller.GetMovies(model.QueryParameters{Items: queryParams.Items, ItemPerWorkers: 1, Type: queryParams.Type}, endpoint)
+	if err != nil {
+		RenderErrorPage(w)
+		return
+	}
+
+	tmpl := template.Must(template.ParseFiles("html/movies.html"))
+	data := model.Page_AllMovies{
+		PageTitle: "Cine+",
+		Movies:    response.Data,
+		Url: endpoint,
+	}
+	if err := tmpl.Execute(w, data); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+}
+
 
 func RenderMovieById(w http.ResponseWriter, r *http.Request) {
 	keys, ok := r.URL.Query()["id"]
@@ -208,6 +234,7 @@ func main() {
 
 	// Third deliverable
 	http.HandleFunc("/getMovies", RenderMovies)
+	http.HandleFunc("/getMoviesConcurrently", RenderMoviesConcurrently)
 	http.HandleFunc("/getMovieById", RenderMovieById)
 	fmt.Printf("Web app running succesfully on port [%s].", cfg.HTTPPort)
 	log.Fatal(http.ListenAndServe(":"+cfg.HTTPPort, nil))

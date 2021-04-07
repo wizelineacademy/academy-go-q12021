@@ -115,6 +115,9 @@
 </style>
 <script>
     $(document).ready(function () {
+        var url = '{{.Url}}';
+        var urlEndpoint = 'http://localhost:3000/' + url;
+
         const itemsDefault = '15';
         const typeDefault = 'all';
         const item_per_workers = '1';
@@ -140,7 +143,7 @@
             localStorage.setItem('items', itemsValue);
             var typeValue = localStorage.getItem('type') | typeDefault;
             var url =
-                'http://localhost:3000/getMovies?items=' +
+                urlEndpoint + '?items=' +
                 itemsValue +
                 '&type=' +
                 typeValue;
@@ -152,7 +155,7 @@
             localStorage.setItem('type', typeValue);
             var itemsValue = localStorage.getItem('items') | itemsDefault;
             var url =
-                'http://localhost:3000/getMovies?items=' +
+                urlEndpoint + '?items=' +
                 itemsValue +
                 '&type=' +
                 typeValue;
@@ -165,7 +168,7 @@
             var itemsValue = localStorage.getItem('items') | itemsDefault;
             var typeValue = localStorage.getItem('type') | typeDefault;
             var url =
-                'http://localhost:3000/getMovies?items=' +
+                urlEndpoint + '?items=' +
                 itemsValue +
                 '&type=' +
                 typeValue +

@@ -136,7 +136,7 @@
             localStorage.setItem('items', itemsValue);
             var typeValue = localStorage.getItem('type') | typeDefault;
             var url =
-                'http://localhost:3000/getMovies?items=' +
+                'http://localhost:3000/getMoviesConcurrently?items=' +
                 itemsValue +
                 '&type=' +
                 typeValue;
@@ -148,7 +148,7 @@
             localStorage.setItem('type', typeValue);
             var itemsValue = localStorage.getItem('items') | itemsDefault;
             var url =
-                'http://localhost:3000/getMovies?items=' +
+                'http://localhost:3000/getMoviesConcurrently?items=' +
                 itemsValue +
                 '&type=' +
                 typeValue;
@@ -161,7 +161,7 @@
             var itemsValue = localStorage.getItem('items') | itemsDefault;
             var typeValue = localStorage.getItem('type') | typeDefault;
             var url =
-                'http://localhost:3000/getMovies?items=' +
+                'http://localhost:3000/getMoviesConcurrently?items=' +
                 itemsValue +
                 '&type=' +
                 typeValue +
@@ -206,11 +206,17 @@
         <li class="done"><a href="/getTechStack">Get a list of Tech Stack Items loaded from a .csv</a></li>
         <li class="done"><a href="/getTechStackById?id=1">Get a Tech Stack Item from a .csv by Id query param</a></li>
     </ul>
+    Second Deliverable:
+    <ul>
+        <li class="done"><a href="/getMovies">Get a list of Movies loaded from a .csv </a></li>
+        <li class="done"><a href="/getMovieById?id=tt0004465">Get a single movie loaded from a .csv with query param Id</a></li>
+    </ul>
     Third Deliverable:
     <ul>
-        <li class="done"><a href="/getMovies">Get a list of Movies loaded from a .csv concurrently</a></li>
-        <li class="done"><a href="/getMovieById?id=tt0004465">Get a single movie loaded from a .csv concurrently with query param Id</a></li>
+        <li class="done"><a href="/getMoviesConcurrently">Get a list of Movies loaded from a .csv Concurrently</a></li>
+        <li class="done"><a href="/getMovieById?id=tt0004465">Get a single movie loaded from a .csv Concurrently with query param Id</a></li>
     </ul>
+
     Thank you! 
     <a href="https://www.github.com/Ciip1996/academy-go-q12021">Find the Code at @Ciip1996 on Github</a>
 </div>

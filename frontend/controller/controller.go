@@ -83,9 +83,9 @@ func GetTechStackItems(id string) (item model.TechStackItem, err error) {
 	return item, err
 }
 
-func GetMovies(queryParams model.QueryParameters) (response model.Response_All, err error) {
+func GetMovies(queryParams model.QueryParameters, endpoint string) (response model.Response_All, err error) {
 	// Get the http reponse from api localhost:8080 backend
-	Url, err := url.Parse("http://localhost:8080/getMovies")
+	Url, err := url.Parse("http://localhost:8080/" + endpoint)
 	if err != nil {
 		log.Println(err.Error())
 		return

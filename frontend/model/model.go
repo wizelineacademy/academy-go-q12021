@@ -66,12 +66,14 @@ type Response_Single struct {
 type Page_AllMovies struct {
 	PageTitle string
 	Movies    []MovieSummary
+	Url       string
 }
 
 // Page_MovieDetails struct will render a page with a single movie item (Third deliverable)
 type Page_MovieDetails struct {
 	PageTitle string
 	Movie     Movie
+	Url       string
 }
 
 // PageData struct will render a page with a single interface struct item (Second deliverable)
