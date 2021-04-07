@@ -44,8 +44,6 @@ var lookForPokemons = func(data jobInfo, isOddFlag bool) {
 			break
 		}
 	}
-
-	*data.shutdownChannel <- data.name
 	return
 }
 
@@ -94,11 +92,10 @@ func (fd *filterData) getSegments(data map[int]model.Pokemon) model.Segment {
 }
 
 type jobInfo struct {
-	name            string
-	items           int
-	results         *chan int
-	shutdownChannel *chan string
-	keys            []int
+	name    string
+	items   int
+	results *chan int
+	keys    []int
 }
 
 // PokemonDataService is a service layer to work with the data (list, filter, etc.)
@@ -205,40 +202,39 @@ func (pds *PokemonDataService) Filter(typeFilter model.TypeFilter, items, itemsP
 	return model.ConcurrentResponse{Result: pokemons, Total: len(pds.Data), Items: len(pokemons)}
 }
 
+// Sync is used to read the data from CSV to have consistent data
+func (pds *PokemonDataService) Sync() error {
+	return pds.Init()
+}
+
 func (pds *PokemonDataService) filterPokemons(data *filterData) []int {
 	segments := data.getSegments(pds.Data)
-	shutdown := make(chan string, data.numJobs)
 	results := make(chan int, data.numJobs)
 
 	for index := 0; index < data.numJobs; index++ {
 		jobInfo := jobInfo{
-			name:            fmt.Sprintf("Job %v", index+1),
-			items:           data.itemsPerWorker,
-			keys:            segments[index],
-			results:         &results,
-			shutdownChannel: &shutdown,
+			name:    fmt.Sprintf("Job %v", index+1),
+			items:   data.itemsPerWorker,
+			keys:    segments[index],
+			results: &results,
 		}
 		go lookForPokemons(jobInfo, data.isOdd)
 	}
 
 	ids := make([]int, data.totalItems)
-	finishedJobs := 0
 	keyIndex := 0
-	for finishedJobs < data.numJobs {
+	for {
 		select {
-		case job := <-shutdown:
-			log.Printf("%v finished\n", job)
-			finishedJobs++
 		case key := <-results:
 			log.Printf("Received %v in position %v\n", key, keyIndex)
 			ids[keyIndex] = key
 			keyIndex++
+		case <-time.After(3 * time.Second):
+			log.Printf("Channel read timeout triggered\n")
+			defer close(results)
+			return ids[:keyIndex]
 		}
 	}
-	close(results)
-	close(shutdown)
-
-	return ids[:keyIndex]
 }
 
 func (pds *PokemonDataService) getPokemonFromAPI(id int, httpSource *data.HttpSource) (model.Pokemon, error) {
