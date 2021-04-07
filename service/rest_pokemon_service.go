@@ -25,7 +25,7 @@ var restIsDigit = regexp.MustCompile(`\d+`)
 // RestPokemonDataService is a service layer to work with the data (list, filter, etc.)
 type RestPokemonDataService struct {
 	Data       map[int]model.Pokemon
-	keys       restPokemonsIDSorter
+	keys       pokemonsIDSorter
 	CsvSource  data.Source
 	HttpSource data.Source
 }
@@ -124,7 +124,7 @@ func (pds *RestPokemonDataService) setPokemonKeys() {
 		index++
 	}
 
-	pds.keys = restPokemonsIDSorter(keys)
+	pds.keys = pokemonsIDSorter(keys)
 	sort.Sort(pds.keys)
 }
 
@@ -193,14 +193,6 @@ func (pds *RestPokemonDataService) getPokemonFromAPI(id int, httpSource *data.Ht
 	pds.setPokemonKeys()
 	return pokemon, nil
 }
-
-type restPokemonsIDSorter []int
-
-func (pis restPokemonsIDSorter) Len() int { return len(pis) }
-
-func (pis restPokemonsIDSorter) Less(i, j int) bool { return pis[i] < pis[j] }
-
-func (pis restPokemonsIDSorter) Swap(i, j int) { pis[i], pis[j] = pis[j], pis[i] }
 
 func NewRestPokemonDataService() (DataService, error) {
 	csvPath, csvError := config.GetEnvVar(constant.PokemonSourceVarName)

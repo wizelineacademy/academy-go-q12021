@@ -109,7 +109,7 @@ func (pds *StaticPokemonDataService) getPokemonKeys() []int {
 }
 
 func (pds *StaticPokemonDataService) getPage(count, page int) ([]model.Pokemon, int) {
-	pokemonIds := staticPokemonsIDSorter(pds.getPokemonKeys())
+	pokemonIds := pokemonsIDSorter(pds.getPokemonKeys())
 	sort.Sort(pokemonIds)
 
 	total := len(pokemonIds)
@@ -142,14 +142,6 @@ func (pds *StaticPokemonDataService) getPage(count, page int) ([]model.Pokemon, 
 
 	return resultList, page
 }
-
-type staticPokemonsIDSorter []int
-
-func (pis staticPokemonsIDSorter) Len() int { return len(pis) }
-
-func (pis staticPokemonsIDSorter) Less(i, j int) bool { return pis[i] < pis[j] }
-
-func (pis staticPokemonsIDSorter) Swap(i, j int) { pis[i], pis[j] = pis[j], pis[i] }
 
 func NewStaticPokemonDataService() (DataService, error) {
 	csvPath, csvError := config.GetEnvVar(constant.PokemonSourceVarName)
